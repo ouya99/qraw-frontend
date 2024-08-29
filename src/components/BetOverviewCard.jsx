@@ -6,7 +6,9 @@ import LabelData from "./LabelData"
 import { sumArray } from "./qubic/util"
 
 function BetOverviewCard({ data, onClick }) {
-
+  // console.log(data.close_date);
+  // console.log(data.close_time);
+  // console.log('####################', data.close_date + ' ' + data.close_time.slice(0, -3) + ' UTC');
   return (
     <Card
       className="p-[15px] h-[240px] hover:border-primary-40 cursor-pointer"

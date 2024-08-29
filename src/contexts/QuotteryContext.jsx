@@ -1,8 +1,9 @@
 /* global BigInt */
-import React, { createContext, useReducer, useContext, useEffect, useState } from 'react'
-import { QubicHelper } from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
+import React, {createContext, useContext, useEffect, useReducer, useState} from 'react'
+import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
 import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto'
-import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext'
+import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
+import {fetchActiveBets, fetchBetDetail, fetchNodeInfo} from '../components/qubic/util/betApi';
 
 const QuotteryContext = createContext()
 
@@ -26,66 +27,178 @@ const betReducer = (state, action) => {
   }
 }
 
-export const QuotteryProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(betReducer, { bets: [], nodeInfo: {} })
+const ifExceedsDatetime = (compareDate, compareTime) => {
+  const date = new Date(`20${compareDate}T${compareTime}Z`); // Create a new Date object with the compareDate and compareTime
+  const now = new Date(); // Get the current date and time
+  return now > date; // Return true if current date/time exceeds compare date/time
+};
+
+export const QuotteryProvider = ({children}) => {
+  const [state, dispatch] = useReducer(betReducer, {bets: [], nodeInfo: {}})
   const [loading, setLoading] = useState(true)
   const [betsFilter, setBetsFilter] = useState('active')
-  const { wallet, broadcastTx, getTick } = useQubicConnect()
+  const {wallet, broadcastTx, getTick} = useQubicConnect()
   const qHelper = new QubicHelper()
 
-  const fetchBets = async (filter) => {
-    setLoading(true)
-    // set filter to 'all' if not provided
-    // filter = filter || 'all'
-    const response = await fetch(`${backendUrl}/get_${filter}_bets`)
-    const data = await response.json()
+  // Fetch bets using the Qubic HTTP API
+  const fetchQubicHttpApiBets = async () => {
+    const activeBetIds = await fetchActiveBets();
 
-    if (data.bet_list) {
-      data.bet_list.forEach(bet => {
-        // parse list fields using JSON.parse
-        bet.oracle_fee = JSON.parse(bet.oracle_fee)
-        bet.oracle_id = JSON.parse(bet.oracle_id)
-        bet.option_desc = JSON.parse(bet.option_desc)
-        bet.betting_odds = JSON.parse(bet.betting_odds)
-        bet.current_bet_state = JSON.parse(bet.current_bet_state)
-        bet.current_num_selection = JSON.parse(bet.current_num_selection)
-        bet.oracle_vote = JSON.parse(bet.oracle_vote)
+    return Promise.all(
+      activeBetIds.map(async (betId) => {
+        const bet = await fetchBetDetail(betId);
+        bet.creator = await qHelper.getIdentity(bet.creator); // Update creator field with human-readable identity
+        bet.oracle_id = await Promise.all(
+          bet.oracle_id.map(async (oracleId) => {
+            return await qHelper.getIdentity(oracleId);
+          })
+        );
+
         const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z')
         const now = new Date()
         bet.is_active = now <= closeDate
+
+        return bet;
       })
-      console.log('fetchBets', data)
-      dispatch({
-        type: 'SET_BETS',
-        payload: data.bet_list
-      })
+    );
+  };
+
+  const fetchBackendApiBets = async (filter) => {
+    const response = await fetch(`${backendUrl}/get_${filter}_bets`);
+    const data = await response.json();
+
+    if (data.bet_list) {
+      data.bet_list.forEach((bet) => {
+        // parse list fields using JSON.parse
+        bet.oracle_fee = JSON.parse(bet.oracle_fee);
+        bet.oracle_id = JSON.parse(bet.oracle_id);
+        bet.option_desc = JSON.parse(bet.option_desc);
+        bet.betting_odds = JSON.parse(bet.betting_odds);
+        bet.current_bet_state = JSON.parse(bet.current_bet_state);
+        bet.current_num_selection = JSON.parse(bet.current_num_selection);
+        bet.oracle_vote = JSON.parse(bet.oracle_vote);
+        const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z');
+        const now = new Date();
+        bet.is_active = now <= closeDate;
+      });
     }
 
-    if (data.node_info) {
-      dispatch({
-        type: 'SET_NODE_INFO',
-        payload: data.node_info[0]
-      })
+    return data.bet_list || [];
+  };
+
+  const areBetsEqual = (bet1, bet2) => {
+    // Compare all relevant fields of the bets
+    return (
+      bet1.bet_id === bet2.bet_id &&
+      bet1.nOption === bet2.nOption &&
+      bet1.creator === bet2.creator &&
+      bet1.bet_desc === bet2.bet_desc &&
+      JSON.stringify(bet1.option_desc) === JSON.stringify(bet2.option_desc) &&
+      JSON.stringify(bet1.oracle_id) === JSON.stringify(bet2.oracle_id) &&
+      JSON.stringify(bet1.oracle_fee) === JSON.stringify(bet2.oracle_fee) &&
+      bet1.open_date === bet2.open_date &&
+      bet1.close_date === bet2.close_date &&
+      bet1.end_date === bet2.end_date &&
+      bet1.open_time === bet2.open_time &&
+      bet1.close_time === bet2.close_time &&
+      bet1.end_time === bet2.end_time &&
+      bet1.amount_per_bet_slot === bet2.amount_per_bet_slot &&
+      bet1.maxBetSlotPerOption === bet2.maxBetSlotPerOption &&
+      JSON.stringify(bet1.current_bet_state) === JSON.stringify(bet2.current_bet_state) &&
+      JSON.stringify(bet1.current_num_selection) === JSON.stringify(bet2.current_num_selection) &&
+      JSON.stringify(bet1.betResultWonOption) === JSON.stringify(bet2.betResultWonOption) &&
+      JSON.stringify(bet1.betResultOPId) === JSON.stringify(bet2.betResultOPId) &&
+      bet1.current_total_qus === bet2.current_total_qus &&
+      JSON.stringify(bet1.betting_odds) === JSON.stringify(bet2.betting_odds)
+    );
+  };
+
+  const fetchBets = async (filter) => {
+    setLoading(true)
+
+    if (filter === 'active' || filter === 'locked') {
+      try {
+        const allCoreBets = await fetchQubicHttpApiBets();
+        const filtered_bets = allCoreBets.filter((bet) => {
+          if (filter === 'active') {
+            return !ifExceedsDatetime(bet.close_date, bet.close_time); // Active bets should not exceed the close date/time
+          } else if (filter === 'locked') {
+            return ifExceedsDatetime(bet.close_date, bet.close_time) && !ifExceedsDatetime(bet.end_date, bet.end_time); // Locked bets should not exceed the end date/time
+          }
+          return false;
+        });
+
+        dispatch({
+          type: 'SET_BETS',
+          payload: filtered_bets,
+        });
+        await fetchNodeInfoAndUpdate();
+      } catch (error) {
+        console.error("Error fetching bets:", error);
+      }
+    } else if (filter === 'inactive') {
+      try {
+        // Fetch from Backend API
+        const inactiveBetsData = await fetchBackendApiBets(filter);
+        const inactiveBets = inactiveBetsData.filter((bet) =>
+          ifExceedsDatetime(bet.end_date, bet.end_time)
+        );
+        dispatch({
+          type: 'SET_BETS',
+          payload: inactiveBets,
+        });
+
+        await fetchNodeInfoAndUpdate();
+
+      } catch (error) {
+        console.error('Error fetching bets:', error);
+      }
+    } else { //  if (filter === 'all')
+      try {
+        const [qubicApiBets, backendApiBets] = await Promise.allSettled([
+          fetchQubicHttpApiBets(),
+          fetchBackendApiBets(filter),
+        ]);
+
+        let allBets = [];
+        if (qubicApiBets.status === 'fulfilled') {
+          allBets = qubicApiBets.value;
+        }
+        if (backendApiBets.status === 'fulfilled') {
+          const backendBets = backendApiBets.value;
+          // Remove duplicates
+          const backendBetsUnique = backendBets.filter(
+            (backendBet) => !allBets.some((qubicBet) => areBetsEqual(qubicBet, backendBet))
+          );
+          allBets = allBets.concat(backendBetsUnique);
+        }
+
+        dispatch({type: 'SET_BETS', payload: allBets});
+        await fetchNodeInfoAndUpdate();
+      } catch (error) {
+        console.error('Error fetching bets:', error);
+      }
     }
 
     setLoading(false)
   }
 
-  const fetchNodeInfo = async () => {
-    const response = await fetch(`${backendUrl}/get_all_bets`)
-    const data = await response.json()
-    if (data.node_info) {
+  const fetchNodeInfoAndUpdate = async () => {
+    try {
+      const nodeInfo = await fetchNodeInfo();
+      nodeInfo.game_operator = await qHelper.getIdentity(nodeInfo.game_operator);
       dispatch({
         type: 'SET_NODE_INFO',
-        payload: data.node_info[0]
-      })
-      return data.node_info[0]
+        payload: nodeInfo,
+      });
+    } catch (error) {
+      console.error("Error fetching node info:", error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchBets(betsFilter)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [betsFilter])
 
   // Helper function to write a fixed-size byte array or string
@@ -106,7 +219,7 @@ export const QuotteryProvider = ({ children }) => {
     }
   }
 
-  const packQuotteryDateFromObject = ({ date, time }) => {
+  const packQuotteryDateFromObject = ({date, time}) => {
     const [year, month, day] = date.split('-').map(Number)
     const [hour, minute] = time.split(':').map(Number)
     const second = 0 // Assuming second is always 0 as it is not provided
@@ -117,14 +230,12 @@ export const QuotteryProvider = ({ children }) => {
   // Function to pack the date into a 32-bit integer
   const packQuotteryDate = (year, month, day, hour, minute, second) => {
     year = year - 2000
-    const dateInt = ((year - 24) << 26) | (month << 22) | (day << 17) | (hour << 12) | (minute << 6) | second
-    return dateInt
+    return ((year - 24) << 26) | (month << 22) | (day << 17) | (hour << 12) | (minute << 6) | second
   }
 
   const issueBetTxCosts = async (bet) => {
     const nodeInfo = await fetchNodeInfo()
-    const amount = parseInt(bet.maxBetSlots) * bet.options.length * nodeInfo.fee_per_slot_per_hour * calculateDiffHours(bet)
-    return amount
+    return parseInt(bet.maxBetSlots) * bet.options.length * nodeInfo.fee_per_slot_per_hour * calculateDiffHours(bet)
   }
 
   const calculateDiffHours = (bet) => {
@@ -151,9 +262,7 @@ export const QuotteryProvider = ({ children }) => {
 
     // Calculate the difference in milliseconds and convert to hours
     const diffMilliseconds = endDateTime - nowUTC
-    const diffHours = Math.ceil(diffMilliseconds / 1000 / 60 / 60)
-
-    return diffHours
+    return Math.ceil(diffMilliseconds / 1000 / 60 / 60)
   }
 
   const signIssueBetTx = async (bet) => {
@@ -171,13 +280,12 @@ export const QuotteryProvider = ({ children }) => {
     const tx = new Uint8Array(quotteryTxSize).fill(0)
     const txView = new DataView(tx.buffer)
     let offset = 0
-    let i = 0
+    let i
     for (i = 0; i < qHelper.PUBLIC_KEY_LENGTH; i++) {
       tx[i] = sourcePublicKey[i]
     }
     offset = i
-    const contractIndex = 2
-    tx[offset] = contractIndex // 2 for Quottery SC
+    tx[offset] = 2 // 2 for Quottery SC
     offset++
     for (i = 1; i < qHelper.PUBLIC_KEY_LENGTH; i++) {
       tx[offset + i] = 0
@@ -261,9 +369,9 @@ export const QuotteryProvider = ({ children }) => {
 
   return (
     <QuotteryContext.Provider value={{
-        state, dispatch, loading, fetchBets, setBetsFilter,
-        signIssueBetTx, issueBetTxCosts
-      }}>
+      state, dispatch, loading, fetchBets, setBetsFilter,
+      signIssueBetTx, issueBetTxCosts
+    }}>
       {children}
     </QuotteryContext.Provider>
   )
