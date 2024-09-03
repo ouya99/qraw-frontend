@@ -219,12 +219,45 @@ export const fetchBetDetail = async (betId, maxRetryCount = 3) => {
         .map(id => bufferToUint8Array(Buffer.from(id, 'utf-8')))
         .filter(id => id.length > 0); // Filter out empty strings
 
-      const oracleFees = Array.from({length: oracleProviderId.length}, (_, i) => buffer.readUInt32LE(584 + i * 4) / 100);
-      const currentNumSelection = Array.from({length: nOption}, (_, i) => buffer.readUInt32LE(648 + i * 4));
+      const oracleFees = Array.from({ length: oracleProviderId.length }, (_, i) => buffer.readUInt32LE(584 + i * 4) / 100);
+      const currentNumSelection = Array.from({ length: nOption }, (_, i) => buffer.readUInt32LE(648 + i * 4));
 
       const bettingOdds = calculateBettingOdds(currentNumSelection);
 
-      // Define unpacking logic for bet details using Buffer
+      // Calculate result based on oracle votes
+      const betResultOPId = Array.from({ length: oracleProviderId.length }, (_, i) => buffer.readInt8(688 + i));
+
+      let result = -1;
+      if (oracleProviderId.length > 0) {
+        const requiredVotes = Math.ceil(oracleProviderId.length * 2 / 3);
+        const voteCount = new Map();
+        let opVotedCount = 0;
+
+        // Count votes
+        betResultOPId.forEach(vote => {
+          if (vote > -1) {
+            voteCount.set(vote, (voteCount.get(vote) || 0) + 1);
+            opVotedCount += 1;
+          }
+        });
+
+        // Find the option with the maximum votes
+        let maxVotes = 0;
+        let keyWithMaxVotes = -1;
+        for (const [key, count] of voteCount.entries()) {
+          if (count > maxVotes) {
+            maxVotes = count;
+            keyWithMaxVotes = key;
+          }
+        }
+
+        // Check if the dominated votes meet the required votes
+        if (maxVotes >= requiredVotes) {
+          result = keyWithMaxVotes;
+        }
+      }
+
+      // Return unpacked bet details
       return {
         bet_id: buffer.readUInt32LE(0), // Read uint32 betId
         nOption: nOption, // Read uint32 nOption
@@ -243,10 +276,11 @@ export const fetchBetDetail = async (betId, maxRetryCount = 3) => {
         maxBetSlotPerOption: buffer.readUInt32LE(640),
         current_bet_state: currentNumSelection,
         current_num_selection: currentNumSelection,
-        betResultWonOption: Array.from({length: oracleProviderId.length}, (_, i) => buffer.readInt8(680 + i)),
-        betResultOPId: Array.from({length: oracleProviderId.length}, (_, i) => buffer.readInt8(688 + i)),
+        betResultWonOption: Array.from({ length: oracleProviderId.length }, (_, i) => buffer.readInt8(680 + i)),
+        betResultOPId: betResultOPId,
         current_total_qus: currentNumSelection.reduce((acc, val) => acc + val, 0) * Number(amountPerBetSlot),
         betting_odds: bettingOdds,
+        result: result
       };
 
     } catch (error) {
