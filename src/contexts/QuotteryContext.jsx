@@ -4,11 +4,10 @@ import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
 import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto'
 import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import {fetchActiveBets, fetchBetDetail, fetchNodeInfo} from '../components/qubic/util/betApi';
+import {backendUrl} from '../components/qubic/util/commons'
 
 const QuotteryContext = createContext()
 
-const backendUrl = 'https://qbtn.qubic.org' // test system
-// const backendUrl = 'https://qb.qubic.org' // live system
 
 const betReducer = (state, action) => {
   switch (action.type) {
@@ -41,26 +40,39 @@ export const QuotteryProvider = ({children}) => {
   const qHelper = new QubicHelper()
 
   // Fetch bets using the Qubic HTTP API
-  const fetchQubicHttpApiBets = async () => {
-    const activeBetIds = await fetchActiveBets();
+  const fetchQubicHttpApiBets = async (maxRetryCount = 3) => {
+    for (let i = 0; i < maxRetryCount; i++) {
+      try {
+        const activeBetIds = await fetchActiveBets();
 
-    return Promise.all(
-      activeBetIds.map(async (betId) => {
-        const bet = await fetchBetDetail(betId);
-        bet.creator = await qHelper.getIdentity(bet.creator); // Update creator field with human-readable identity
-        bet.oracle_id = await Promise.all(
-          bet.oracle_id.map(async (oracleId) => {
-            return await qHelper.getIdentity(oracleId);
+        return Promise.all(
+          activeBetIds.map(async (betId) => {
+            const bet = await fetchBetDetail(betId);
+            bet.creator = await qHelper.getIdentity(bet.creator); // Update creator field with human-readable identity
+            bet.oracle_id = await Promise.all(
+              bet.oracle_id.map(async (oracleId) => {
+                return await qHelper.getIdentity(oracleId);
+              })
+            );
+
+            const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z');
+            const now = new Date();
+            bet.is_active = now <= closeDate;
+
+            return bet;
           })
         );
-
-        const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z')
-        const now = new Date()
-        bet.is_active = now <= closeDate
-
-        return bet;
-      })
-    );
+      } catch (error) {
+        console.log('Error occurred while fetching bets with Qubic Http.');
+        console.log(error);
+        if (i < maxRetryCount - 1) {
+          console.log('Retrying...');
+        } else {
+          console.log('Unable to fetch bets with Qubic Http API. Falling back to using backend API.');
+          return null;
+        }
+      }
+    }
   };
 
   const fetchBackendApiBets = async (filter) => {
@@ -114,24 +126,36 @@ export const QuotteryProvider = ({children}) => {
   };
 
   const fetchBets = async (filter) => {
-    setLoading(true)
+    setLoading(true);
 
     if (filter === 'active' || filter === 'locked') {
       try {
         const allCoreBets = await fetchQubicHttpApiBets();
-        const filtered_bets = allCoreBets.filter((bet) => {
-          if (filter === 'active') {
-            return !ifExceedsDatetime(bet.close_date, bet.close_time); // Active bets should not exceed the close date/time
-          } else if (filter === 'locked') {
-            return ifExceedsDatetime(bet.close_date, bet.close_time) && !ifExceedsDatetime(bet.end_date, bet.end_time); // Locked bets should not exceed the end date/time
-          }
-          return false;
-        });
 
-        dispatch({
-          type: 'SET_BETS',
-          payload: filtered_bets,
-        });
+        if (!allCoreBets) { // Check if fetchQubicHttpApiBets returned null
+          // If null, fall back to backend API
+          console.log('Fetching from Backend API due to Qubic Http API failure.');
+          const backendBets = await fetchBackendApiBets(filter);
+          dispatch({
+            type: 'SET_BETS',
+            payload: backendBets,
+          });
+        } else {
+          const filtered_bets = allCoreBets.filter((bet) => {
+            if (filter === 'active') {
+              return !ifExceedsDatetime(bet.close_date, bet.close_time); // Active bets should not exceed the close date/time
+            } else if (filter === 'locked') {
+              return ifExceedsDatetime(bet.close_date, bet.close_time) && !ifExceedsDatetime(bet.end_date, bet.end_time); // Locked bets should not exceed the end date/time
+            }
+            return false;
+          });
+
+          dispatch({
+            type: 'SET_BETS',
+            payload: filtered_bets,
+          });
+        }
+
         await fetchNodeInfoAndUpdate();
       } catch (error) {
         console.error("Error fetching bets:", error);
@@ -149,7 +173,6 @@ export const QuotteryProvider = ({children}) => {
         });
 
         await fetchNodeInfoAndUpdate();
-
       } catch (error) {
         console.error('Error fetching bets:', error);
       }
@@ -161,7 +184,7 @@ export const QuotteryProvider = ({children}) => {
         ]);
 
         let allBets = [];
-        if (qubicApiBets.status === 'fulfilled') {
+        if (qubicApiBets.status === 'fulfilled' && qubicApiBets.value) {
           allBets = qubicApiBets.value;
         }
         if (backendApiBets.status === 'fulfilled') {

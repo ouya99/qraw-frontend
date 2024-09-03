@@ -17,3 +17,6 @@ export const makeJsonData = (contractIndex, inputType, inputSize, requestData) =
     requestData: requestData,
   };
 };
+
+export const backendUrl = 'https://qbtn.qubic.org' // test system
+// const backendUrl = 'https://qb.qubic.org' // live system
