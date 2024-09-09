@@ -1,19 +1,24 @@
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
+import React, {useState, forwardRef, useImperativeHandle} from 'react';
 import LabelWithPopover from './LabelWithPopover';
 
-const InputNumbers = forwardRef(({ id, label, placeholder, description, onChange }, ref) => {
+const InputNumbers = forwardRef(({id, label, placeholder, description, maxLimit = Infinity, onChange}, ref) => {
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const newValue = e.target.value;
-    setValue(newValue);
-    if (newValue === '') {
-      setError('This field is required');
-    } else {
+
+    const regEx = /^[0-9]*$/;
+
+    if (regEx.test(newValue) && Number(newValue) <= maxLimit && Number(newValue) >= 0) {
+      setValue(newValue);
       setError('');
+      onChange(newValue);
+    } else if (Number(newValue) > maxLimit) {
+      setError(`Value must be less than or equal to ${maxLimit}`);
+    } else {
+      setError('Invalid input');
     }
-    onChange(newValue);
   };
 
   useImperativeHandle(ref, () => ({
@@ -22,17 +27,21 @@ const InputNumbers = forwardRef(({ id, label, placeholder, description, onChange
         setError('This field is required');
         return false;
       }
+      if (Number(value) > maxLimit) {
+        setError(`Value must be less than or equal to ${maxLimit}`);
+        return false;
+      }
       setError('');
       return true;
     }
-  }))
+  }));
 
   return (
     <div>
-      <LabelWithPopover label={label} description={description} />
+      <LabelWithPopover label={label} description={description}/>
       <input
         id={id}
-        type="number"
+        type="text"  // change to "text" to prevent "e" input, while using regex for validation
         className={`w-full p-4 bg-gray-80 border border-gray-70 text-white rounded-lg placeholder-gray-500 ${error && 'border-red-500'}`}
         placeholder={placeholder}
         value={value}

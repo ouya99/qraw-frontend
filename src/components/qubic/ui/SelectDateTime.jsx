@@ -5,10 +5,12 @@ const SelectDateTime = forwardRef(({ label, fieldId, onChange }, ref) => {
   const [selectedHours, setSelectedHours] = useState('');
   const [selectedMinutes, setSelectedMinutes] = useState('');
   const [error, setError] = useState('');
+  const [keyboardWarning, setKeyboardWarning] = useState('');
 
   const handleDateChange = (event) => {
     const date = event.target.value;
     setSelectedDate(date);
+    setKeyboardWarning('');
     notifyChange(date, selectedHours, selectedMinutes);
   };
 
@@ -54,15 +56,19 @@ const SelectDateTime = forwardRef(({ label, fieldId, onChange }, ref) => {
       <label className="block text-white mb-2">{label}</label>
       <div className="flex space-x-2">
         {/* Date Field */}
-        <div className="flex-1 relative">
+        <div className="date-input-wrapper">
           <input
             id={`${fieldId}-date`}
             type="date"
             className="w-full p-4 bg-gray-80 border border-gray-70 text-white rounded-lg placeholder-gray-500"
             placeholder="Select date"
             onChange={handleDateChange}
+            onKeyDown={(e) => {
+              e.preventDefault();
+              setKeyboardWarning('Please select a date from the calendar button');
+            }}
           />
-          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+          <div className="calendar-icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -118,6 +124,8 @@ const SelectDateTime = forwardRef(({ label, fieldId, onChange }, ref) => {
           </select>
         </div>
       </div>
+
+      {keyboardWarning && <p className="text-yellow-500 text-right text-sm">{keyboardWarning}</p>}
       {error && <p className="text-red-500 text-right text-sm">{error}</p>}
     </div>
   );
