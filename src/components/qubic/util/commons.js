@@ -1,6 +1,6 @@
 // src/components/qubic/commons.js
 
-export const QUERY_SMART_CONTRACT_API_URI = 'https://testapi.qubic.org/v1/querySmartContract';
+export const QUERY_SMART_CONTRACT_API_URI = 'https://rpc.qubic.org/v1/querySmartContract';
 
 export const HEADERS = {
   'accept': 'application/json',
