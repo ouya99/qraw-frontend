@@ -9,6 +9,7 @@ import LabelData from '../components/LabelData'
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext'
 import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import { sumArray } from '../components/qubic/util'
+/* global BigInt */
 
 function BetDetailsPage() {
   const { id } = useParams()
@@ -27,7 +28,7 @@ function BetDetailsPage() {
     // check if value is not less than 1 and not greater than max_slot_per_option
     if (value < 1 || value > bet.max_slot_per_option) return
     // valid value
-    setOptionCosts(value * bet.amount_per_bet_slot)
+    setOptionCosts(BigInt(value) * bet.amount_per_bet_slot)
     setAmountOfBetSlots(value)
   }
 
