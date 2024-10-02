@@ -98,7 +98,7 @@ function BetCreatePage() {
             id="description"
             ref={descriptionRef}
             label="Bet description"
-            max={100}
+            max={32}
             placeholder="Enter bet description"
             onChange={(value) => {
               setBet({ ...bet, description: value })
