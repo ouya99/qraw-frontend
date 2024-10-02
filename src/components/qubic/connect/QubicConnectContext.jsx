@@ -77,7 +77,7 @@ export function QubicConnectProvider({ children }) {
       tx[offset + i] = 0
     }
     offset += i - 1
-    txView.setBigInt64(offset, BigInt(bet.amountPerSlot * bet.numberOfSlots), true); // amount per slot
+    txView.setBigInt64(offset, BigInt(bet.amountPerSlot * BigInt(bet.numberOfSlots)), true); // amount per slot
     offset += 8
     txView.setUint32(offset, tick + tickOffset, true)
     offset += 4

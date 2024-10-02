@@ -26,9 +26,9 @@ function BetDetailsPage() {
 
   const updateAmountOfBetSlots = (value) => {
     // check if value is not less than 1 and not greater than max_slot_per_option
-    if (value < 1 || value > bet.max_slot_per_option) return
+    if (value < 1 || value > bet.maxBetSlotPerOption) return
     // valid value
-    setOptionCosts(BigInt(value) * bet.amount_per_bet_slot)
+    setOptionCosts(BigInt(value) * BigInt(bet.amount_per_bet_slot))
     setAmountOfBetSlots(value)
   }
 
@@ -218,9 +218,9 @@ function BetDetailsPage() {
               </span>
               <span
                 className='font-space text-gray-50 text-[12px] leading-[16px] block mt-3 text-right underline cursor-pointer'
-                onClick={() => updateAmountOfBetSlots(bet.max_slot_per_option)}
+                onClick={() => updateAmountOfBetSlots(bet.maxBetSlotPerOption)}
               >
-                Go for Max ({bet.max_slot_per_option})
+                Go for Max ({bet.maxBetSlotPerOption})
               </span>
             </Card>
           }
