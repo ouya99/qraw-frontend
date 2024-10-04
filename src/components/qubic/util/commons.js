@@ -19,4 +19,4 @@ export const makeJsonData = (contractIndex, inputType, inputSize, requestData) =
 };
 
 export const backendUrl = 'https://qbtn.qubic.org' // test system
-// const backendUrl = 'https://qb.qubic.org' // live system
+// export const backendUrl = 'https://qb.qubic.org' // live system
