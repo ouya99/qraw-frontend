@@ -11,6 +11,7 @@ import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import { sumArray } from '../components/qubic/util'
 import { fetchBetDetail } from '../components/qubic/util/betApi'
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
+import {excludedBetIds} from '../components/qubic/util/commons'
 /* global BigInt */
 
 function BetDetailsPage() {
@@ -78,13 +79,20 @@ function BetDetailsPage() {
   const updateBetDetails = async () => {
     try {
       setLoading(true)
+
+      if (excludedBetIds.includes(parseInt(id))) {
+        setBet(null)
+        setLoading(false)
+        navigate('/')
+        return
+      }
+
       const updatedBet = await fetchBetDetail(parseInt(id))
 
-      // Recalculate current_total_qus and betting_odds if needed
       updatedBet.current_total_qus = sumArray(updatedBet.current_num_selection) * Number(updatedBet.amount_per_bet_slot)
       updatedBet.betting_odds = calculateBettingOdds(updatedBet.current_num_selection)
 
-      updatedBet.creator = await qHelper.getIdentity(updatedBet.creator); // Update creator field with human-readable identity
+      updatedBet.creator = await qHelper.getIdentity(updatedBet.creator)
       updatedBet.oracle_id = await Promise.all(
         updatedBet.oracle_id.map(async (oracleId) => {
           return await qHelper.getIdentity(oracleId);

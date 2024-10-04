@@ -8,7 +8,7 @@ export const HEADERS = {
 };
 
 export const QTRY_CONTRACT_INDEX = 2;
-
+export const excludedBetIds = []
 export const makeJsonData = (contractIndex, inputType, inputSize, requestData) => {
   return {
     contractIndex: contractIndex,

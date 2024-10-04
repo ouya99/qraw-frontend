@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import BetOverviewCard from '../components/BetOverviewCard'
 import Dropdown from '../components/qubic/Dropdown'
 import { useQuotteryContext } from '../contexts/QuotteryContext'
+import {excludedBetIds} from '../components/qubic/util/commons'
+
 
 function StartPage() {
   const navigate = useNavigate()
@@ -54,7 +56,9 @@ function StartPage() {
         {loading && <div>Loading...</div>}
 
         {!loading && state.bets && state.bets.length > 0 && <>
-          {state.bets.map((bet, index) =>
+          {state.bets
+            .filter(bet => !excludedBetIds.includes(bet.bet_id))
+            .map((bet, index) =>
             <BetOverviewCard
               key={'bet' + index}
               data={bet}

@@ -4,7 +4,7 @@ import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
 import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto'
 import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import {fetchActiveBets, fetchBetDetail, fetchNodeInfo} from '../components/qubic/util/betApi';
-import {backendUrl} from '../components/qubic/util/commons'
+import {backendUrl, excludedBetIds} from '../components/qubic/util/commons'
 
 const QuotteryContext = createContext()
 
@@ -45,8 +45,10 @@ export const QuotteryProvider = ({children}) => {
       try {
         const activeBetIds = await fetchActiveBets();
 
+        const filteredBetIds = activeBetIds.filter(id => !excludedBetIds.includes(id))
+
         return Promise.all(
-          activeBetIds.map(async (betId) => {
+          filteredBetIds.map(async (betId) => {
             const bet = await fetchBetDetail(betId);
             bet.creator = await qHelper.getIdentity(bet.creator); // Update creator field with human-readable identity
             bet.oracle_id = await Promise.all(
@@ -79,8 +81,11 @@ export const QuotteryProvider = ({children}) => {
     const response = await fetch(`${backendUrl}/get_${filter}_bets`);
     const data = await response.json();
 
+    var filteredBetList = data.bet_list || []
     if (data.bet_list) {
-      data.bet_list.forEach((bet) => {
+      const filteredBetList = data.bet_list.filter(bet => !excludedBetIds.includes(bet.bet_id))
+
+      filteredBetList.forEach((bet) => {
         // parse list fields using JSON.parse
         bet.oracle_fee = JSON.parse(bet.oracle_fee);
         bet.oracle_id = JSON.parse(bet.oracle_id);
@@ -95,7 +100,7 @@ export const QuotteryProvider = ({children}) => {
       });
     }
 
-    return data.bet_list || [];
+    return filteredBetList || [];
   };
 
   const areBetsEqual = (bet1, bet2) => {
