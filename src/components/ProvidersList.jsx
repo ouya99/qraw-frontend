@@ -5,6 +5,7 @@ import InputRegEx from './qubic/ui/InputRegEx';
 const ProvidersList = ({max, providers: initialProviders, onChange}) => {
   const [providers, setProviders] = useState(initialProviders);
   const [errors, setErrors] = useState({});
+  const [totalFeeError, setTotalFeeError] = useState('')
 
   useEffect(() => {
     setProviders(initialProviders);
@@ -12,10 +13,24 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
 
   const handleProviderChange = (index, field, value) => {
     const newProviders = [...providers];
-    newProviders[index] = { ...newProviders[index], [field]: value };
-        setProviders(newProviders);
-        onChange(newProviders);
+    newProviders[index] = {...newProviders[index], [field]: value};
+    setProviders(newProviders);
+    onChange(newProviders);
+    validateFees(newProviders);
+
   };
+
+  const validateFees = (providerList) => {
+    const totalFees = providerList.reduce((sum, provider) => {
+      return sum + (parseFloat(provider.fee) || 0);
+    }, 0)
+
+    if (totalFees > 100) {
+      setTotalFeeError('The total sum of provider fees cannot exceed 100%.')
+    } else {
+      setTotalFeeError('')
+    }
+  }
 
   const handleAddProvider = (event) => {
     event.preventDefault();
@@ -30,6 +45,7 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
     const newProviders = providers.filter((_, i) => i !== index);
     setProviders([...newProviders]);
     onChange(newProviders);
+    validateFees(newProviders)
   };
 
   useEffect(() => {
@@ -47,6 +63,7 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
       return Object.keys(newErrors).length === 0;
     };
     validateProviders();
+    validateFees(providers)
   }, [providers]);
 
   return (
