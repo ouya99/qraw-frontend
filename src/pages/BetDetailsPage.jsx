@@ -9,18 +9,21 @@ import LabelData from '../components/LabelData'
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext'
 import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import { sumArray } from '../components/qubic/util'
+import { fetchBetDetail } from '../components/qubic/util/betApi'
+import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
 /* global BigInt */
 
 function BetDetailsPage() {
   const { id } = useParams()
-  const { state, fetchBets } = useQuotteryContext()
+  const [bet, setBet] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [showConfirmTxModal, setShowConfirmTxModal] = useState(false)
-  const bet = state.bets.find(bet => bet.bet_id === parseInt(id))
   const [selectedOption, setSelectedOption] = useState(null)
   const [amountOfBetSlots, setAmountOfBetSlots] = useState(0)
   const [optionCosts, setOptionCosts] = useState(0)
   const [detailsViewVisible, setDetailsViewVisible] = useState(false)
   const { connected, toggleConnectModal, signTx } = useQubicConnect()
+  const qHelper = new QubicHelper()
 
   const navigate = useNavigate()
 
@@ -72,11 +75,57 @@ function BetDetailsPage() {
     %)`
   }
 
+  const updateBetDetails = async () => {
+    try {
+      setLoading(true)
+      const updatedBet = await fetchBetDetail(parseInt(id))
+
+      // Recalculate current_total_qus and betting_odds if needed
+      updatedBet.current_total_qus = sumArray(updatedBet.current_num_selection) * Number(updatedBet.amount_per_bet_slot)
+      updatedBet.betting_odds = calculateBettingOdds(updatedBet.current_num_selection)
+
+      updatedBet.creator = await qHelper.getIdentity(updatedBet.creator); // Update creator field with human-readable identity
+      updatedBet.oracle_id = await Promise.all(
+        updatedBet.oracle_id.map(async (oracleId) => {
+          return await qHelper.getIdentity(oracleId);
+        })
+      );
+
+      const closeDate = new Date('20' + updatedBet.close_date + 'T' + updatedBet.close_time + 'Z');
+      const now = new Date();
+      updatedBet.is_active = now <= closeDate;
+
+      setBet(updatedBet)
+    } catch (error) {
+      console.error('Error updating bet details:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const calculateBettingOdds = (currentNumSelection) => {
+    const totalSelections = sumArray(currentNumSelection)
+    let betting_odds = Array(currentNumSelection.length).fill("1.0")
+
+    if (totalSelections > 0) {
+      betting_odds = currentNumSelection.map(selection =>
+        selection > 0 ? (totalSelections / selection).toFixed(2) : totalSelections.toFixed(2)
+      )
+    }
+
+    return betting_odds
+  }
+
+  useEffect(() => {
+    updateBetDetails()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
+
   return (
     <div className='sm:px-30 md:px-130'>
-      {!bet && <div className='text-center mt-[105px] text-white'>Loading...</div>}
+      {loading && <div className='text-center mt-[105px] text-white'>Loading...</div>}
 
-      {bet && bet.bet_id >= 0 && <>
+      {!loading && bet && bet.bet_id >= 0 && <>
 
         <div className='mt-[10px] px-5 sm:px-20 md:px-100'>
           <div className='p-5 bg-gray-70 mt-[105px] mb-9 rounded-[8px] text-center text-[35px] text-white'>
@@ -204,7 +253,7 @@ function BetDetailsPage() {
                   className='py-3 text-[25px] text-center'
                   type='number'
                   value={amountOfBetSlots}
-                  onChange={(e) => updateAmountOfBetSlots(e.target.value)}
+                  onChange={(e) => updateAmountOfBetSlots(parseInt(e.target.value))}
                 />
                 <button
                   className='bg-[rgba(26,222,245,0.1)] text-primary-40 text-20 font-bold py-3'
@@ -256,8 +305,8 @@ function BetDetailsPage() {
           <ConfirmTxModal
             open={showConfirmTxModal}
             onClose={() => {
-              fetchBets('active')
               setShowConfirmTxModal(false)
+              updateBetDetails() // Update bet details after closing the modal
             }}
             tx={{
               title: 'Bet Now',
