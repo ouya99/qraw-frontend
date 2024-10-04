@@ -220,7 +220,7 @@ export const fetchBetDetail = async (betId, maxRetryCount = 3) => {
         .filter(id => id.length > 0); // Filter out empty strings
 
       const oracleFees = Array.from({ length: oracleProviderId.length }, (_, i) => buffer.readUInt32LE(584 + i * 4) / 100);
-      const currentNumSelection = Array.from({ length: nOption }, (_, i) => buffer.readUInt32LE(648 + i * 4));
+      const currentNumSelection = Array.from({ length: nOption }, (_, i) => buffer.readUInt32LE(644 + i * 4));
 
       const bettingOdds = calculateBettingOdds(currentNumSelection);
 
