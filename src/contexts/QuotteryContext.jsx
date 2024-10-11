@@ -51,6 +51,8 @@ export const QuotteryProvider = ({children}) => {
           filteredBetIds.map(async (betId) => {
             const bet = await fetchBetDetail(betId);
             bet.creator = await qHelper.getIdentity(bet.creator); // Update creator field with human-readable identity
+
+            bet.oracle_public_keys = bet.oracle_id
             bet.oracle_id = await Promise.all(
               bet.oracle_id.map(async (oracleId) => {
                 return await qHelper.getIdentity(oracleId);
@@ -293,6 +295,82 @@ export const QuotteryProvider = ({children}) => {
     return Math.ceil(diffMilliseconds / 1000 / 60 / 60)
   }
 
+  const signPublishResultTx = async (betId, option) => {
+    const idPackage = await qHelper.createIdPackage(wallet)
+    const qCrypto = await Crypto
+    const tick = await getTick()
+    const tickOffset = 5
+    console.log('Target Tick:', tick + tickOffset)
+
+    const publishResultDataSize = 8 // Size of publishResult_input struct in Quottery.h
+    const quotteryTxSize = qHelper.TRANSACTION_SIZE + publishResultDataSize
+    const sourcePrivateKey = idPackage.privateKey
+    const sourcePublicKey = idPackage.publicKey
+
+    // Initialize the transaction array
+    const tx = new Uint8Array(quotteryTxSize).fill(0)
+    const txView = new DataView(tx.buffer)
+    let offset = 0
+
+    // Set source key
+    for (let i = 0; i < qHelper.PUBLIC_KEY_LENGTH; i++) {
+      tx[i] = sourcePublicKey[i]
+    }
+    offset += qHelper.PUBLIC_KEY_LENGTH
+
+    // Set contract index for Quottery SC
+    tx[offset] = 2 // 2 for Quottery SC
+    offset++
+
+    // Set destination public key (empty)
+    for (let i = 1; i < qHelper.PUBLIC_KEY_LENGTH; i++) {
+      tx[offset + i] = 0
+    }
+    offset += qHelper.PUBLIC_KEY_LENGTH - 1
+
+    // Set amount (zero for publishing result)
+    txView.setBigInt64(offset, BigInt(0), true)
+    offset += 8
+
+    // Set tick
+    txView.setUint32(offset, tick + tickOffset, true)
+    offset += 4
+
+    txView.setUint16(offset, 4, true) // 4 for publishResult
+    offset += 2
+
+    // Set inputSize
+    txView.setUint16(offset, publishResultDataSize, true)
+    offset += 2
+
+    // betId (uint32)
+    txView.setUint32(offset, betId, true)
+    offset += 4
+
+    // option (uint32)
+    txView.setUint32(offset, option, true)
+    offset += 4
+
+    // Compute digest???
+    const digest = new Uint8Array(qHelper.DIGEST_LENGTH)
+    const toSign = tx.slice(0, offset)
+    qCrypto.K12(toSign, digest, qHelper.DIGEST_LENGTH)
+
+    // Sign transaction
+    const signedTx = qCrypto.schnorrq.sign(sourcePrivateKey, sourcePublicKey, digest)
+    tx.set(signedTx, offset)
+    offset += qHelper.SIGNATURE_LENGTH
+
+    console.log('betId:', betId, 'option:', option)
+    const txResult = await broadcastTx(tx)
+    console.log('Response:', txResult)
+
+    return {
+      targetTick: tick + tickOffset,
+      txResult,
+    }
+  }
+
   const signIssueBetTx = async (bet) => {
     const idPackage = await qHelper.createIdPackage(wallet)
     const qCrypto = await Crypto
@@ -397,8 +475,14 @@ export const QuotteryProvider = ({children}) => {
 
   return (
     <QuotteryContext.Provider value={{
-      state, dispatch, loading, fetchBets, setBetsFilter,
-      signIssueBetTx, issueBetTxCosts
+      state,
+      dispatch,
+      loading,
+      fetchBets,
+      setBetsFilter,
+      signIssueBetTx,
+      issueBetTxCosts,
+      signPublishResultTx,
     }}>
       {children}
     </QuotteryContext.Provider>

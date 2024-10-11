@@ -11,7 +11,7 @@ import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import { sumArray } from '../components/qubic/util'
 import { fetchBetDetail } from '../components/qubic/util/betApi'
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
-import {excludedBetIds} from '../components/qubic/util/commons'
+import {excludedBetIds, bytesEqual} from '../components/qubic/util/commons'
 /* global BigInt */
 
 function BetDetailsPage() {
@@ -23,7 +23,8 @@ function BetDetailsPage() {
   const [amountOfBetSlots, setAmountOfBetSlots] = useState(0)
   const [optionCosts, setOptionCosts] = useState(0)
   const [detailsViewVisible, setDetailsViewVisible] = useState(false)
-  const { connected, toggleConnectModal, signTx } = useQubicConnect()
+  const { connected, toggleConnectModal, signTx, wallet } = useQubicConnect()
+  const [userIsProvider, setUserIsProvider] = useState(false)
   const qHelper = new QubicHelper()
 
   const navigate = useNavigate()
@@ -65,6 +66,22 @@ function BetDetailsPage() {
       </span>
     </>)
   }
+
+  useEffect(() => {
+    const checkIfUserIsProvider = async () => {
+      if (wallet && bet && connected) {
+        const idPackage = await qHelper.createIdPackage(wallet)
+        const userPublicKey = idPackage.publicKey // Uint8Array
+        const isProvider = bet.oracle_public_keys.some((providerKey) => {
+          return bytesEqual(providerKey, userPublicKey)
+        })
+
+        setUserIsProvider(isProvider)
+      }
+    }
+
+    checkIfUserIsProvider()
+  }, [wallet, bet, connected])
 
   const calculateOptionPercentage = (b, idx) => {
     // check if b.current_num_selection is not all 0
@@ -159,6 +176,15 @@ function BetDetailsPage() {
                 </div>
               </div>
 
+              {userIsProvider && (
+                <button
+                  className="mt-4 p-2 bg-primary-40 text-black rounded-lg"
+                  onClick={() => navigate(`/publish/${bet.bet_id}`)}
+                >
+                  Publish Result
+                </button>
+              )}
+
               {detailsViewVisible && <div className='w-full'>
                 <div className='grid md:grid-cols-3'>
                   <LabelData lbl='Open' value={bet.open_date + ' ' + bet.open_time + ' UTC'} />
@@ -182,7 +208,7 @@ function BetDetailsPage() {
           </Card>
 
           {/*
-            Bet still open for betting, choose a option.
+            Bet still open for betting, choose an option.
           */}
           {bet && bet.result === -1 && bet.is_active &&
             <Card className='p-[24px] w-full mt-[16px]'>
@@ -309,6 +335,15 @@ function BetDetailsPage() {
           >
             {connected ? 'Bet!' : 'Bet!'}
           </button>
+
+          {userIsProvider && (
+            <button
+              className="mt-4 p-2 bg-primary-40 text-black rounded-lg"
+              onClick={() => navigate(`/publish/${bet.bet_id}`)}
+            >
+              Publish Result
+            </button>
+          )}
 
           <ConfirmTxModal
             open={showConfirmTxModal}
