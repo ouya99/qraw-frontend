@@ -38,6 +38,8 @@ export const QuotteryProvider = ({children}) => {
   const [betsFilter, setBetsFilter] = useState('active')
   const {wallet, broadcastTx, getTick} = useQubicConnect()
   const qHelper = new QubicHelper()
+  const [coreNodeBetIds, setCoreNodeBetIds] = useState([])
+
 
   // Fetch bets using the Qubic HTTP API
   const fetchQubicHttpApiBets = async (maxRetryCount = 3) => {
@@ -46,10 +48,11 @@ export const QuotteryProvider = ({children}) => {
         const activeBetIds = await fetchActiveBets();
 
         const filteredBetIds = activeBetIds.filter(id => !excludedBetIds.includes(id))
+        setCoreNodeBetIds(filteredBetIds)
 
         return Promise.all(
           filteredBetIds.map(async (betId) => {
-            const bet = await fetchBetDetail(betId);
+            const bet = await fetchBetDetail(betId, filteredBetIds)
             bet.creator = await qHelper.getIdentity(bet.creator); // Update creator field with human-readable identity
 
             bet.oracle_public_keys = bet.oracle_id
@@ -99,6 +102,12 @@ export const QuotteryProvider = ({children}) => {
         const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z');
         const now = new Date();
         bet.is_active = now <= closeDate;
+
+        // Normalize field names to match new API :-)
+        bet.nOption = bet.no_options
+        bet.maxBetSlotPerOption = bet.max_slot_per_option
+        bet.oracle_public_keys = null
+
       });
     }
 
@@ -204,11 +213,13 @@ export const QuotteryProvider = ({children}) => {
         }
 
         dispatch({type: 'SET_BETS', payload: allBets});
+        console.log(allBets)
         await fetchNodeInfoAndUpdate();
       } catch (error) {
         console.error('Error fetching bets:', error);
       }
     }
+
 
     setLoading(false)
   }
@@ -483,6 +494,7 @@ export const QuotteryProvider = ({children}) => {
       signIssueBetTx,
       issueBetTxCosts,
       signPublishResultTx,
+      coreNodeBetIds,
     }}>
       {children}
     </QuotteryContext.Provider>

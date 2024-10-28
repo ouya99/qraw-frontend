@@ -26,6 +26,7 @@ function BetDetailsPage() {
   const { connected, toggleConnectModal, signTx, wallet } = useQubicConnect()
   const [userIsProvider, setUserIsProvider] = useState(false)
   const qHelper = new QubicHelper()
+  const { coreNodeBetIds } = useQuotteryContext()
 
   const navigate = useNavigate()
 
@@ -72,11 +73,20 @@ function BetDetailsPage() {
       if (wallet && bet && connected) {
         const idPackage = await qHelper.createIdPackage(wallet)
         const userPublicKey = idPackage.publicKey // Uint8Array
-        const isProvider = bet.oracle_public_keys.some((providerKey) => {
-          return bytesEqual(providerKey, userPublicKey)
-        })
 
-        setUserIsProvider(isProvider)
+        if (bet.oracle_public_keys && bet.oracle_public_keys.length > 0) {
+          const isProvider = bet.oracle_public_keys.some((providerKey) => {
+            return bytesEqual(providerKey, userPublicKey)
+          })
+          setUserIsProvider(isProvider)
+        } else if (bet.oracle_id && bet.oracle_id.length > 0) {
+          // Bet from backend API with oracle IDs (identities)
+          const userIdentity = await qHelper.getIdentity(userPublicKey)
+          const isProvider = bet.oracle_id.some((providerId) => providerId === userIdentity)
+          setUserIsProvider(isProvider)
+        } else {
+          setUserIsProvider(false)
+        }
       }
     }
 
@@ -104,17 +114,11 @@ function BetDetailsPage() {
         return
       }
 
-      const updatedBet = await fetchBetDetail(parseInt(id))
+      const betId = parseInt(id)
+      const updatedBet = await fetchBetDetail(betId, coreNodeBetIds)
 
       updatedBet.current_total_qus = sumArray(updatedBet.current_num_selection) * Number(updatedBet.amount_per_bet_slot)
       updatedBet.betting_odds = calculateBettingOdds(updatedBet.current_num_selection)
-
-      updatedBet.creator = await qHelper.getIdentity(updatedBet.creator)
-      updatedBet.oracle_id = await Promise.all(
-        updatedBet.oracle_id.map(async (oracleId) => {
-          return await qHelper.getIdentity(oracleId);
-        })
-      );
 
       const closeDate = new Date('20' + updatedBet.close_date + 'T' + updatedBet.close_time + 'Z');
       const now = new Date();

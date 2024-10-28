@@ -1,4 +1,4 @@
-// utils/betApi.js
+/* global BigInt */
 import {Buffer} from 'buffer';
 import base64 from 'base-64';
 import {HEADERS, makeJsonData, QTRY_CONTRACT_INDEX, QUERY_SMART_CONTRACT_API_URI, backendUrl} from './commons';
@@ -178,8 +178,64 @@ const bufferToUint8Array = (buffer) => {
   return new Uint8Array(buffer);
 };
 
+export const fetchBetDetail = async (betId, coreNodeBetIds) => {
+  if (coreNodeBetIds.includes(betId)) {
+    // Bet is in core node, use qubic-http API
+    return await fetchBetDetailFromCoreNode(betId)
+  } else {
+    // Bet is not in core node, use the old backend API to fetch from historical database
+    return await fetchBetDetailFromBackendApi(betId)
+  }
+}
+
+export const fetchBetDetailFromBackendApi = async (betId) => {
+  try {
+    const response = await fetch(`${backendUrl}/get_all_bets`)
+    const data = await response.json()
+
+    if (data.bet_list) {
+      const bet = data.bet_list.find((b) => b.bet_id === betId)
+
+      if (bet) {
+        // Parse list fields using JSON.parse
+        bet.oracle_fee = JSON.parse(bet.oracle_fee)
+        bet.oracle_id = JSON.parse(bet.oracle_id)
+        bet.option_desc = JSON.parse(bet.option_desc)
+        bet.betting_odds = JSON.parse(bet.betting_odds)
+        bet.current_bet_state = JSON.parse(bet.current_bet_state)
+        bet.current_num_selection = JSON.parse(bet.current_num_selection)
+        bet.oracle_vote = JSON.parse(bet.oracle_vote)
+
+        const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z')
+        const now = new Date()
+        bet.is_active = now <= closeDate
+
+        // Normalize field names to match new API :-)
+        bet.nOption = bet.no_options || bet.nOption
+        bet.maxBetSlotPerOption = bet.max_slot_per_option || bet.maxBetSlotPerOption
+        bet.amount_per_bet_slot = BigInt(bet.amount_per_bet_slot)
+        bet.bet_id = parseInt(bet.bet_id)
+        bet.current_total_qus = parseInt(bet.current_total_qus)
+        bet.amount_per_bet_slot = BigInt(bet.amount_per_bet_slot)
+
+        // For consistency, set oracle_public_keys to null (since we don't have them)
+        bet.oracle_public_keys = null
+
+        return bet
+      } else {
+        throw new Error(`Bet with id ${betId} not found in backend API.`)
+      }
+    } else {
+      throw new Error('No bet_list in backend API response.')
+    }
+  } catch (error) {
+    console.error('Error fetching bet detail from backend API:', error)
+    throw error
+  }
+}
+
 // Function to fetch details of a specific bet given the bet id
-export const fetchBetDetail = async (betId, maxRetryCount = 3) => {
+export const fetchBetDetailFromCoreNode = async (betId, maxRetryCount = 3) => {
   const betIdBuffer = Buffer.alloc(4);
   betIdBuffer.writeUInt32LE(betId, 0);
   const inputBase64 = base64.encode(betIdBuffer);
