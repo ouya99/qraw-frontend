@@ -25,7 +25,6 @@ function BetDetailsPage() {
   const [detailsViewVisible, setDetailsViewVisible] = useState(false)
   const { connected, toggleConnectModal, signTx, wallet } = useQubicConnect()
   const [userIsProvider, setUserIsProvider] = useState(false)
-  const qHelper = new QubicHelper()
   const { coreNodeBetIds } = useQuotteryContext()
 
   const navigate = useNavigate()
@@ -69,6 +68,7 @@ function BetDetailsPage() {
   }
 
   useEffect(() => {
+    const qHelper = new QubicHelper()
     const checkIfUserIsProvider = async () => {
       if (wallet && bet && connected) {
         const idPackage = await qHelper.createIdPackage(wallet)

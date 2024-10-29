@@ -12,31 +12,35 @@ const BetPublishPage = () => {
   const { state, fetchBets, signPublishResultTx } = useQuotteryContext()
   const { connected, toggleConnectModal, wallet } = useQubicConnect()
   const [bet, setBet] = useState(null)
-  const [userIsProvider, setUserIsProvider] = useState(false)
   const [selectedOption, setSelectedOption] = useState(null)
   const [showConfirmTxModal, setShowConfirmTxModal] = useState(false)
   const navigate = useNavigate()
-  const qHelper = new QubicHelper()
 
   useEffect(() => {
+    const qHelper = new QubicHelper()
+
     const betDetails = state.bets.find((b) => b.bet_id === parseInt(id))
     if (betDetails) {
       setBet(betDetails)
       const checkIfUserIsProvider = async () => {
         const idPackage = await qHelper.createIdPackage(wallet)
         const userPublicId = qHelper.getIdentity(idPackage.publicKey)
-        console.log('User public key:', idPackage.publicKey)
-        console.log('User public Id:', userPublicId)
 
-        const isProvider = betDetails.oracle_public_keys.some((providerKey) => {
-          return bytesEqual(providerKey, userPublicId)
-        })
+        var isProvider = false
+
+        if (bet.oracle_public_keys && bet.oracle_public_keys.length > 0) {
+          isProvider = bet.oracle_public_keys.some((providerKey) => {
+            return bytesEqual(providerKey, userPublicId)
+          })
+        } else if (bet.oracle_id && bet.oracle_id.length > 0) {
+          // Bet from backend API with oracle IDs (identities)
+          const userIdentity = await qHelper.getIdentity(userPublicId)
+          isProvider = bet.oracle_id.some((providerId) => providerId === userIdentity)
+        }
 
         if (!isProvider) {
           alert('You are not authorized to publish the result of this bet.')
           navigate('/')
-        } else {
-          setUserIsProvider(true)
         }
       }
 
