@@ -124,6 +124,18 @@ function BetDetailsPage() {
       const now = new Date();
       updatedBet.is_active = now <= closeDate;
 
+      const qHelper = new QubicHelper()
+      if (updatedBet.creator instanceof Uint8Array) {
+        updatedBet.creator = await qHelper.getIdentity(updatedBet.creator)
+      }
+      if (updatedBet.oracle_id[0] instanceof Uint8Array) {
+        updatedBet.oracle_id = await Promise.all(
+          updatedBet.oracle_id.map(async (op) => {
+            return await qHelper.getIdentity(op)
+          })
+        )
+      }
+
       setBet(updatedBet)
     } catch (error) {
       console.error('Error updating bet details:', error)
