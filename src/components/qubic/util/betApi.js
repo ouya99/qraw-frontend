@@ -241,6 +241,7 @@ export const fetchBetDetailFromCoreNode = async (betId, maxRetryCount = 3) => {
   const inputBase64 = base64.encode(betIdBuffer);
 
   const json_data = makeJsonData(QTRY_CONTRACT_INDEX, 2, 4, inputBase64);
+  let retry = 0
   for (let attempt = 0; attempt < maxRetryCount; attempt++) {
     try {
       const response = await fetch(QUERY_SMART_CONTRACT_API_URI, {
@@ -313,6 +314,11 @@ export const fetchBetDetailFromCoreNode = async (betId, maxRetryCount = 3) => {
         }
       }
 
+      if (retry !== 0) {
+        console.log('Done retrying')
+        retry = 0
+      }
+
       // Return unpacked bet details
       return {
         bet_id: buffer.readUInt32LE(0), // Read uint32 betId
@@ -348,6 +354,7 @@ export const fetchBetDetailFromCoreNode = async (betId, maxRetryCount = 3) => {
       }
 
       console.log('Retrying...');
+      retry++
     }
   }
 };
