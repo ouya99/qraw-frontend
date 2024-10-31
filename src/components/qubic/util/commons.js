@@ -1,6 +1,7 @@
 // src/components/qubic/commons.js
 
-export const QUERY_SMART_CONTRACT_API_URI = 'https://rpc.qubic.org/v1/querySmartContract';
+export const QUERY_SMART_CONTRACT_API_URI = 'https://91.210.226.146/v1/querySmartContract'; // test system
+// export const QUERY_SMART_CONTRACT_API_URI = 'https://rpc.qubic.org/v1/querySmartContract'; // live system
 
 export const HEADERS = {
   'accept': 'application/json',
@@ -8,7 +9,7 @@ export const HEADERS = {
 };
 
 export const QTRY_CONTRACT_INDEX = 2;
-export const excludedBetIds = []
+export const excludedBetIds = [31]
 export const makeJsonData = (contractIndex, inputType, inputSize, requestData) => {
   return {
     contractIndex: contractIndex,
@@ -29,3 +30,4 @@ export const bytesEqual = (a, b) => {
 
 export const backendUrl = 'https://qbtn.qubic.org' // test system
 // export const backendUrl = 'https://qb.qubic.org' // live system
+export const externalJsonAssetUrl = 'http://91.210.226.146:3000' // test system

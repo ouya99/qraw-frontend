@@ -2,6 +2,9 @@
 import {Buffer} from 'buffer';
 import base64 from 'base-64';
 import {HEADERS, makeJsonData, QTRY_CONTRACT_INDEX, QUERY_SMART_CONTRACT_API_URI, backendUrl} from './commons';
+import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
+import {externalJsonAssetUrl} from './commons'
+import {hashBetData} from "./hashUtils"
 
 // Get Node's info using qubic-http's API
 export const fetchNodeInfo = async () => {
@@ -181,11 +184,75 @@ const bufferToUint8Array = (buffer) => {
 export const fetchBetDetail = async (betId, coreNodeBetIds) => {
   if (coreNodeBetIds.includes(betId)) {
     // Bet is in core node, use qubic-http API
-    return await fetchBetDetailFromCoreNode(betId)
+    const bet = await fetchBetDetailFromCoreNode(betId)
+    await fetchAndVerifyBetDescription(bet)
+    return bet
   } else {
     // Bet is not in core node, use the old backend API to fetch from historical database
-    return await fetchBetDetailFromBackendApi(betId)
+    const bet = await fetchBetDetailFromBackendApi(betId)
+    await fetchAndVerifyBetDescription(bet)
+    return bet
   }
+}
+
+const fetchAndVerifyBetDescription = async (bet) => {
+  const isNewFormat = bet.bet_desc.startsWith('###')
+
+  if (isNewFormat) {
+    const qHelper = new QubicHelper()
+    const encodedHash = bet.bet_desc.substring(3)
+    const url = `${externalJsonAssetUrl}/descriptions/${encodedHash}`
+
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      const data = await response.json()
+
+      const oracleIdentities = await Promise.all(
+        bet.oracle_id.map(async (p) => {
+          return await qHelper.getIdentity(p)
+        })
+      );
+
+      const creator = await qHelper.getIdentity(bet.creator)
+      const firstPartHash = await hashBetData(data.description,
+        creator,
+        oracleIdentities,
+        bet.option_desc,)
+
+      // Remove the unique identifier
+      const encodedHashFirst = encodedHash.substring(0, 23)
+
+      console.log('firstPartHash:', firstPartHash, 'encodedHashFirst:', encodedHashFirst)
+
+      // Compare the hashes
+      if (firstPartHash !== encodedHashFirst) {
+        throw new Error('Description hash does not match expected hash')
+      } else {
+        console.log('Hash verified successfully!')
+      }
+
+      bet.full_description = data.description
+      bet.bet_desc = bet.full_description
+    } catch (error) {
+      console.error('Error fetching or verifying full description:', error)
+      bet.full_description = 'Description not available.'
+      bet.description = bet.full_description
+    }
+  } else {
+    // Old format; use bet_desc as is
+    bet.full_description = bet.bet_desc;
+  }
+}
+
+const arraysEqual = (a, b) => {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
 }
 
 export const fetchBetDetailFromBackendApi = async (betId) => {
@@ -272,17 +339,26 @@ export const fetchBetDetailFromCoreNode = async (betId, maxRetryCount = 3) => {
       const amountPerBetSlot = buffer.readBigUInt64LE(632); // Read uint64 minBetAmount
 
       // Parse and filter oracleProviderId to remove empty strings
-      const oracleProviderId = parseFixedSizeStrings(buffer, 328, 256, 8, 32)
-        .map(id => bufferToUint8Array(Buffer.from(id, 'utf-8')))
-        .filter(id => id.length > 0); // Filter out empty strings
+      const oracleProviderId = [];
+      for (let i = 0; i < 8; i++) {
+        const start = 328 + i * 32;
+        const end = start + 32;
+        const idBuffer = buffer.slice(start, end);
+        // Check if the idBuffer is not all zeros (empty)
+        const isEmpty = idBuffer.every(byte => byte === 0);
+        if (!isEmpty) {
+          const idUint8Array = bufferToUint8Array(idBuffer);
+          oracleProviderId.push(idUint8Array);
+        }
+      }
 
-      const oracleFees = Array.from({ length: oracleProviderId.length }, (_, i) => buffer.readUInt32LE(584 + i * 4) / 100);
-      const currentNumSelection = Array.from({ length: nOption }, (_, i) => buffer.readUInt32LE(644 + i * 4));
+      const oracleFees = Array.from({length: oracleProviderId.length}, (_, i) => buffer.readUInt32LE(584 + i * 4) / 100);
+      const currentNumSelection = Array.from({length: nOption}, (_, i) => buffer.readUInt32LE(644 + i * 4));
 
       const bettingOdds = calculateBettingOdds(currentNumSelection);
 
       // Calculate result based on oracle votes
-      const betResultOPId = Array.from({ length: oracleProviderId.length }, (_, i) => buffer.readInt8(688 + i));
+      const betResultOPId = Array.from({length: oracleProviderId.length}, (_, i) => buffer.readInt8(688 + i));
 
       let result = -1;
       if (oracleProviderId.length > 0) {
@@ -338,7 +414,7 @@ export const fetchBetDetailFromCoreNode = async (betId, maxRetryCount = 3) => {
         maxBetSlotPerOption: buffer.readUInt32LE(640),
         current_bet_state: currentNumSelection,
         current_num_selection: currentNumSelection,
-        betResultWonOption: Array.from({ length: oracleProviderId.length }, (_, i) => buffer.readInt8(680 + i)),
+        betResultWonOption: Array.from({length: oracleProviderId.length}, (_, i) => buffer.readInt8(680 + i)),
         betResultOPId: betResultOPId,
         current_total_qus: currentNumSelection.reduce((acc, val) => acc + val, 0) * Number(amountPerBetSlot),
         betting_odds: bettingOdds,

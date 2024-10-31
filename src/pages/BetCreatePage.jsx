@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+/* global BigInt */
+import React, {useRef, useState} from 'react'
+import {useNavigate} from 'react-router-dom'
 import SelectDateTime from '../components/qubic/ui/SelectDateTime'
 import InputMaxChars from '../components/qubic/ui/InputMaxChars'
 import FormHead from '../components/qubic/ui/FormHead'
@@ -7,9 +8,11 @@ import OptionsList from '../components/OptionsList'
 import ProvidersList from '../components/ProvidersList'
 import InputNumbers from '../components/qubic/ui/InputNumbers'
 import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
-import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext'
+import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import BetCreateConfirm from '../components/BetCreateConfirm'
-import { useQuotteryContext } from "../contexts/QuotteryContext"
+import {useQuotteryContext} from "../contexts/QuotteryContext"
+import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
+import {hashBetData, hashUniqueData} from "../components/qubic/util/hashUtils"
 
 function BetCreatePage() {
 
@@ -17,6 +20,7 @@ function BetCreatePage() {
   const [showConfirmTxModal, setShowConfirmTxModal] = useState(false)
   const { connected, toggleConnectModal } = useQubicConnect()
   const { fetchBets, signIssueBetTx } = useQuotteryContext()
+  const { wallet } = useQubicConnect()
 
   const [bet, setBet] = useState({
     description: '',
@@ -58,27 +62,100 @@ function BetCreatePage() {
     )
   }
 
+  const getCreatorIdentity = async () => {
+    const qHelper = new QubicHelper()
+    const idPackage = await qHelper.createIdPackage(wallet)
+    const sourcePublicKey = idPackage.publicKey
+    return await qHelper.getIdentity(sourcePublicKey)
+  }
+
+
+  const uploadDescription = async (description, encodedHash) => {
+    try {
+      const response = await fetch(`http://91.210.226.146:3000/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ hash: encodedHash, description }),
+      })
+      const data = await response.json()
+      return data.success
+    } catch (error) {
+      console.error('Error uploading description:', error)
+      return false
+    }
+  }
+
   const handleOptionsChange = newOptions => setBet({...bet, options: newOptions})
   const handleCloseDateTimeChange = dateTime => setBet({ ...bet, closeDateTime: dateTime })
   const handleEndDateTimeChange = dateTime => setBet({ ...bet, endDateTime: dateTime })
   const handleProvidersChange = newProviders => setBet({...bet, providers: newProviders})
   const handleAmountPerSlotChange = value => setBet({ ...bet, amountPerSlot: value })
   const handleMaxBetSlotsChange = value => setBet({ ...bet, maxBetSlots: value })
-  const handleSubmit = (event) => {
+
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    if(connected) {
+    if (connected) {
       if (validateForm()) {
-        // calculate diffHours of closeDateTime and endDateTime
-        const closeDateTime = new Date(bet.closeDateTime.date + ' ' + bet.closeDateTime.time)
-        const endDateTime = new Date(bet.endDateTime.date + ' ' + bet.endDateTime.time)
-        const diffHours = (endDateTime - closeDateTime) / 1000 / 60 / 60
+        const closeDateTime = `${bet.closeDateTime.date}T${bet.closeDateTime.time}`
+        const endDateTime = `${bet.endDateTime.date}T${bet.endDateTime.time}`
+        const closeDate = new Date(closeDateTime)
+        const endDate = new Date(endDateTime)
+        const diffHours = (endDate - closeDate) / (1000 * 60 * 60)
+
+        if (diffHours <= 0) {
+          console.error('End DateTime must be after Close DateTime.')
+          return
+        }
+
         bet.diffHours = diffHours
-        console.log('Valid Bet:', bet)
+
+        // Generate unique identifiers
+        const creatorIdentity = await getCreatorIdentity()
+
+        // Prepare bet data for hashing
+        const betData = {
+          description: bet.description,
+          creatorIdentity: creatorIdentity,
+          closeDateTime: closeDateTime,
+          endDateTime: endDateTime,
+          oracleProviders: bet.providers.map(p => p.publicId),
+          options: bet.options,
+        }
+
+        // Generate the first part of the hash
+        const firstPartHash = hashBetData(bet.description,
+          creatorIdentity,
+          bet.providers.map(p => p.publicId),
+          bet.options,)
+
+        // Generate the second part of the hash
+        const secondPartHash = hashUniqueData()
+
+        // Concatenate both parts to create the final hash
+        const finalHash = `${firstPartHash}${secondPartHash}`
+
+        const betDescriptionReference = `###${finalHash}`
+
+        const uploadSuccess = await uploadDescription(bet.description, finalHash)
+        if (!uploadSuccess) {
+          console.error('Failed to upload description')
+          return
+        }
+
+        const betToSend = {
+          ...bet,
+          description: betDescriptionReference,
+          descriptionFull: bet.description
+        }
+        setBet(betToSend)
+        console.log('Valid Bet:', betToSend)
         setShowConfirmTxModal(true)
       } else {
         console.log('Form has errors:', errors)
       }
-    }else{
+    } else {
       toggleConnectModal()
     }
   }
@@ -98,7 +175,7 @@ function BetCreatePage() {
             id="description"
             ref={descriptionRef}
             label="Bet description"
-            max={32}
+            max={100} // Now max chars will be 100
             placeholder="Enter bet description"
             onChange={(value) => {
               setBet({ ...bet, description: value })
@@ -128,7 +205,7 @@ function BetCreatePage() {
             <p className='text-grey mb-5'>Here we go with a small help description.</p>
 
             <OptionsList
-              max={20}
+              max={8}
               options={bet.options}
               onChange={handleOptionsChange}
             />

@@ -18,24 +18,23 @@ const BetPublishPage = () => {
 
   useEffect(() => {
     const qHelper = new QubicHelper()
-
     const betDetails = state.bets.find((b) => b.bet_id === parseInt(id))
     if (betDetails) {
       setBet(betDetails)
       const checkIfUserIsProvider = async () => {
         const idPackage = await qHelper.createIdPackage(wallet)
-        const userPublicId = qHelper.getIdentity(idPackage.publicKey)
+        const userPublicKey = idPackage.publicKey
+        const userPublicId = qHelper.getIdentity(userPublicKey)
 
         var isProvider = false
-
-        if (bet.oracle_public_keys && bet.oracle_public_keys.length > 0) {
-          isProvider = bet.oracle_public_keys.some((providerKey) => {
-            return bytesEqual(providerKey, userPublicId)
+        console.log('Bet:', betDetails)
+        if (betDetails.oracle_public_keys && betDetails.oracle_public_keys.length > 0) {
+          isProvider = betDetails.oracle_public_keys.some((providerKey) => {
+            return bytesEqual(providerKey, userPublicKey)
           })
-        } else if (bet.oracle_id && bet.oracle_id.length > 0) {
+        } else if (betDetails.oracle_id && betDetails.oracle_id.length > 0) {
           // Bet from backend API with oracle IDs (identities)
-          const userIdentity = await qHelper.getIdentity(userPublicId)
-          isProvider = bet.oracle_id.some((providerId) => providerId === userIdentity)
+          isProvider = betDetails.oracle_id.some((providerId) => providerId === userPublicId)
         }
 
         if (!isProvider) {

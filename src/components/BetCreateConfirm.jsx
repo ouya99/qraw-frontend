@@ -20,7 +20,7 @@ const BetCreateConfirm = ({ bet }) => {
 
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Description</h3>
-        <p>{bet.description}</p>
+        <p>{bet.descriptionFull}</p>
       </div>
 
       <div className="mb-4">

@@ -9,9 +9,9 @@ import LabelData from '../components/LabelData'
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext'
 import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import { sumArray } from '../components/qubic/util'
-import { fetchBetDetail } from '../components/qubic/util/betApi'
+import {fetchActiveBets, fetchBetDetail} from '../components/qubic/util/betApi'
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
-import {excludedBetIds, bytesEqual} from '../components/qubic/util/commons'
+import {excludedBetIds, bytesEqual, externalJsonAssetUrl} from '../components/qubic/util/commons'
 /* global BigInt */
 
 function BetDetailsPage() {
@@ -103,6 +103,19 @@ function BetDetailsPage() {
     %)`
   }
 
+  const calculateBettingOdds = (currentNumSelection) => {
+    const totalSelections = sumArray(currentNumSelection)
+    let betting_odds = Array(currentNumSelection.length).fill("1.0")
+
+    if (totalSelections > 0) {
+      betting_odds = currentNumSelection.map(selection =>
+        selection > 0 ? (totalSelections / selection).toFixed(2) : totalSelections.toFixed(2)
+      )
+    }
+
+    return betting_odds
+  }
+
   const updateBetDetails = async () => {
     try {
       setLoading(true)
@@ -116,6 +129,28 @@ function BetDetailsPage() {
 
       const betId = parseInt(id)
       const updatedBet = await fetchBetDetail(betId, coreNodeBetIds)
+
+      const isNewFormat = updatedBet.bet_desc.startsWith('###')
+
+      if (isNewFormat) {
+        const encodedHash = updatedBet.bet_desc.substring(3);
+        const url = `${externalJsonAssetUrl}/descriptions/${encodedHash}`;
+
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          updatedBet.full_description = data.description;
+        } catch (error) {
+          console.error('Error fetching full description:', error);
+          updatedBet.full_description = 'Description not available.';
+        }
+      } else {
+        // Old format; use bet_desc as is
+        updatedBet.full_description = updatedBet.bet_desc;
+      }
 
       updatedBet.current_total_qus = sumArray(updatedBet.current_num_selection) * Number(updatedBet.amount_per_bet_slot)
       updatedBet.betting_odds = calculateBettingOdds(updatedBet.current_num_selection)
@@ -144,23 +179,11 @@ function BetDetailsPage() {
     }
   }
 
-  const calculateBettingOdds = (currentNumSelection) => {
-    const totalSelections = sumArray(currentNumSelection)
-    let betting_odds = Array(currentNumSelection.length).fill("1.0")
-
-    if (totalSelections > 0) {
-      betting_odds = currentNumSelection.map(selection =>
-        selection > 0 ? (totalSelections / selection).toFixed(2) : totalSelections.toFixed(2)
-      )
-    }
-
-    return betting_odds
-  }
-
   useEffect(() => {
-    updateBetDetails()
+
+    updateBetDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [id, coreNodeBetIds])
 
   return (
     <div className='sm:px-30 md:px-130'>
@@ -170,8 +193,16 @@ function BetDetailsPage() {
 
         <div className='mt-[10px] px-5 sm:px-20 md:px-100'>
           <div className='p-5 bg-gray-70 mt-[105px] mb-9 rounded-[8px] text-center text-[35px] text-white'>
-            {bet.bet_desc}
+            {bet.full_description}
           </div>
+          {userIsProvider && (
+            <button
+              className="p-2 bg-primary-40 text-black rounded-lg size-full justify-center"
+              onClick={() => navigate(`/publish/${bet.bet_id}`)}
+            >
+              Publish Result
+            </button>
+          )}
           <Card className='p-[24px] w-full'>
             <div className='flex flex-col items-start justify-start gap-4'>
               <div className='grid grid-cols-2 md-grid-cols-3 justify-between items-center w-full'>
@@ -191,15 +222,6 @@ function BetDetailsPage() {
                   </span>
                 </div>
               </div>
-
-              {userIsProvider && (
-                <button
-                  className="mt-4 p-2 bg-primary-40 text-black rounded-lg"
-                  onClick={() => navigate(`/publish/${bet.bet_id}`)}
-                >
-                  Publish Result
-                </button>
-              )}
 
               {detailsViewVisible && <div className='w-full'>
                 <div className='grid md:grid-cols-3'>
@@ -351,15 +373,6 @@ function BetDetailsPage() {
           >
             {connected ? 'Bet!' : 'Bet!'}
           </button>
-
-          {userIsProvider && (
-            <button
-              className="mt-4 p-2 bg-primary-40 text-black rounded-lg"
-              onClick={() => navigate(`/publish/${bet.bet_id}`)}
-            >
-              Publish Result
-            </button>
-          )}
 
           <ConfirmTxModal
             open={showConfirmTxModal}
