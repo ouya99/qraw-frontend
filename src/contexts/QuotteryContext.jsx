@@ -260,6 +260,26 @@ export const QuotteryProvider = ({children}) => {
     }
   }
 
+  const writeFixedSizeByteArray = (view, offset, arr, size) => {
+    for (let i = 0; i < arr.length; i++) {
+      const byteArray = arr[i];
+      for (let j = 0; j < size; j++) {
+        if (j < byteArray.length) {
+          view.setUint8(offset + i * size + j, byteArray[j])
+        } else {
+          view.setUint8(offset + i * size + j, 0)
+        }
+      }
+    }
+
+    // Pad remaining slots with zeros if fewer than 8 items
+    for (let i = arr.length; i < 8; i++) {
+      for (let j = 0; j < size; j++) {
+        view.setUint8(offset + i * size + j, 0)
+      }
+    }
+  }
+
   const packQuotteryDateFromObject = ({date, time}) => {
     const [year, month, day] = date.split('-').map(Number)
     const [hour, minute] = time.split(':').map(Number)
@@ -436,7 +456,8 @@ export const QuotteryProvider = ({children}) => {
     writeFixedSizeStringArray(txView, offset, bet.options, 32)
     offset += 32 * 8
     // Write oracleProviderId (32 bytes x 8)
-    writeFixedSizeStringArray(txView, offset, bet.providers.map(p => p.publicId), 32)
+    const oracleProviderPublicKeys = bet.providers.map(p => qHelper.getIdentityBytes(p.publicId));
+    writeFixedSizeByteArray(txView, offset, oracleProviderPublicKeys, 32)
     offset += 32 * 8
     // Write oracleFees (uint32 x 8)
     bet.providers.forEach((provider, i) => {
