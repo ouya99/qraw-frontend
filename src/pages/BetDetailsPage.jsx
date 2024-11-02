@@ -195,14 +195,14 @@ function BetDetailsPage() {
           <div className='p-5 bg-gray-70 mt-[105px] mb-9 rounded-[8px] text-center text-[35px] text-white'>
             {bet.full_description}
           </div>
-          {userIsProvider && (
-            <button
-              className="p-2 bg-primary-40 text-black rounded-lg size-full justify-center"
-              onClick={() => navigate(`/publish/${bet.bet_id}`)}
-            >
-              Publish Result
-            </button>
-          )}
+          {/*{userIsProvider && (*/}
+          {/*  <button*/}
+          {/*    className="p-2 bg-primary-40 text-black rounded-lg size-full justify-center"*/}
+          {/*    onClick={() => navigate(`/publish/${bet.bet_id}`)}*/}
+          {/*  >*/}
+          {/*    Publish Result*/}
+          {/*  </button>*/}
+          {/*)}*/}
           <Card className='p-[24px] w-full'>
             <div className='flex flex-col items-start justify-start gap-4'>
               <div className='grid grid-cols-2 md-grid-cols-3 justify-between items-center w-full'>
