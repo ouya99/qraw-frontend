@@ -11,7 +11,7 @@ import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import BetCreateConfirm from '../components/BetCreateConfirm'
 import {useQuotteryContext} from "../contexts/QuotteryContext"
-import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
+import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper"
 import {hashBetData, hashUniqueData} from "../components/qubic/util/hashUtils"
 
 function BetCreatePage() {
@@ -39,8 +39,8 @@ function BetCreatePage() {
   const descriptionRef = useRef()
   const closeDateTimeRef = useRef()
   const endDateTimeRef = useRef()
-  const amountPerSlotRef = useRef();
-  const maxBetSlotsRef = useRef();
+  const amountPerSlotRef = useRef()
+  const maxBetSlotsRef = useRef()
 
   const validateForm = () => {
     const isDescriptionValid = descriptionRef.current.validate()
@@ -50,6 +50,17 @@ function BetCreatePage() {
     const isProvidersValid = bet.providers.length >= 1 && bet.providers.every(provider => provider.publicId && provider.fee)
     const isAmountPerSlotValid = amountPerSlotRef.current.validate()
     const isMaxBetSlotsValid = maxBetSlotsRef.current.validate()
+
+    if (bet.closeDateTime && bet.endDateTime) {
+      const closeDateTime = new Date(`${bet.closeDateTime.date}T${bet.closeDateTime.time}Z`)
+      const endDateTime = new Date(`${bet.endDateTime.date}T${bet.endDateTime.time}Z`)
+
+      if (endDateTime <= closeDateTime) {
+        alert('End DateTime must be after Close DateTime.')
+        return false
+      }
+
+    }
 
     return (
       isDescriptionValid &&
@@ -88,7 +99,52 @@ function BetCreatePage() {
   }
 
   const handleOptionsChange = newOptions => setBet({...bet, options: newOptions})
-  const handleCloseDateTimeChange = dateTime => setBet({ ...bet, closeDateTime: dateTime })
+  const handleCloseDateTimeChange = dateTime => {
+    setBet(prevBet => {
+      const newBet = { ...prevBet, closeDateTime: dateTime }
+
+      if (prevBet.endDateTime && prevBet.endDateTime.date && prevBet.endDateTime.time) {
+        const closeDateTime = new Date(`${dateTime.date}T${dateTime.time}Z`)
+        const endDateTime = new Date(`${prevBet.endDateTime.date}T${prevBet.endDateTime.time}Z`)
+
+        if (endDateTime <= closeDateTime) {
+          newBet.endDateTime = '' // Reset end date
+
+          // Reset end date's state
+          if (endDateTimeRef.current) {
+            endDateTimeRef.current.reset()
+          }
+        }
+      }
+
+      return newBet
+    })
+  }
+
+  const calculateMinEndDateTime = () => {
+    const { date, time } = bet.closeDateTime || {}
+
+    if (!date || !time) {
+      return null
+    }
+
+    const closeDateTimeStr = `${date}T${time}Z`
+    const closeDateTime = new Date(closeDateTimeStr)
+
+    if (isNaN(closeDateTime.getTime())) {
+      console.error('Invalid closeDateTime:', closeDateTimeStr)
+      return null
+    }
+
+    const minEndDateTime = new Date(closeDateTime.getTime() + 60 * 60 * 1000) // Add 1 hour
+
+    const isoString = minEndDateTime.toISOString()
+    const minDate = isoString.split('T')[0]
+    const minTime = isoString.split('T')[1].slice(0, 5) // Get HH:MM
+
+    return { date: minDate, time: minTime }
+  }
+
   const handleEndDateTimeChange = dateTime => setBet({ ...bet, endDateTime: dateTime })
   const handleProvidersChange = newProviders => setBet({...bet, providers: newProviders})
   const handleAmountPerSlotChange = value => setBet({ ...bet, amountPerSlot: value })
@@ -98,8 +154,8 @@ function BetCreatePage() {
     event.preventDefault()
     if (connected) {
       if (validateForm()) {
-        const closeDateTime = `${bet.closeDateTime.date}T${bet.closeDateTime.time}`
-        const endDateTime = `${bet.endDateTime.date}T${bet.endDateTime.time}`
+        const closeDateTime = `${bet.closeDateTime.date}T${bet.closeDateTime.time}Z`
+        const endDateTime = `${bet.endDateTime.date}T${bet.endDateTime.time}Z`
         const closeDate = new Date(closeDateTime)
         const endDate = new Date(endDateTime)
         const diffHours = (endDate - closeDate) / (1000 * 60 * 60)
@@ -110,19 +166,10 @@ function BetCreatePage() {
         }
 
         bet.diffHours = diffHours
+        console.log('Diff hours:', diffHours)
 
         // Generate unique identifiers
         const creatorIdentity = await getCreatorIdentity()
-
-        // Prepare bet data for hashing
-        const betData = {
-          description: bet.description,
-          creatorIdentity: creatorIdentity,
-          closeDateTime: closeDateTime,
-          endDateTime: endDateTime,
-          oracleProviders: bet.providers.map(p => p.publicId),
-          options: bet.options,
-        }
 
         // Generate the first part of the hash
         const firstPartHash = hashBetData(bet.description,
@@ -149,6 +196,7 @@ function BetCreatePage() {
           description: betDescriptionReference,
           descriptionFull: bet.description
         }
+
         setBet(betToSend)
         console.log('Valid Bet:', betToSend)
         setShowConfirmTxModal(true)
@@ -175,14 +223,14 @@ function BetCreatePage() {
             id="description"
             ref={descriptionRef}
             label="Bet description"
-            max={100} // Now max chars will be 100
+            max={100}
             placeholder="Enter bet description"
             onChange={(value) => {
               setBet({ ...bet, description: value })
             }}
           />
 
-          {/* Expiration dates */}
+          {/* Close Date and Time */}
           <SelectDateTime
             ref={closeDateTimeRef}
             label="Close Date and Time"
@@ -190,11 +238,13 @@ function BetCreatePage() {
             onChange={handleCloseDateTimeChange}
           />
 
+          {/* End Date and Time */}
           <SelectDateTime
             ref={endDateTimeRef}
             label="End Date and Time"
             fieldId="end"
             onChange={handleEndDateTimeChange}
+            minDateTime={calculateMinEndDateTime()}
           />
 
           {/* Bet options */}
@@ -270,8 +320,7 @@ function BetCreatePage() {
           description: <BetCreateConfirm bet={bet} />,
         }}
         onConfirm={async () => {
-          const confirmed = await signIssueBetTx(bet)
-          return confirmed
+          return await signIssueBetTx(bet)
         }}
       />
     </div>
