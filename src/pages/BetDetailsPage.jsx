@@ -9,7 +9,7 @@ import LabelData from '../components/LabelData'
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext'
 import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import { sumArray } from '../components/qubic/util'
-import {fetchActiveBets, fetchBetDetail} from '../components/qubic/util/betApi'
+import {fetchBetDetail} from '../components/qubic/util/betApi'
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
 import {excludedBetIds, bytesEqual, externalJsonAssetUrl} from '../components/qubic/util/commons'
 /* global BigInt */

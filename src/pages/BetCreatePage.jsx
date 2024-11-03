@@ -1,4 +1,3 @@
-/* global BigInt */
 import React, {useRef, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import SelectDateTime from '../components/qubic/ui/SelectDateTime'
