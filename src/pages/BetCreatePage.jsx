@@ -82,7 +82,7 @@ function BetCreatePage() {
 
   const uploadDescription = async (description, encodedHash) => {
     try {
-      const response = await fetch(`http://91.210.226.146:3000/upload`, {
+      const response = await fetch(`https://qbtn.qubic.org/upload`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

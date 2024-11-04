@@ -201,7 +201,7 @@ const fetchAndVerifyBetDescription = async (bet) => {
   if (isNewFormat) {
     const qHelper = new QubicHelper()
     const encodedHash = bet.bet_desc.substring(3)
-    const url = `${externalJsonAssetUrl}/descriptions/${encodedHash}`
+    const url = `${externalJsonAssetUrl}/bet_external_asset/${encodedHash}`
 
     try {
       const response = await fetch(url)

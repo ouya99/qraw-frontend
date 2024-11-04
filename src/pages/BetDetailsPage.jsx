@@ -134,7 +134,7 @@ function BetDetailsPage() {
 
       if (isNewFormat) {
         const encodedHash = updatedBet.bet_desc.substring(3);
-        const url = `${externalJsonAssetUrl}/descriptions/${encodedHash}`;
+        const url = `${externalJsonAssetUrl}/bet_external_asset/${encodedHash}`;
 
         try {
           const response = await fetch(url);

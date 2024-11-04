@@ -30,4 +30,4 @@ export const bytesEqual = (a, b) => {
 
 export const backendUrl = 'https://qbtn.qubic.org' // test system
 // export const backendUrl = 'https://qb.qubic.org' // live system
-export const externalJsonAssetUrl = 'http://91.210.226.146:3000' // test system
+export const externalJsonAssetUrl = 'https://qbtn.qubic.org' // test system
