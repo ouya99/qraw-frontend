@@ -5,6 +5,7 @@ import Header from './components/layout/Header'
 import StartPage from './pages/StartPage'
 import BetDetailsPage from './pages/BetDetailsPage'
 import BetCreatePage from './pages/BetCreatePage'
+import BetPublishPage from './pages/BetPublishPage'
 import './App.css'
 import { QubicConnectProvider } from './components/qubic/connect/QubicConnectContext'
 import { QuotteryProvider } from './contexts/QuotteryContext'
@@ -25,6 +26,9 @@ function App() {
             </Route>
             <Route>
               <Route path="/create" element={<BetCreatePage />} />
+            </Route>
+            <Route>
+              <Route path="/publish/:id" element={<BetPublishPage />} />
             </Route>
           </Routes>
           <Footer />

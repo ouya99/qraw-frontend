@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import InputMaxChars from './qubic/ui/InputMaxChars';
 import InputRegEx from './qubic/ui/InputRegEx';
 
-const ProvidersList = ({ max, providers: initialProviders, onChange }) => {
+const ProvidersList = ({max, providers: initialProviders, onChange}) => {
   const [providers, setProviders] = useState(initialProviders);
   const [errors, setErrors] = useState({});
+  const [totalFeeError, setTotalFeeError] = useState('')
 
   useEffect(() => {
     setProviders(initialProviders);
@@ -12,15 +13,29 @@ const ProvidersList = ({ max, providers: initialProviders, onChange }) => {
 
   const handleProviderChange = (index, field, value) => {
     const newProviders = [...providers];
-    newProviders[index] = { ...newProviders[index], [field]: value };
+    newProviders[index] = {...newProviders[index], [field]: value};
     setProviders(newProviders);
     onChange(newProviders);
+    validateFees(newProviders);
+
   };
+
+  const validateFees = (providerList) => {
+    const totalFees = providerList.reduce((sum, provider) => {
+      return sum + (parseFloat(provider.fee) || 0);
+    }, 0)
+
+    if (totalFees > 100) {
+      setTotalFeeError('The total sum of provider fees cannot exceed 100%.')
+    } else {
+      setTotalFeeError('')
+    }
+  }
 
   const handleAddProvider = (event) => {
     event.preventDefault();
     if (providers.length < max) {
-      const newProviders = [...providers, { publicId: '', fee: '' }];
+      const newProviders = [...providers, {publicId: '', fee: ''}];
       setProviders(newProviders);
       onChange(newProviders);
     }
@@ -30,6 +45,7 @@ const ProvidersList = ({ max, providers: initialProviders, onChange }) => {
     const newProviders = providers.filter((_, i) => i !== index);
     setProviders([...newProviders]);
     onChange(newProviders);
+    validateFees(newProviders)
   };
 
   useEffect(() => {
@@ -47,6 +63,7 @@ const ProvidersList = ({ max, providers: initialProviders, onChange }) => {
       return Object.keys(newErrors).length === 0;
     };
     validateProviders();
+    validateFees(providers)
   }, [providers]);
 
   return (
@@ -60,6 +77,7 @@ const ProvidersList = ({ max, providers: initialProviders, onChange }) => {
               max={60}
               placeholder="Enter Oracle ID"
               initialValue={provider.publicId}
+              regEx={/^[A-Z]*$/}
               onChange={(value) => handleProviderChange(index, 'publicId', value)}
             />
             {errors[`publicId_${index}`] && <p className="text-red-500">{errors[`publicId_${index}`]}</p>}
@@ -81,8 +99,9 @@ const ProvidersList = ({ max, providers: initialProviders, onChange }) => {
             className="text-red-500 disabled:text-gray-500"
             disabled={providers.length <= 1}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                 className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
         </div>

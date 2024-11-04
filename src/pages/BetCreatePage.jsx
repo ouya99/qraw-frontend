@@ -85,7 +85,7 @@ function BetCreatePage() {
 
   return (
     <div className='mt-[90px] sm:px-30 md:px-130'>
-      <div className="max-w-md mx-auto p-4">
+      <div className="max-w-3xl mx-auto p-4">
 
         <FormHead
           title='Create New Bet'
@@ -98,7 +98,7 @@ function BetCreatePage() {
             id="description"
             ref={descriptionRef}
             label="Bet description"
-            max={100}
+            max={32}
             placeholder="Enter bet description"
             onChange={(value) => {
               setBet({ ...bet, description: value })
@@ -165,6 +165,7 @@ function BetCreatePage() {
             placeholder="Enter max bet slots"
             description="Here we go with a small help description."
             ref={maxBetSlotsRef}
+            maxLimit={1024}
             onChange={handleMaxBetSlotsChange}
           />
 

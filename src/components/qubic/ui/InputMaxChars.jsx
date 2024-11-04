@@ -1,19 +1,20 @@
 import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 
-const InputMaxChars = forwardRef(({ id, label, max, placeholder, initialValue = '', onChange }, ref) => {
+const InputMaxChars = forwardRef(({ id, label, max, placeholder, initialValue = '', regEx = /.*/, onChange }, ref) => {
   const [value, setValue] = useState(initialValue);
   const [numChars, setNumChars] = useState(initialValue.length);
   const [error, setError] = useState('');
 
   const handleChange = (event) => {
     const newValue = event.target.value;
-    if (newValue.length > max) {
-      setError(`Maximum ${max} characters allowed`);
-    } else {
+
+    if (regEx.test(newValue) && newValue.length <= max) {
       setError('');
       setNumChars(newValue.length);
       setValue(newValue);
       onChange(newValue);
+    } else if (newValue.length > max) {
+      setError(`Maximum ${max} characters allowed`);
     }
   };
 
