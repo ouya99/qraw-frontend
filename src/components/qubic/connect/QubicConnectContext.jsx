@@ -6,8 +6,8 @@ import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto'
 
 const QubicConnectContext = createContext()
 // TODO move to config
-export const httpEndpoint = 'https://91.210.226.146' // test system
-// export const httpEndpoint = 'https://rpc.qubic.org' // live system
+// export const httpEndpoint = 'https://91.210.226.146' // test system
+export const httpEndpoint = 'https://rpc.qubic.org' // live system
 
 export function QubicConnectProvider({ children }) {
   const [connected, setConnected] = useState(false)
