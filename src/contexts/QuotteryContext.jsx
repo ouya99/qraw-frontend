@@ -456,7 +456,7 @@ export const QuotteryProvider = ({children}) => {
     writeFixedSizeStringArray(txView, offset, bet.options, 32)
     offset += 32 * 8
     // Write oracleProviderId (32 bytes x 8)
-    const oracleProviderPublicKeys = bet.providers.map(p => qHelper.getIdentityBytes(p.publicId));
+    const oracleProviderPublicKeys = bet.providers.map(p => qHelper.getIdentityBytes(p.publicId))
     writeFixedSizeByteArray(txView, offset, oracleProviderPublicKeys, 32)
     offset += 32 * 8
     // Write oracleFees (uint32 x 8)
@@ -495,7 +495,6 @@ export const QuotteryProvider = ({children}) => {
     tx.set(signedtx, offset)
     offset += qHelper.SIGNATURE_LENGTH
 
-    console.log('bet:', bet)
     const txResult = await broadcastTx(tx)
     console.log('Response:', txResult)
 

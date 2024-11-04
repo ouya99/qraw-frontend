@@ -38,7 +38,7 @@ const OptionsList = ({ max, options: initialOptions, onChange }) => {
             <InputMaxChars
               id={`option-${index}`}
               label={`Option ${index + 1}`}
-              max={50}
+              max={32}
               placeholder="Enter option"
               initialValue={option}
               onChange={(value) => handleOptionChange(index, value)}
