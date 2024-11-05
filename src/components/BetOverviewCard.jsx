@@ -16,7 +16,7 @@ function BetOverviewCard({ data, onClick }) {
     >
       <div className="flex flex-col items-start justify-start gap-[24px]">
         <div className="text-white text-20">
-          {data.full_description}
+          {data.full_description ? data.full_description : data.bet_desc}
         </div>
         <div className="grid grid-cols-2 justify-between items-center w-full">
           <LabelData lbl="Bet closes at" value={data.close_date + ' ' + data.close_time.slice(0, -3) + ' UTC'} />
