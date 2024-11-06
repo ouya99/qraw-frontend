@@ -3,7 +3,7 @@ import {Buffer} from 'buffer';
 import base64 from 'base-64';
 import {HEADERS, makeJsonData, QTRY_CONTRACT_INDEX, QUERY_SMART_CONTRACT_API_URI, backendUrl} from './commons';
 import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
-import {externalJsonAssetUrl} from './commons'
+import {externalJsonAssetUrl, debuglog} from './commons'
 import {hashBetData} from "./hashUtils"
 
 // Get Node's info using qubic-http's API
@@ -225,13 +225,13 @@ const fetchAndVerifyBetDescription = async (bet) => {
       // Remove the unique identifier
       const encodedHashFirst = encodedHash.substring(0, 23)
 
-      console.log('firstPartHash:', firstPartHash, 'encodedHashFirst:', encodedHashFirst)
+      debuglog('firstPartHash:', firstPartHash, 'encodedHashFirst:', encodedHashFirst)
 
       // Compare the hashes
       if (firstPartHash !== encodedHashFirst) {
         throw new Error('Description hash does not match expected hash')
       } else {
-        console.log('Hash verified successfully!')
+        debuglog('Hash verified successfully!')
       }
 
       bet.full_description = data.description

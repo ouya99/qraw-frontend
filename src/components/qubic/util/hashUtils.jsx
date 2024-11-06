@@ -1,5 +1,6 @@
 /* global BigInt */
 import CryptoJS from 'crypto-js'
+import {debuglog} from './commons'
 import {v4 as uuidv4} from 'uuid'
 
 export const base62Encode = (hexStr) => {
@@ -26,13 +27,13 @@ export function hashBetData(description, creatorIdentity, oracleProviders, optio
     options.join('|'),
   ].join('|')
 
-  console.log('Combined Data:', combinedData)
+  debuglog('Combined Data:', combinedData)
 
   // Generate SHA-256 hash
   const hash = CryptoJS.SHA256(combinedData).toString()
 
-  console.log('Hashed:', hash)
-  console.log('Final hash:', base62Encode(hash).substring(0, 23))
+  debuglog('Hashed:', hash)
+  debuglog('Final hash:', base62Encode(hash).substring(0, 23))
   // Encode and truncate to 23 characters
   return base62Encode(hash).substring(0, 23)
 }

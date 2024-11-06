@@ -9,6 +9,7 @@ export const HEADERS = {
 };
 
 export const QTRY_CONTRACT_INDEX = 2;
+export const LOG_DEBUG = false
 export const excludedBetIds = [31]
 export const makeJsonData = (contractIndex, inputType, inputSize, requestData) => {
   return {
@@ -26,6 +27,12 @@ export const bytesEqual = (a, b) => {
     if (a[i] !== b[i]) return false
   }
   return true
+}
+
+export const debuglog = (...message) => {
+  if (LOG_DEBUG) {
+    console.log(...message)
+  }
 }
 
 export const backendUrl = 'https://qbtn.qubic.org' // test system
