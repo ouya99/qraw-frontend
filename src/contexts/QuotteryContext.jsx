@@ -142,84 +142,80 @@ export const QuotteryProvider = ({children}) => {
   };
 
   const fetchBets = async (filter) => {
-    setLoading(true);
+    setLoading(true)
 
-    if (filter === 'active' || filter === 'locked') {
+    let bets = []
+
+    // First, attempt to fetch bets from the Qubic HTTP API
+    let qubicApiBets = []
+    let qubicApiAvailable = true
+
+    try {
+      qubicApiBets = await fetchQubicHttpApiBets()
+    } catch (error) {
+      console.error('Error fetching bets from Qubic HTTP API:', error)
+      qubicApiAvailable = false
+    }
+
+    if (filter === 'inactive' || filter === 'all') {
+      // Fetch bets from backend API
+      let backendBets = []
       try {
-        const allCoreBets = await fetchQubicHttpApiBets();
-
-        if (!allCoreBets) { // Check if fetchQubicHttpApiBets returned null
-          // If null, fall back to backend API
-          console.log('Fetching from Backend API due to Qubic Http API failure.');
-          const backendBets = await fetchBackendApiBets(filter);
-          dispatch({
-            type: 'SET_BETS',
-            payload: backendBets,
-          });
-        } else {
-          const filtered_bets = allCoreBets.filter((bet) => {
-            if (filter === 'active') {
-              return !ifExceedsDatetime(bet.close_date, bet.close_time); // Active bets should not exceed the close date/time
-            } else if (filter === 'locked') {
-              return ifExceedsDatetime(bet.close_date, bet.close_time) && !ifExceedsDatetime(bet.end_date, bet.end_time); // Locked bets should not exceed the end date/time
-            }
-            return false;
-          });
-
-          dispatch({
-            type: 'SET_BETS',
-            payload: filtered_bets,
-          });
-        }
-
-        await fetchNodeInfoAndUpdate();
+        backendBets = await fetchBackendApiBets(filter)
       } catch (error) {
-        console.error("Error fetching bets:", error);
+        console.error('Error fetching bets from backend API:', error)
       }
-    } else if (filter === 'inactive') {
-      try {
-        // Fetch from Backend API
-        const inactiveBetsData = await fetchBackendApiBets(filter);
-        const inactiveBets = inactiveBetsData.filter((bet) =>
-          ifExceedsDatetime(bet.end_date, bet.end_time)
-        );
-        dispatch({
-          type: 'SET_BETS',
-          payload: inactiveBets,
-        });
 
-        await fetchNodeInfoAndUpdate();
-      } catch (error) {
-        console.error('Error fetching bets:', error);
+      // Combine bets from both sources
+      let allBets = []
+
+      if (qubicApiAvailable && qubicApiBets) {
+        allBets = qubicApiBets
       }
-    } else { //  if (filter === 'all')
-      try {
-        const [qubicApiBets, backendApiBets] = await Promise.allSettled([
-          fetchQubicHttpApiBets(),
-          fetchBackendApiBets(filter),
-        ]);
 
-        let allBets = [];
-        if (qubicApiBets.status === 'fulfilled' && qubicApiBets.value) {
-          allBets = qubicApiBets.value;
-        }
-        if (backendApiBets.status === 'fulfilled') {
-          const backendBets = backendApiBets.value;
-          // Remove duplicates
-          const backendBetsUnique = backendBets.filter(
-            (backendBet) => !allBets.some((qubicBet) => areBetsEqual(qubicBet, backendBet))
-          );
-          allBets = allBets.concat(backendBetsUnique);
-        }
+      // Remove duplicates
+      const backendBetsUnique = backendBets.filter(
+        (backendBet) => !allBets.some((qubicBet) => areBetsEqual(qubicBet, backendBet))
+      )
 
-        dispatch({type: 'SET_BETS', payload: allBets});
-        console.log(allBets)
-        await fetchNodeInfoAndUpdate();
-      } catch (error) {
-        console.error('Error fetching bets:', error);
+      allBets = allBets.concat(backendBetsUnique)
+
+      if (filter === 'inactive') {
+        // For 'inactive' bets, filter bets where the end date has been exceeded
+        bets = allBets.filter((bet) => ifExceedsDatetime(bet.end_date, bet.end_time))
+      } else {
+        // For 'all' bets, include all bets after removing duplicates
+        bets = allBets
+      }
+    } else if (filter === 'active' || filter === 'locked') {
+      if (qubicApiAvailable && qubicApiBets) {
+        // Filter bets based on 'active' or 'locked' status
+        bets = qubicApiBets.filter((bet) => {
+          const closeDateExceeded = ifExceedsDatetime(bet.close_date, bet.close_time)
+          const endDateExceeded = ifExceedsDatetime(bet.end_date, bet.end_time)
+          if (filter === 'active') {
+            return !closeDateExceeded
+          } else if (filter === 'locked') {
+            return closeDateExceeded && !endDateExceeded
+          }
+        })
+      } else {
+        // Qubic HTTP API is unavailable, fall back to backend API
+        console.log('Qubic HTTP API unavailable, fetching bets from backend API.')
+        try {
+          bets = await fetchBackendApiBets(filter)
+        } catch (error) {
+          console.error('Error fetching bets from backend API:', error)
+        }
       }
     }
 
+    dispatch({
+      type: 'SET_BETS',
+      payload: bets,
+    })
+
+    await fetchNodeInfoAndUpdate()
 
     setLoading(false)
   }
