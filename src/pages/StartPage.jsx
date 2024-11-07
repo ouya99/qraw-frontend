@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, {useState} from 'react'
+import {useNavigate} from 'react-router-dom'
 import BetOverviewCard from '../components/BetOverviewCard'
 import Dropdown from '../components/qubic/Dropdown'
-import { useQuotteryContext } from '../contexts/QuotteryContext'
+import {useQuotteryContext} from '../contexts/QuotteryContext'
 import {excludedBetIds} from '../components/qubic/util/commons'
+import LoadingSpinner from "../components/LoadingSpinner"
 
 
 function StartPage() {
   const navigate = useNavigate()
-  const { state, loading, setBetsFilter } = useQuotteryContext()
+  const {state, loading, setBetsFilter} = useQuotteryContext()
   const [currentFilterOption, setCurrentFilterOption] = useState(1) // 0 = All, 1 = Active, 2 = Locked, 3 = Inactive
   const filterOptions = [
     {label: 'All', value: 'all'},
@@ -36,7 +37,8 @@ function StartPage() {
         </button>
       </div>
       <div className='flex justify-between items-center mt-[48px] px-20'>
-        <span className=' text-white font-space'>{filterOptions[currentFilterOption].label} Bets {state.bets ? `(${state.bets.length})` : null}</span>
+        <span
+          className=' text-white font-space'>{filterOptions[currentFilterOption].label} Bets {state.bets ? `(${state.bets.length})` : null}</span>
         <Dropdown
           label={'Filter Bets'}
           options={filterOptions}
@@ -53,19 +55,24 @@ function StartPage() {
         mt-[16px] mb-[100px]
         px-5 sm:px-20
       '>
-        {loading && <div>Loading...</div>}
-
         {!loading && state.bets && state.bets.length > 0 && <>
           {state.bets
             .filter(bet => !excludedBetIds.includes(bet.bet_id))
             .map((bet, index) =>
-            <BetOverviewCard
-              key={'bet' + index}
-              data={bet}
-              onClick={() => navigate('/bet/' + bet.bet_id)}
-            />)
+              <BetOverviewCard
+                key={'bet' + index}
+                data={bet}
+                onClick={() => navigate('/bet/' + bet.bet_id)}
+              />)
           }
         </>}
+
+        {/* Show a message if there are no bets. TODO: Add the icon as in design */}
+        {!loading && (!state.bets || state.bets.length === 0) && (
+          <div className="text-center text-gray-400 mt-8">No bets available.</div>
+        )}
+
+        {loading && <LoadingSpinner />}
       </div>
     </div>
   )
