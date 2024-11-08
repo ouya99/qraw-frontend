@@ -47,9 +47,7 @@ export function QubicConnectProvider({ children }) {
 
   const signTx = async (bet) => {
     const idPackage = await qHelper.createIdPackage(wallet)
-    console.log('id', idPackage)
     const qCrypto = await Crypto
-    // console.log(qHelper.privateKey(wallet, 0, qCrypto.K12))
     const tick = await getTick()
     const tickOffset = 5
     console.log('tick:', tick + tickOffset)

@@ -114,9 +114,9 @@ const ConnectModal = ({ open, onClose }) => {
                             <button
                                 className="bg-primary-40 p-4 rounded-lg"
                                 onClick={() => setSelectedMode('private-seed')}>Private Seed</button>
-                            <button
-                                className="bg-primary-40 p-4 rounded-lg"
-                                onClick={() => setSelectedMode('vault-file')}>Vault File</button>
+                            {/*<button*/}
+                            {/*    className="bg-primary-40 p-4 rounded-lg"*/}
+                            {/*    onClick={() => setSelectedMode('vault-file')}>Vault File</button>*/}
                             <button disabled
                                 className="bg-gray-50 p-4 rounded-lg"
                                 onClick={() => setSelectedMode('metamask')}>MetaMask (coming soon)</button>
