@@ -130,7 +130,7 @@ const parseFixedSizeStrings = (buffer, start, length, count, itemSize) => {
   const items = [];
   for (let i = 0; i < count; i++) {
     const str = buffer.slice(start + i * itemSize, start + (i + 1) * itemSize).toString('utf-8');
-    items.push(str.replace(/\0/g, '').trim()); // Remove null characters and trim whitespace
+    items.push(str.replace(/\0/g, '')); // Remove null characters and trim whitespace
   }
   return items;
 };
