@@ -195,7 +195,7 @@ export const fetchBetDetail = async (betId, coreNodeBetIds) => {
   }
 }
 
-const fetchAndVerifyBetDescription = async (bet) => {
+export const fetchAndVerifyBetDescription = async (bet) => {
   const isNewFormat = bet.bet_desc.startsWith('###')
 
   if (isNewFormat) {
@@ -210,13 +210,13 @@ const fetchAndVerifyBetDescription = async (bet) => {
       }
       const data = await response.json()
 
-      const oracleIdentities = await Promise.all(
+      const oracleIdentities = bet.oracle_id[0] instanceof Uint8Array ? await Promise.all(
         bet.oracle_id.map(async (p) => {
           return await qHelper.getIdentity(p)
         })
-      );
+      ) : bet.oracle_id
 
-      const creator = await qHelper.getIdentity(bet.creator)
+      const creator = bet.creator instanceof Uint8Array ? await qHelper.getIdentity(bet.creator) : bet.creator
       const firstPartHash = await hashBetData(data.description,
         creator,
         oracleIdentities,

@@ -3,7 +3,7 @@ import React, {createContext, useContext, useEffect, useReducer, useState} from 
 import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
 import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto'
 import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
-import {fetchActiveBets, fetchBetDetail, fetchNodeInfo} from '../components/qubic/util/betApi';
+import {fetchActiveBets, fetchBetDetail, fetchNodeInfo, fetchAndVerifyBetDescription} from '../components/qubic/util/betApi';
 import {backendUrl, excludedBetIds} from '../components/qubic/util/commons'
 
 const QuotteryContext = createContext()
@@ -90,13 +90,14 @@ export const QuotteryProvider = ({children}) => {
     if (data.bet_list) {
       const filteredBetList = data.bet_list.filter(bet => !excludedBetIds.includes(bet.bet_id))
 
-      filteredBetList.forEach((bet) => {
+      for (const bet of filteredBetList) {
         // parse list fields using JSON.parse
         bet.oracle_fee = JSON.parse(bet.oracle_fee);
         bet.oracle_id = JSON.parse(bet.oracle_id);
         bet.option_desc = JSON.parse(bet.option_desc);
         bet.betting_odds = JSON.parse(bet.betting_odds);
         bet.current_bet_state = JSON.parse(bet.current_bet_state);
+        bet.amount_per_bet_slot = BigInt(bet.amount_per_bet_slot)
         bet.current_num_selection = JSON.parse(bet.current_num_selection);
         bet.oracle_vote = JSON.parse(bet.oracle_vote);
         const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z');
@@ -108,7 +109,8 @@ export const QuotteryProvider = ({children}) => {
         bet.maxBetSlotPerOption = bet.max_slot_per_option
         bet.oracle_public_keys = null
 
-      });
+        await fetchAndVerifyBetDescription(bet)
+      }
     }
 
     return filteredBetList || [];
@@ -127,17 +129,17 @@ export const QuotteryProvider = ({children}) => {
       bet1.open_date === bet2.open_date &&
       bet1.close_date === bet2.close_date &&
       bet1.end_date === bet2.end_date &&
-      bet1.open_time === bet2.open_time &&
+      bet1.open_time.split(':').slice(0, 2).join(':') === bet2.open_time.split(':').slice(0, 2).join(':') &&
       bet1.close_time === bet2.close_time &&
       bet1.end_time === bet2.end_time &&
       bet1.amount_per_bet_slot === bet2.amount_per_bet_slot &&
       bet1.maxBetSlotPerOption === bet2.maxBetSlotPerOption &&
       JSON.stringify(bet1.current_bet_state) === JSON.stringify(bet2.current_bet_state) &&
       JSON.stringify(bet1.current_num_selection) === JSON.stringify(bet2.current_num_selection) &&
-      JSON.stringify(bet1.betResultWonOption) === JSON.stringify(bet2.betResultWonOption) &&
-      JSON.stringify(bet1.betResultOPId) === JSON.stringify(bet2.betResultOPId) &&
-      bet1.current_total_qus === bet2.current_total_qus &&
-      JSON.stringify(bet1.betting_odds) === JSON.stringify(bet2.betting_odds)
+      // JSON.stringify(bet1.betResultWonOption) === JSON.stringify(bet2.betResultWonOption) &&
+      // JSON.stringify(bet1.betResultOPId) === JSON.stringify(bet2.betResultOPId) &&
+      Number(bet1.current_total_qus) === Number(bet2.current_total_qus) &&
+      JSON.stringify(bet1.betting_odds.map(odd => Number(odd))) === JSON.stringify(bet2.betting_odds.map(odd => Number(odd)))
     );
   };
 
