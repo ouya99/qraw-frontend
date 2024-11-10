@@ -61,7 +61,13 @@ const ConnectModal = ({open, onClose}) => {
           true, // unlock: boolean = false
         )
         // now we switch view to select one of the seeds
-        setAccounts(vault.getSeeds().filter((account) => !account.isOnlyWatch))
+        const accountList = vault.getSeeds().filter((account) => !account.isOnlyWatch)
+
+        if (accountList.length === 0) {
+          throw new Error('No eligible accounts found. Only watch-only accounts are listed in the vault file.')
+        }
+
+        setAccounts(accountList)
         setSelectedMode('account-select')
       } catch (error) {
         console.error('Error unlocking vault:', error)
