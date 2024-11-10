@@ -55,6 +55,7 @@ export function QubicConnectProvider({ children }) {
     const quotteryTxSize = qHelper.TRANSACTION_SIZE + 16
     const sourcePrivateKey = idPackage.privateKey
     const sourcePublicKey = idPackage.publicKey
+    console.log('Public id:', await qHelper.getIdentity(sourcePublicKey))
     const tx = new Uint8Array(quotteryTxSize).fill(0)
     const txView = new DataView(tx.buffer)
     const contractIndex = 2
