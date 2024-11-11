@@ -6,16 +6,13 @@ import LabelData from "./LabelData"
 import { sumArray } from "./qubic/util"
 
 function BetOverviewCard({ data, onClick }) {
-  // console.log(data.close_date);
-  // console.log(data.close_time);
-  // console.log('####################', data.close_date + ' ' + data.close_time.slice(0, -3) + ' UTC');
   return (
     <Card
-      className="p-[15px] h-[240px] hover:border-primary-40 cursor-pointer"
+      className="p-[15px] h-[280px] hover:border-primary-40 cursor-pointer"
       onClick={onClick}
     >
-      <div className="flex flex-col items-start justify-start gap-[24px]">
-        <div className="text-white text-20">
+      <div className="flex flex-col items-start justify-start justify-between gap-[8px] h-full">
+        <div className="text-white text-20 line-clamp-3 overflow-hidden">
           {data.full_description ? data.full_description : data.bet_desc}
         </div>
         <div className="grid grid-cols-2 justify-between items-center w-full">
@@ -30,7 +27,7 @@ function BetOverviewCard({ data, onClick }) {
             value={'2 %'}
           />
         </div>
-        <div className="gap-[12px] flex justify-center items-center size-full">
+        <div className="gap-[12px] flex justify-center items-center w-full">
           <img src={QubicCoin} alt="" />
           <span className="text-white text-18">
             {formatQubicAmount(data.current_total_qus)} QUBIC
