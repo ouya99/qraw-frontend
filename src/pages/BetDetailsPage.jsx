@@ -11,7 +11,7 @@ import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import { sumArray } from '../components/qubic/util'
 import {fetchBetDetail} from '../components/qubic/util/betApi'
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
-import {excludedBetIds, bytesEqual, externalJsonAssetUrl} from '../components/qubic/util/commons'
+import {excludedBetIds, externalJsonAssetUrl} from '../components/qubic/util/commons'
 /* global BigInt */
 
 function BetDetailsPage() {
@@ -28,7 +28,6 @@ function BetDetailsPage() {
   const [isOracleProvider, setIsOracleProvider] = useState(false)
   const [isAfterEndDate, setIsAfterEndDate] = useState(false)
   const [hasEnoughParticipants, setHasEnoughParticipants] = useState(false)
-  const [hasAlreadyPublished, setHasAlreadyPublished] = useState(false)
   const [publishButtonText, setPublishButtonText] = useState('')
 
   const navigate = useNavigate()
@@ -193,7 +192,6 @@ function BetDetailsPage() {
 
         // Check if the current wallet's public ID is in the list of Oracles who have published
         const hasPublished = votedOracles.includes(userIdentity)
-        setHasAlreadyPublished(hasPublished)
 
         // Determine the button text and state based on conditions
         if (!isAfterEndDate) {
