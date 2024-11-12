@@ -24,8 +24,12 @@ function BetDetailsPage() {
   const [optionCosts, setOptionCosts] = useState(0)
   const [detailsViewVisible, setDetailsViewVisible] = useState(false)
   const { connected, toggleConnectModal, signTx, wallet } = useQubicConnect()
-  const [userIsProvider, setUserIsProvider] = useState(false)
   const { coreNodeBetIds } = useQuotteryContext()
+  const [isOracleProvider, setIsOracleProvider] = useState(false)
+  const [isAfterEndDate, setIsAfterEndDate] = useState(false)
+  const [hasEnoughParticipants, setHasEnoughParticipants] = useState(false)
+  const [hasAlreadyPublished, setHasAlreadyPublished] = useState(false)
+  const [publishButtonText, setPublishButtonText] = useState('')
 
   const navigate = useNavigate()
 
@@ -66,32 +70,6 @@ function BetDetailsPage() {
       </span>
     </>)
   }
-
-  useEffect(() => {
-    const qHelper = new QubicHelper()
-    const checkIfUserIsProvider = async () => {
-      if (wallet && bet && connected) {
-        const idPackage = await qHelper.createIdPackage(wallet)
-        const userPublicKey = idPackage.publicKey // Uint8Array
-
-        if (bet.oracle_public_keys && bet.oracle_public_keys.length > 0) {
-          const isProvider = bet.oracle_public_keys.some((providerKey) => {
-            return bytesEqual(providerKey, userPublicKey)
-          })
-          setUserIsProvider(isProvider)
-        } else if (bet.oracle_id && bet.oracle_id.length > 0) {
-          // Bet from backend API with oracle IDs (identities)
-          const userIdentity = await qHelper.getIdentity(userPublicKey)
-          const isProvider = bet.oracle_id.some((providerId) => providerId === userIdentity)
-          setUserIsProvider(isProvider)
-        } else {
-          setUserIsProvider(false)
-        }
-      }
-    }
-
-    checkIfUserIsProvider()
-  }, [wallet, bet, connected])
 
   const calculateOptionPercentage = (b, idx) => {
     // check if b.current_num_selection is not all 0
@@ -157,7 +135,10 @@ function BetDetailsPage() {
 
       const closeDate = new Date('20' + updatedBet.close_date + 'T' + updatedBet.close_time + 'Z');
       const now = new Date();
-      updatedBet.is_active = now <= closeDate;
+      updatedBet.is_active = now <= closeDate
+
+      const endDateTime = new Date('20' + updatedBet.end_date + 'T' + updatedBet.end_time + 'Z')
+      setIsAfterEndDate(now > endDateTime)
 
       const qHelper = new QubicHelper()
       if (updatedBet.creator instanceof Uint8Array) {
@@ -171,6 +152,9 @@ function BetDetailsPage() {
         )
       }
 
+      const numOptionsJoined = updatedBet.current_num_selection.filter(num => num > 0).length
+      setHasEnoughParticipants(numOptionsJoined >= 2)
+
       setBet(updatedBet)
     } catch (error) {
       console.error('Error updating bet details:', error)
@@ -178,6 +162,58 @@ function BetDetailsPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    const checkConditions = async () => {
+      if (wallet && bet && connected) {
+        const qHelper = new QubicHelper()
+        const idPackage = await qHelper.createIdPackage(wallet)
+        const userPublicKey = idPackage.publicKey; // Uint8Array
+        const userIdentity = await qHelper.getIdentity(userPublicKey) // Human-readable String
+
+        // Check if user is an Oracle Provider
+        const oracleIndex = bet.oracle_id.findIndex(providerId => providerId === userIdentity)
+        const isProvider = oracleIndex !== -1
+        setIsOracleProvider(isProvider)
+
+        if (!isProvider) {
+          // Do not show the button at all
+          setPublishButtonText('')
+          return
+        }
+
+        // Check if the Oracle Provider has already published
+        const betResultOPId = bet.betResultOPId || []
+
+        // Get the indices of Oracles who have published
+        const publishedOracleIndices = betResultOPId.filter(value => value !== -1)
+
+        // Map these indices to the actual Oracle IDs
+        const votedOracles = publishedOracleIndices.map(index => bet.oracle_id[index])
+
+        // Check if the current wallet's public ID is in the list of Oracles who have published
+        const hasPublished = votedOracles.includes(userIdentity)
+        setHasAlreadyPublished(hasPublished)
+
+        // Determine the button text and state based on conditions
+        if (!isAfterEndDate) {
+          // The date hasn't arrived yet. Tell the Oracle Provider "You Need to Calm Down"
+          setPublishButtonText(`Publish bet after ${bet.end_date} ${bet.end_time} UTC)`);
+        } else if (!hasEnoughParticipants) {
+          // Not enough participants
+          setPublishButtonText('Unable to publish bet (not enough parties joined the bet)')
+        } else if (hasPublished) {
+          // Already published
+          setPublishButtonText('You have already published this bet')
+        } else {
+          // All conditions met, enable the button
+          setPublishButtonText('Publish bet')
+        }
+      }
+    }
+
+    checkConditions()
+  }, [wallet, bet, connected, isAfterEndDate, hasEnoughParticipants])
 
   useEffect(() => {
 
@@ -195,14 +231,21 @@ function BetDetailsPage() {
           <div className='p-5 bg-gray-70 mt-[105px] mb-9 rounded-[8px] text-center text-[35px] text-white'>
             {bet.full_description}
           </div>
-          {/*{userIsProvider && (*/}
-          {/*  <button*/}
-          {/*    className="p-2 bg-primary-40 text-black rounded-lg size-full justify-center"*/}
-          {/*    onClick={() => navigate(`/publish/${bet.bet_id}`)}*/}
-          {/*  >*/}
-          {/*    Publish Result*/}
-          {/*  </button>*/}
-          {/*)}*/}
+          {isOracleProvider && publishButtonText && (
+            <button
+              className={`p-2 rounded-lg size-full justify-center ${
+                publishButtonText === 'Publish bet' ? 'bg-primary-40 text-black' : 'bg-gray-50 text-gray-500 cursor-not-allowed'
+              }`}
+              onClick={() => {
+                if (publishButtonText === 'Publish bet') {
+                  navigate(`/publish/${bet.bet_id}`);
+                }
+              }}
+              disabled={publishButtonText !== 'Publish bet'}
+            >
+              {publishButtonText}
+            </button>
+          )}
           <Card className='p-[24px] w-full'>
             <div className='flex flex-col items-start justify-start gap-4'>
               <div className='grid grid-cols-2 md-grid-cols-3 justify-between items-center w-full'>
