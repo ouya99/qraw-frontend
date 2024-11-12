@@ -29,6 +29,27 @@ export const bytesEqual = (a, b) => {
   return true
 }
 
+export function formatDate(dateStr) {
+  let [year, month, day] = dateStr.split('-')
+
+  day = day.startsWith('0') ? day.slice(1) : day
+
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+  const getDaySuffix = (day) => {
+    if (day > 3 && day < 21) return 'th' // 11th, 12th, 13th
+    switch (day % 10) {
+      case 1:  return 'st'
+      case 2:  return 'nd'
+      case 3:  return 'rd'
+      default: return 'th'
+    }
+  }
+
+  return `${day}${getDaySuffix(day)} ${monthNames[month - 1]} 20${year}`
+}
+
 export const debuglog = (...message) => {
   if (LOG_DEBUG) {
     console.log(...message)
