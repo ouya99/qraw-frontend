@@ -11,7 +11,7 @@ import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import { sumArray } from '../components/qubic/util'
 import {fetchBetDetail} from '../components/qubic/util/betApi'
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
-import {excludedBetIds, externalJsonAssetUrl} from '../components/qubic/util/commons'
+import {excludedBetIds, externalJsonAssetUrl, formatDate} from '../components/qubic/util/commons'
 /* global BigInt */
 
 function BetDetailsPage() {
@@ -247,7 +247,9 @@ function BetDetailsPage() {
           <Card className='p-[24px] w-full'>
             <div className='flex flex-col items-start justify-start gap-4'>
               <div className='grid grid-cols-2 md-grid-cols-3 justify-between items-center w-full'>
-                <LabelData lbl="Bet closes at" value={bet.close_date + ' ' + bet.close_time.slice(0, -3) + ' UTC'} />
+                <LabelData lbl="Bet closes at"
+                           value={`${formatDate(bet.close_date)} ${bet.close_time.slice(0, -3)} UTC`}
+                />
                 <LabelData lbl="Slots taken" value={sumArray(bet.current_num_selection)} />
                 <LabelData lbl="Fee %" value={sumArray(bet.oracle_fee) + ' %'} />
                 <LabelData lbl="Burning" value={'2 %'} />
@@ -266,9 +268,15 @@ function BetDetailsPage() {
 
               {detailsViewVisible && <div className='w-full'>
                 <div className='grid md:grid-cols-3'>
-                  <LabelData lbl='Open' value={bet.open_date + ' ' + bet.open_time + ' UTC'} />
-                  <LabelData lbl='Close' value={bet.close_date + ' ' + bet.close_time + ' UTC'} />
-                  <LabelData lbl='End' value={bet.end_date + ' ' + bet.end_time + ' UTC'} />
+                  <LabelData lbl='Open'
+                             value={`${formatDate(bet.open_date)} ${bet.open_time} UTC`}
+                  />
+                  <LabelData lbl='Close'
+                             value={`${formatDate(bet.close_date)} ${bet.close_time} UTC`}
+                  />
+                  <LabelData lbl='End'
+                             value={`${formatDate(bet.end_date)} ${bet.end_time} UTC`}
+                  />
                 </div>
                 <LabelData lbl='Creator' value={truncateMiddle(bet.creator, 40)} />
                 <LabelData lbl='Oracle Provider(s)' value={bet.oracle_id.map((id, index) => (

@@ -4,6 +4,7 @@ import QubicCoin from "../assets/qubic-coin.svg"
 import { formatQubicAmount } from "./qubic/util"
 import LabelData from "./LabelData"
 import { sumArray } from "./qubic/util"
+import {formatDate} from "../components/qubic/util/commons"
 
 function BetOverviewCard({ data, onClick }) {
   return (
@@ -16,7 +17,9 @@ function BetOverviewCard({ data, onClick }) {
           {data.full_description ? data.full_description : data.bet_desc}
         </div>
         <div className="grid grid-cols-2 justify-between items-center w-full">
-          <LabelData lbl="Bet closes at" value={data.close_date + ' ' + data.close_time.slice(0, -3) + ' UTC'} />
+          <LabelData lbl="Bet closes at"
+                     value={`${formatDate(data.close_date)} ${data.close_time.slice(0, -3)} UTC`}
+          />
           <LabelData lbl="Slots taken" value={sumArray(data.current_num_selection)} />
           <LabelData
             lbl="Fee %"
