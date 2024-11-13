@@ -23,11 +23,10 @@ function BetDetailsPage() {
   const [amountOfBetSlots, setAmountOfBetSlots] = useState(0)
   const [optionCosts, setOptionCosts] = useState(0)
   const [detailsViewVisible, setDetailsViewVisible] = useState(false)
-  const { connected, toggleConnectModal, signTx, wallet } = useQubicConnect()
+  const { connected, toggleConnectModal, signTx, walletPublicIdentity } = useQubicConnect()
   const { coreNodeBetIds } = useQuotteryContext()
   const [isOracleProvider, setIsOracleProvider] = useState(false)
   const [isAfterEndDate, setIsAfterEndDate] = useState(false)
-  const [hasEnoughParticipants, setHasEnoughParticipants] = useState(false)
   const [publishButtonText, setPublishButtonText] = useState('')
 
   const navigate = useNavigate()
@@ -151,9 +150,6 @@ function BetDetailsPage() {
         )
       }
 
-      const numOptionsJoined = updatedBet.current_num_selection.filter(num => num > 0).length
-      setHasEnoughParticipants(numOptionsJoined >= 2)
-
       setBet(updatedBet)
     } catch (error) {
       console.error('Error updating bet details:', error)
@@ -164,14 +160,9 @@ function BetDetailsPage() {
 
   useEffect(() => {
     const checkConditions = async () => {
-      if (wallet && bet && connected) {
-        const qHelper = new QubicHelper()
-        const idPackage = await qHelper.createIdPackage(wallet)
-        const userPublicKey = idPackage.publicKey; // Uint8Array
-        const userIdentity = await qHelper.getIdentity(userPublicKey) // Human-readable String
-
+      if (bet && connected) {
         // Check if user is an Oracle Provider
-        const oracleIndex = bet.oracle_id.findIndex(providerId => providerId === userIdentity)
+        const oracleIndex = bet.oracle_id.findIndex(providerId => providerId === walletPublicIdentity)
         const isProvider = oracleIndex !== -1
         setIsOracleProvider(isProvider)
 
@@ -191,15 +182,12 @@ function BetDetailsPage() {
         const votedOracles = publishedOracleIndices.map(index => bet.oracle_id[index])
 
         // Check if the current wallet's public ID is in the list of Oracles who have published
-        const hasPublished = votedOracles.includes(userIdentity)
+        const hasPublished = votedOracles.includes(walletPublicIdentity)
 
         // Determine the button text and state based on conditions
         if (!isAfterEndDate) {
           // The date hasn't arrived yet. Tell the Oracle Provider "You Need to Calm Down"
           setPublishButtonText(`Publish bet after ${bet.end_date} ${bet.end_time} UTC)`);
-        } else if (!hasEnoughParticipants) {
-          // Not enough participants
-          setPublishButtonText('Unable to publish bet (not enough parties joined the bet)')
         } else if (hasPublished) {
           // Already published
           setPublishButtonText('You have already published this bet')
@@ -211,7 +199,7 @@ function BetDetailsPage() {
     }
 
     checkConditions()
-  }, [wallet, bet, connected, isAfterEndDate, hasEnoughParticipants])
+  }, [bet, connected, isAfterEndDate])
 
   useEffect(() => {
 

@@ -9,7 +9,7 @@ import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper"
 const BetPublishPage = () => {
   const {id} = useParams()
   const {state, fetchBets, signPublishResultTx} = useQuotteryContext()
-  const {connected, toggleConnectModal, wallet} = useQubicConnect()
+  const {connected, toggleConnectModal, walletPublicIdentity} = useQubicConnect()
   const [bet, setBet] = useState(null)
   const [selectedOption, setSelectedOption] = useState(null)
   const [showConfirmTxModal, setShowConfirmTxModal] = useState(false)
@@ -22,7 +22,7 @@ const BetPublishPage = () => {
 
   useEffect(() => {
     const fetchBetAndCheckConditions = async () => {
-      if (!connected || !wallet) {
+      if (!connected || !walletPublicIdentity) {
         toggleConnectModal()
         return
       }
@@ -32,12 +32,8 @@ const BetPublishPage = () => {
       if (betDetails) {
         setBet(betDetails)
 
-        const idPackage = await qHelper.createIdPackage(wallet)
-        const userPublicKey = idPackage.publicKey
-        const userIdentity = await qHelper.getIdentity(userPublicKey)
-
         // Check if user is an Oracle Provider
-        const isProvider = betDetails.oracle_id.includes(userIdentity)
+        const isProvider = betDetails.oracle_id.includes(walletPublicIdentity)
         setIsOracleProvider(isProvider)
 
         if (!isProvider) {
@@ -66,7 +62,7 @@ const BetPublishPage = () => {
         // Map indices to Oracle IDs
         const votedOracles = publishedOracleIndices.map(index => betDetails.oracle_id[index])
 
-        const hasPublished = votedOracles.includes(userIdentity)
+        const hasPublished = votedOracles.includes(walletPublicIdentity)
         setHasAlreadyPublished(hasPublished)
 
         // Determine if the user can publish
@@ -77,7 +73,7 @@ const BetPublishPage = () => {
     }
 
     fetchBetAndCheckConditions()
-  }, [id, state.bets, fetchBets, wallet, connected, navigate, toggleConnectModal])
+  }, [id, state.bets, fetchBets, walletPublicIdentity, connected, navigate, toggleConnectModal])
 
   const handlePublish = async () => {
     if (!connected) {
