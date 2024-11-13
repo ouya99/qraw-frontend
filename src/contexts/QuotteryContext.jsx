@@ -37,6 +37,7 @@ export const QuotteryProvider = ({children}) => {
   const [loading, setLoading] = useState(true)
   const [betsFilter, setBetsFilter] = useState('active')
   const {wallet, broadcastTx, getTick} = useQubicConnect()
+  const [walletPublicIdentity, setWalletPublicIdentity] = useState('')
   const qHelper = new QubicHelper()
   const [coreNodeBetIds, setCoreNodeBetIds] = useState([])
 
@@ -239,6 +240,24 @@ export const QuotteryProvider = ({children}) => {
     fetchBets(betsFilter)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [betsFilter])
+
+  useEffect(() => {
+    const getIdentity = async () => {
+      if (wallet) {
+        const idPackage = await qHelper.createIdPackage(wallet);
+        const sourcePublicKey = idPackage.publicKey;
+        const identity = await qHelper.getIdentity(sourcePublicKey);
+        if (identity) {
+          setWalletPublicIdentity(identity);
+        }
+      }
+    };
+
+    getIdentity();
+
+    return () => {
+    };
+  }, [wallet]);
 
   // Helper function to write a fixed-size byte array or string
   const writeFixedSizeString = (view, offset, str, size) => {
@@ -513,6 +532,7 @@ export const QuotteryProvider = ({children}) => {
       issueBetTxCosts,
       signPublishResultTx,
       coreNodeBetIds,
+      walletPublicIdentity
     }}>
       {children}
     </QuotteryContext.Provider>
