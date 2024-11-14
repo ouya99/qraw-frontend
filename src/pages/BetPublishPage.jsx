@@ -8,8 +8,8 @@ import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper"
 
 const BetPublishPage = () => {
   const {id} = useParams()
-  const {state, fetchBets, signPublishResultTx} = useQuotteryContext()
-  const {connected, toggleConnectModal, walletPublicIdentity} = useQubicConnect()
+  const {state, fetchBets, signPublishResultTx, walletPublicIdentity} = useQuotteryContext()
+  const {connected, toggleConnectModal} = useQubicConnect()
   const [bet, setBet] = useState(null)
   const [selectedOption, setSelectedOption] = useState(null)
   const [showConfirmTxModal, setShowConfirmTxModal] = useState(false)

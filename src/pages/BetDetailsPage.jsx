@@ -23,8 +23,8 @@ function BetDetailsPage() {
   const [amountOfBetSlots, setAmountOfBetSlots] = useState(0)
   const [optionCosts, setOptionCosts] = useState(0)
   const [detailsViewVisible, setDetailsViewVisible] = useState(false)
-  const { connected, toggleConnectModal, signTx, walletPublicIdentity } = useQubicConnect()
-  const { coreNodeBetIds } = useQuotteryContext()
+  const {connected, toggleConnectModal, signTx} = useQubicConnect()
+  const {coreNodeBetIds, walletPublicIdentity} = useQuotteryContext()
   const [isOracleProvider, setIsOracleProvider] = useState(false)
   const [isAfterEndDate, setIsAfterEndDate] = useState(false)
   const [hasEnoughParticipants, setHasEnoughParticipants] = useState(false)
@@ -164,7 +164,7 @@ function BetDetailsPage() {
 
   useEffect(() => {
     const checkConditions = async () => {
-      if (bet && connected) {
+      if (bet && connected && walletPublicIdentity) {
         // Check if user is an Oracle Provider
         const oracleIndex = bet.oracle_id.findIndex(providerId => providerId === walletPublicIdentity)
         const isProvider = oracleIndex !== -1
@@ -206,7 +206,7 @@ function BetDetailsPage() {
     }
 
     checkConditions()
-  }, [bet, connected, isAfterEndDate])
+  }, [bet, connected, isAfterEndDate, walletPublicIdentity])
 
   useEffect(() => {
 
