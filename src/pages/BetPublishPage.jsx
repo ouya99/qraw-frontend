@@ -27,7 +27,6 @@ const BetPublishPage = () => {
         return
       }
 
-      const qHelper = new QubicHelper()
       const betDetails = state.bets.find((b) => b.bet_id === parseInt(id))
       if (betDetails) {
         setBet(betDetails)
@@ -50,7 +49,7 @@ const BetPublishPage = () => {
 
         // Check if at least two options have been joined
         const numOptionsJoined = betDetails.current_num_selection.filter(num => num > 0).length
-        const enoughParticipants = numOptionsJoined >= 2
+        const enoughParticipants = numOptionsJoined >= 1
         setHasEnoughParticipants(enoughParticipants)
 
         // Check if the Oracle Provider has already published

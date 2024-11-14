@@ -27,6 +27,7 @@ function BetDetailsPage() {
   const { coreNodeBetIds } = useQuotteryContext()
   const [isOracleProvider, setIsOracleProvider] = useState(false)
   const [isAfterEndDate, setIsAfterEndDate] = useState(false)
+  const [hasEnoughParticipants, setHasEnoughParticipants] = useState(false)
   const [publishButtonText, setPublishButtonText] = useState('')
 
   const navigate = useNavigate()
@@ -150,6 +151,9 @@ function BetDetailsPage() {
         )
       }
 
+      const numOptionsJoined = updatedBet.current_num_selection.filter(num => num > 0).length
+      setHasEnoughParticipants(numOptionsJoined >= 1)
+
       setBet(updatedBet)
     } catch (error) {
       console.error('Error updating bet details:', error)
@@ -188,6 +192,9 @@ function BetDetailsPage() {
         if (!isAfterEndDate) {
           // The date hasn't arrived yet. Tell the Oracle Provider "You Need to Calm Down"
           setPublishButtonText(`Publish bet after ${bet.end_date} ${bet.end_time} UTC)`);
+        } else if (!hasEnoughParticipants) {
+          // Not enough participants
+          setPublishButtonText('Unable to publish bet (not enough parties joined the bet)')
         } else if (hasPublished) {
           // Already published
           setPublishButtonText('You have already published this bet')
