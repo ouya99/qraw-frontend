@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { IoIosArrowDown } from "react-icons/io"
-import { useQuotteryContext } from '../contexts/QuotteryContext'
+import React, {useEffect, useState} from 'react'
+import {useNavigate, useParams} from 'react-router-dom'
+import {IoIosArrowDown} from "react-icons/io"
+import {useQuotteryContext} from '../contexts/QuotteryContext'
 import Card from '../components/qubic/Card'
 import QubicCoin from "../assets/qubic-coin.svg"
-import { formatQubicAmount, truncateMiddle } from '../components/qubic/util'
+import {formatQubicAmount, truncateMiddle} from '../components/qubic/util'
 import LabelData from '../components/LabelData'
-import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext'
+import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
-import { sumArray } from '../components/qubic/util'
+import {sumArray} from '../components/qubic/util'
 import {fetchBetDetail} from '../components/qubic/util/betApi'
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
 import {excludedBetIds, externalJsonAssetUrl, formatDate} from '../components/qubic/util/commons'
+
 /* global BigInt */
 
 function BetDetailsPage() {
-  const { id } = useParams()
+  const {id} = useParams()
   const [bet, setBet] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showConfirmTxModal, setShowConfirmTxModal] = useState(false)
@@ -227,7 +228,7 @@ function BetDetailsPage() {
           {isOracleProvider && publishButtonText && (
             <button
               className={`p-2 rounded-lg size-full justify-center ${
-                publishButtonText === 'Publish bet' ? 'bg-primary-40 text-black' : 'bg-gray-50 text-gray-500 cursor-not-allowed'
+                publishButtonText === 'Publish bet' ? 'bg-primary-40 text-black' : 'bg-gray-50 text-gray-900 cursor-not-allowed'
               }`}
               onClick={() => {
                 if (publishButtonText === 'Publish bet') {
@@ -245,16 +246,16 @@ function BetDetailsPage() {
                 <LabelData lbl="Bet closes at"
                            value={`${formatDate(bet.close_date)} ${bet.close_time.slice(0, -3)} UTC`}
                 />
-                <LabelData lbl="Slots taken" value={sumArray(bet.current_num_selection)} />
-                <LabelData lbl="Fee %" value={sumArray(bet.oracle_fee) + ' %'} />
-                <LabelData lbl="Burning" value={'2 %'} />
+                <LabelData lbl="Slots taken" value={sumArray(bet.current_num_selection)}/>
+                <LabelData lbl="Fee %" value={sumArray(bet.oracle_fee) + ' %'}/>
+                <LabelData lbl="Burning" value={'2 %'}/>
               </div>
               <div className=' flex flex-col justify-center items-center size-full'>
                 <span className=' text-gray-50 text-[12px] leading-[16px]'>
                   In the pot
                 </span>
                 <div className=' gap-[12px] flex justify-center items-center'>
-                  <img src={QubicCoin} alt='Icon of a Qubic coin' />
+                  <img src={QubicCoin} alt='Icon of a Qubic coin'/>
                   <span className='text-white text-[18px] leading-[23px]'>
                     {formatQubicAmount(bet.current_total_qus)} QUBIC
                   </span>
@@ -273,17 +274,17 @@ function BetDetailsPage() {
                              value={`${formatDate(bet.end_date)} ${bet.end_time} UTC`}
                   />
                 </div>
-                <LabelData lbl='Creator' value={truncateMiddle(bet.creator, 40)} />
+                <LabelData lbl='Creator' value={truncateMiddle(bet.creator, 40)}/>
                 <LabelData lbl='Oracle Provider(s)' value={bet.oracle_id.map((id, index) => (
                   <span className='block' key={index}>{truncateMiddle(id, 40)}</span>
-                ))} />
+                ))}/>
               </div>}
 
               <button className='flex w-full items-center text-14 text-primary-40'
-                onClick={() => toggleDetailsView()}
+                      onClick={() => toggleDetailsView()}
               >
                 <span className='flex-1'></span>
-                <IoIosArrowDown className={'flex-none mr-1 ' + (detailsViewVisible ? 'transform rotate-180' : '')} />
+                <IoIosArrowDown className={'flex-none mr-1 ' + (detailsViewVisible ? 'transform rotate-180' : '')}/>
                 <span className='flex-none'>Details</span>
               </button>
             </div>
@@ -364,7 +365,8 @@ function BetDetailsPage() {
                 <button
                   className='bg-[rgba(26,222,245,0.1)] text-primary-40 text-20 font-bold py-3'
                   onClick={incAmountOfBetSlots}
-                >+</button>
+                >+
+                </button>
                 <input
                   className='py-3 text-[25px] text-center'
                   type='number'
@@ -374,7 +376,8 @@ function BetDetailsPage() {
                 <button
                   className='bg-[rgba(26,222,245,0.1)] text-primary-40 text-20 font-bold py-3'
                   onClick={decAmountOfBetSlots}
-                >-</button>
+                >-
+                </button>
               </div>
               <span
                 className='font-space text-gray-50 text-[12px] leading-[16px] block mt-3 text-right'
@@ -397,19 +400,19 @@ function BetDetailsPage() {
           border-t border-solid border-gray-70 bg-gray-90
         '>
           <button className='bg-[rgba(26,222,245,0.1)] flex-none py-[8px] px-[16px] text-18 text-primary-40 font-space'
-            onClick={() => navigate('/')}
+                  onClick={() => navigate('/')}
           >
             Cancel
           </button>
           <div className='flex-1 flex flex-col justify-center text-center'>
-            <BetOptionCosts costs={optionCosts} />
+            <BetOptionCosts costs={optionCosts}/>
           </div>
           <button
             className='flex-none bg-primary-40 py-[8px] px-10 text-18 disabled:bg-slate-50 disabled:text-gray-50'
             onClick={() => {
-              if(connected) {
+              if (connected) {
                 setShowConfirmTxModal(true)
-              }else{
+              } else {
                 toggleConnectModal()
               }
             }}
