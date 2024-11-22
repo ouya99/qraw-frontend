@@ -25,11 +25,13 @@ function BetDetailsPage() {
   const [optionCosts, setOptionCosts] = useState(0)
   const [detailsViewVisible, setDetailsViewVisible] = useState(false)
   const {connected, toggleConnectModal, signTx} = useQubicConnect()
-  const {coreNodeBetIds, walletPublicIdentity} = useQuotteryContext()
+  const {coreNodeBetIds, walletPublicIdentity, balance, fetchBalance} = useQuotteryContext()
   const [isOracleProvider, setIsOracleProvider] = useState(false)
   const [isAfterEndDate, setIsAfterEndDate] = useState(false)
   const [hasEnoughParticipants, setHasEnoughParticipants] = useState(false)
   const [publishButtonText, setPublishButtonText] = useState('')
+  const [hasEnoughBalance, setHasEnoughBalance] = useState(true)
+
 
   const navigate = useNavigate()
 
@@ -37,8 +39,12 @@ function BetDetailsPage() {
     // check if value is not less than 1 and not greater than max_slot_per_option
     if (value < 1 || value > bet.maxBetSlotPerOption) return
     // valid value
-    setOptionCosts(BigInt(value) * BigInt(bet.amount_per_bet_slot))
+    const costs = BigInt(value) * BigInt(bet.amount_per_bet_slot)
+    setOptionCosts(costs)
     setAmountOfBetSlots(value)
+    if (balance !== null) {
+      setHasEnoughBalance(BigInt(balance) >= costs)
+    }
   }
 
   const calcPercentage = (value, total) => (value / total) * 100
@@ -214,6 +220,27 @@ function BetDetailsPage() {
     updateBetDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, coreNodeBetIds])
+
+  useEffect(() => {
+    if (balance !== null) {
+      setHasEnoughBalance(BigInt(balance) >= BigInt(optionCosts))
+    }
+  }, [balance, optionCosts])
+
+  const handleBetNowClick = async () => {
+    if (connected) {
+      if (walletPublicIdentity) {
+        await fetchBalance(walletPublicIdentity)
+      }
+      if (!hasEnoughBalance) {
+        alert(`You do not have enough balance to join this bet. Your balance: ${balance}, join bet fee: ${optionCosts}`)
+        return
+      }
+      setShowConfirmTxModal(true)
+    } else {
+      toggleConnectModal()
+    }
+  }
 
   return (
     <div className='sm:px-30 md:px-130'>
@@ -406,17 +433,14 @@ function BetDetailsPage() {
           </button>
           <div className='flex-1 flex flex-col justify-center text-center'>
             <BetOptionCosts costs={optionCosts}/>
+            {!hasEnoughBalance && (
+              <p className="text-red-500 mt-2">You do not have enough balance to proceed.</p>
+            )}
           </div>
           <button
             className='flex-none bg-primary-40 py-[8px] px-10 text-18 disabled:bg-slate-50 disabled:text-gray-50'
-            onClick={() => {
-              if (connected) {
-                setShowConfirmTxModal(true)
-              } else {
-                toggleConnectModal()
-              }
-            }}
-            disabled={optionCosts === 0}
+            onClick={handleBetNowClick}
+            disabled={optionCosts === 0 || !hasEnoughBalance}
           >
             {connected ? 'Bet!' : 'Bet!'}
           </button>

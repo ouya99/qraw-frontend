@@ -1,4 +1,5 @@
-import React, {useRef, useState} from 'react'
+/* global BigInt */
+import React, {useRef, useState, useEffect} from 'react'
 import {useNavigate} from 'react-router-dom'
 import SelectDateTime from '../components/qubic/ui/SelectDateTime'
 import InputMaxChars from '../components/qubic/ui/InputMaxChars'
@@ -18,8 +19,9 @@ function BetCreatePage() {
   const navigate = useNavigate()
   const [showConfirmTxModal, setShowConfirmTxModal] = useState(false)
   const { connected, toggleConnectModal } = useQubicConnect()
-  const { fetchBets, signIssueBetTx } = useQuotteryContext()
+  const { fetchBets, signIssueBetTx, balance, issueBetTxCosts, fetchBalance, walletPublicIdentity } = useQuotteryContext()
   const { wallet } = useQubicConnect()
+  const [hasEnoughBalance, setHasEnoughBalance] = useState(true)
 
   const [bet, setBet] = useState({
     description: '',
@@ -190,6 +192,18 @@ function BetCreatePage() {
           return
         }
 
+        const betCreationFee = await issueBetTxCosts(bet)
+        bet.costs = betCreationFee
+
+        if (walletPublicIdentity) {
+          await fetchBalance(walletPublicIdentity) // Fetch the latest balance
+        }
+
+        if (balance !== null && BigInt(balance) < BigInt(betCreationFee)) {
+          alert(`You do not have enough balance to create this bet. Your balance: ${balance}, bet creation fee: ${betCreationFee}`)
+          return
+        }
+
         const betToSend = {
           ...bet,
           description: betDescriptionReference,
@@ -206,6 +220,12 @@ function BetCreatePage() {
       toggleConnectModal()
     }
   }
+
+  useEffect(() => {
+    if (balance !== null && bet.costs) {
+      setHasEnoughBalance(BigInt(balance) >= BigInt(bet.costs))
+    }
+  }, [balance, bet.costs])
 
   return (
     <div className='mt-[90px] sm:px-30 md:px-130'>

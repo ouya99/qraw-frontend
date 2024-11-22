@@ -1,18 +1,28 @@
-import React, { useEffect } from 'react'
+/* global BigInt */
+import React, { useEffect, useState } from 'react'
 import { truncateMiddle } from './qubic/util'
 import { useQuotteryContext } from '../contexts/QuotteryContext'
+import {formatQubicAmount} from "./qubic/util"
 
 const BetCreateConfirm = ({ bet }) => {
 
-  const { issueBetTxCosts } = useQuotteryContext()
+  const { issueBetTxCosts, balance, fetchBalance, walletPublicIdentity } = useQuotteryContext()
+  const [betCosts, setBetCosts] = useState(null)
+  const [hasEnoughBalance, setHasEnoughBalance] = useState(true)
 
   useEffect(() => {
-    const callIssueBetTxCosts = async (bet) => {
-      bet.costs = await issueBetTxCosts(bet)
+    const calculateCosts = async (bet) => {
+      const costs = await issueBetTxCosts(bet)
+      setBetCosts(costs)
+      if (walletPublicIdentity) {
+        await fetchBalance(walletPublicIdentity)
+      }
+      if (balance !== null) {
+        setHasEnoughBalance(BigInt(balance) >= BigInt(costs))
+      }
     }
-    callIssueBetTxCosts(bet)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    calculateCosts(bet)
+  }, [bet, balance, issueBetTxCosts, fetchBalance, walletPublicIdentity])
 
   return (
     <div className="p-4 bg-gray-800 text-white border-top border-y-6 border-gray-80 border-dotted">
@@ -65,6 +75,18 @@ const BetCreateConfirm = ({ bet }) => {
         <h3 className="text-lg font-semibold">Issue Bet Costs</h3>
         <p>{bet.costs} QUBIC</p>
       </div>
+
+      {balance !== null && (
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold">Your Balance</h3>
+          <p>{formatQubicAmount(balance)} QUBIC</p>
+          {hasEnoughBalance ? (
+            <></>// <p className="text-green-500">You have enough balance to create this bet.</p>
+          ) : (
+            <p className="text-red-500">You do not have enough balance to create this bet.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };
