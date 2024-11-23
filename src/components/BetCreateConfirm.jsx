@@ -83,7 +83,9 @@ const BetCreateConfirm = ({ bet }) => {
           {hasEnoughBalance ? (
             <></>// <p className="text-green-500">You have enough balance to create this bet.</p>
           ) : (
-            <p className="text-red-500">You do not have enough balance to create this bet.</p>
+            <p className="text-red-500">
+              {`You do not have enough balance to create this bet. Your balance: ${formatQubicAmount(balance)} Qubic${balance > 1 ? 's' : ''}, bet creation fee: ${formatQubicAmount(bet.costs)} Qubic${bet.costs > 1 ? 's' : ''}`}
+            </p>
           )}
         </div>
       )}

@@ -13,6 +13,7 @@ import BetCreateConfirm from '../components/BetCreateConfirm'
 import {useQuotteryContext} from "../contexts/QuotteryContext"
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper"
 import {hashBetData, hashUniqueData} from "../components/qubic/util/hashUtils"
+import {formatQubicAmount} from "../components/qubic/util"
 
 function BetCreatePage() {
 
@@ -200,7 +201,7 @@ function BetCreatePage() {
         }
 
         if (balance !== null && BigInt(balance) < BigInt(betCreationFee)) {
-          alert(`You do not have enough balance to create this bet. Your balance: ${balance}, bet creation fee: ${betCreationFee}`)
+          alert(`You do not have enough balance to create this bet. Your balance: ${formatQubicAmount(balance)} Qubic${balance > 1 ? 's' : ''}, bet creation fee: ${formatQubicAmount(betCreationFee)} Qubic${betCreationFee > 1 ? 's' : ''}`)
           return
         }
 
