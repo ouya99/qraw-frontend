@@ -26,7 +26,7 @@ const ConnectLink = () => {
          onClick={() => toggleConnectModal()}
     >
       {connected ? <>
-        <div className="flex flex-col items-center">
+        <div className="hidden md:block flex flex-col items-center">
           <span
             className='hidden md:flex font-space items-center flex-row text-[16px] text-gray-50 mt-[5px] font-[500]'>
             <img src={lock} alt="locked lock icon" className="mr-2"/>
@@ -40,6 +40,13 @@ const ConnectLink = () => {
               Balance: {formatQubicAmount(balance)} QUBIC
             </div>
           )}
+        </div>
+
+        <div className="md:hidden">
+          <span className='hidden md:block font-space text-[16px] text-gray-50 mt-[5px] font-[500]'>
+          Lock Wallet
+        </span>
+          <img src={lock} alt="locked lock icon" />
         </div>
       </> : <>
         <span className='hidden md:block font-space text-[16px] text-gray-50 mt-[5px] font-[500]'>
