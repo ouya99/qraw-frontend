@@ -8,7 +8,8 @@ export const HEADERS = {
   'Content-Type': 'application/json',
 };
 
-export const QTRY_CONTRACT_INDEX = 2;
+export const MIN_BALANCE_THRESHOLD = 100
+export const QTRY_CONTRACT_INDEX = 2
 export const LOG_DEBUG = false
 export const excludedBetIds = [31, 34, 58]
 export const makeJsonData = (contractIndex, inputType, inputSize, requestData) => {
@@ -17,8 +18,8 @@ export const makeJsonData = (contractIndex, inputType, inputSize, requestData) =
     inputType: inputType,
     inputSize: inputSize,
     requestData: requestData,
-  };
-};
+  }
+}
 
 // Compare between two Uint8Array
 export const bytesEqual = (a, b) => {

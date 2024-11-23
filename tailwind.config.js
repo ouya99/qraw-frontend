@@ -12,6 +12,14 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      keyframes: {
+        blink: {
+          '50%': { opacity: '0' },
+        },
+      },
+      animation: {
+        blink: 'blink 1s infinite',
+      },
       colors: ({ colors }) => ({
         inherit: colors.inherit,
         current: colors.current,

@@ -4,6 +4,7 @@ import ConnectModal from "./ConnectModal"
 import {useQubicConnect} from "./QubicConnectContext"
 import {useQuotteryContext} from '../../../contexts/QuotteryContext'
 import {formatQubicAmount} from "../util"
+import {MIN_BALANCE_THRESHOLD} from "../util/commons"
 
 const ConnectLink = () => {
   const {connected, showConnectModal, toggleConnectModal} = useQubicConnect()
@@ -18,6 +19,8 @@ const ConnectLink = () => {
 
   console.log('balance:', balance)
 
+  const isNotEnoughFund = parseInt(balance) <= MIN_BALANCE_THRESHOLD
+
   return (<>
     <div className="absolute right-12 sm:right-12 flex gap-[10px] justify-center items-center cursor-pointer"
          onClick={() => toggleConnectModal()}
@@ -30,9 +33,9 @@ const ConnectLink = () => {
             <span>Lock Wallet</span>
           </span>
           {balance && (
-            <div className="text-white mt-2 text-[14px] cursor-pointer"
+            <div className={`text-white mt-2 text-[14px] cursor-pointer ${isNotEnoughFund ? 'text-red font-bold animate-blink' : 'text-white'}`}
                  onClick={handleBalanceClick}
-                 title="Click to refresh balance"
+                 title={isNotEnoughFund ? "Please deposit funds into your account" : "Click to refresh balance"}
             >
               Balance: {formatQubicAmount(balance)} QUBIC
             </div>
