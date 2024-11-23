@@ -2,7 +2,7 @@
 import React, {createContext, useContext, useEffect, useReducer, useState} from 'react'
 import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
 import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto'
-import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
+import {httpEndpoint, useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import {fetchActiveBets, fetchBetDetail, fetchNodeInfo, fetchAndVerifyBetDescription} from '../components/qubic/util/betApi';
 import {backendUrl, excludedBetIds} from '../components/qubic/util/commons'
 
@@ -37,6 +37,7 @@ export const QuotteryProvider = ({children}) => {
   const [loading, setLoading] = useState(true)
   const [betsFilter, setBetsFilter] = useState('active')
   const {wallet, broadcastTx, getTick} = useQubicConnect()
+  const [balance, setBalance] = useState(null)
   const [walletPublicIdentity, setWalletPublicIdentity] = useState('')
   const qHelper = new QubicHelper()
   const [coreNodeBetIds, setCoreNodeBetIds] = useState([])
@@ -241,23 +242,50 @@ export const QuotteryProvider = ({children}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [betsFilter])
 
+  const fetchBalance = async (publicId) => {
+    try {
+      const response = await fetch(`${httpEndpoint}/v1/balances/${publicId}`, {
+        headers: {
+          'accept': 'application/json',
+        },
+      })
+      const data = await response.json()
+      console.log('Balance fetched:', data)
+      setBalance(data.balance.balance)
+    } catch (error) {
+      console.error('Error fetching balance:', error)
+    }
+  }
+
   useEffect(() => {
-    const getIdentity = async () => {
+    const getIdentityAndBalance = async () => {
       if (wallet) {
-        const idPackage = await qHelper.createIdPackage(wallet);
-        const sourcePublicKey = idPackage.publicKey;
-        const identity = await qHelper.getIdentity(sourcePublicKey);
+        const idPackage = await qHelper.createIdPackage(wallet)
+        const sourcePublicKey = idPackage.publicKey
+        const identity = await qHelper.getIdentity(sourcePublicKey)
         if (identity) {
-          setWalletPublicIdentity(identity);
+          setWalletPublicIdentity(identity)
+          fetchBalance(identity)
         }
       }
-    };
+    }
 
-    getIdentity();
+    getIdentityAndBalance()
 
     return () => {
-    };
-  }, [wallet]);
+    }
+  }, [wallet])
+
+  // Refresh balance every 5 minutes
+  useEffect(() => {
+    let intervalId
+    if (walletPublicIdentity) {
+      intervalId = setInterval(() => {
+        fetchBalance(walletPublicIdentity)
+      }, 300000) // 5 minutes in milliseconds
+    }
+    return () => clearInterval(intervalId)
+  }, [walletPublicIdentity])
 
   // Helper function to write a fixed-size byte array or string
   const writeFixedSizeString = (view, offset, str, size) => {
@@ -532,7 +560,9 @@ export const QuotteryProvider = ({children}) => {
       issueBetTxCosts,
       signPublishResultTx,
       coreNodeBetIds,
-      walletPublicIdentity
+      walletPublicIdentity,
+      balance,
+      fetchBalance
     }}>
       {children}
     </QuotteryContext.Provider>

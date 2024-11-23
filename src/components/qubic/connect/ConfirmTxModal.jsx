@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import Card from "../Card"
 import { useQubicConnect } from "./QubicConnectContext"
 
-const ConfirmTxModal = ({ tx, open, onClose, onConfirm }) => {
+const ConfirmTxModal = ({ tx, open, onClose, onConfirm, onTransactionComplete }) => {
     const { getTick } = useQubicConnect()
     const [confirmedTx, setConfirmedTx] = useState(null)
     const [initialTick, setInitialTick] = useState(null)
@@ -32,9 +32,14 @@ const ConfirmTxModal = ({ tx, open, onClose, onConfirm }) => {
             const targetTick = confirmedTx.targetTick;
             const normalizedTick = ((tick - initialTick) / (targetTick - initialTick)) * 100;
             const widthPercentage = Math.min(Math.max(normalizedTick, 0), 100);
-            if (widthPercentage >= 100) onClose()
+            if (widthPercentage >= 100) {
+              if (onTransactionComplete) {
+                onTransactionComplete() // call the callback when transaction is complete
+              }
+              onClose()
+            }
         }
-    }, [tick, confirmedTx, initialTick, onClose])
+    }, [tick, confirmedTx, initialTick, onClose, onTransactionComplete])
 
     const startTickFetchInterval = async (cTx) => {
         cTx.targetTick = cTx.targetTick + 2 // Add 2 to target tick to make sure backend fetches data
