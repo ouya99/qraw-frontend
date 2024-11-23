@@ -259,6 +259,7 @@ export const QuotteryProvider = ({children}) => {
 
   useEffect(() => {
     const getIdentityAndBalance = async () => {
+      const qHelper = new QubicHelper()
       if (wallet) {
         const idPackage = await qHelper.createIdPackage(wallet)
         const sourcePublicKey = idPackage.publicKey

@@ -213,7 +213,7 @@ function BetDetailsPage() {
     }
 
     checkConditions()
-  }, [bet, connected, isAfterEndDate, walletPublicIdentity])
+  }, [bet, connected, isAfterEndDate, walletPublicIdentity, hasEnoughParticipants])
 
   useEffect(() => {
 

@@ -1,5 +1,5 @@
 /* global BigInt */
-import React, {useRef, useState, useEffect} from 'react'
+import React, {useRef, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import SelectDateTime from '../components/qubic/ui/SelectDateTime'
 import InputMaxChars from '../components/qubic/ui/InputMaxChars'
@@ -22,7 +22,6 @@ function BetCreatePage() {
   const { connected, toggleConnectModal } = useQubicConnect()
   const { fetchBets, signIssueBetTx, balance, issueBetTxCosts, fetchBalance, walletPublicIdentity } = useQuotteryContext()
   const { wallet } = useQubicConnect()
-  const [hasEnoughBalance, setHasEnoughBalance] = useState(true)
 
   const [bet, setBet] = useState({
     description: '',
@@ -229,12 +228,6 @@ function BetCreatePage() {
     // fetchBets('active')
     // navigate('/')
   }
-
-  useEffect(() => {
-    if (balance !== null && bet.costs) {
-      setHasEnoughBalance(BigInt(balance) >= BigInt(bet.costs))
-    }
-  }, [balance, bet.costs])
 
   return (
     <div className='mt-[90px] sm:px-30 md:px-130'>

@@ -4,7 +4,6 @@ import {useQuotteryContext} from '../contexts/QuotteryContext'
 import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import Card from '../components/qubic/Card'
-import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper"
 
 const BetPublishPage = () => {
   const {id} = useParams()

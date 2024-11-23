@@ -7,13 +7,11 @@ import {formatQubicAmount} from "./qubic/util"
 const BetCreateConfirm = ({ bet }) => {
 
   const { issueBetTxCosts, balance, fetchBalance, walletPublicIdentity } = useQuotteryContext()
-  const [betCosts, setBetCosts] = useState(null)
   const [hasEnoughBalance, setHasEnoughBalance] = useState(true)
 
   useEffect(() => {
     const calculateCosts = async (bet) => {
       const costs = await issueBetTxCosts(bet)
-      setBetCosts(costs)
       if (walletPublicIdentity) {
         await fetchBalance(walletPublicIdentity)
       }
