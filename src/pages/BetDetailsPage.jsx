@@ -221,6 +221,13 @@ function BetDetailsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, coreNodeBetIds])
 
+  const handleTransactionComplete = async () => {
+    if (walletPublicIdentity) {
+      await fetchBalance(walletPublicIdentity)
+    }
+    // updateBetDetails()
+  }
+
   useEffect(() => {
     if (balance !== null) {
       setHasEnoughBalance(BigInt(balance) >= BigInt(optionCosts))
@@ -423,7 +430,7 @@ function BetDetailsPage() {
 
         {/** Bet Now button */}
         <div className='
-          fixed h-[78px] flex w-full z-5 bottom-0 gap-3
+          fixed h-[88px] flex w-full z-5 bottom-0 gap-3
           border-t border-solid border-gray-70 bg-gray-90
         '>
           <button className='bg-[rgba(26,222,245,0.1)] flex-none py-[8px] px-[16px] text-18 text-primary-40 font-space'
@@ -433,14 +440,16 @@ function BetDetailsPage() {
           </button>
           <div className='flex-1 flex flex-col justify-center text-center'>
             <BetOptionCosts costs={optionCosts}/>
-            {!hasEnoughBalance && (
-              <p className="text-red-500 mt-2">You do not have enough balance to proceed.</p>
-            )}
+            {/*{!hasEnoughBalance && (*/}
+            {/*  <p className="text-red-500 mt-2">*/}
+            {/*    {`You do not have enough balance to proceed.`}*/}
+            {/*  </p>*/}
+            {/*)}*/}
           </div>
           <button
             className='flex-none bg-primary-40 py-[8px] px-10 text-18 disabled:bg-slate-50 disabled:text-gray-50'
             onClick={handleBetNowClick}
-            disabled={optionCosts === 0 || !hasEnoughBalance}
+            disabled={optionCosts === 0}
           >
             {connected ? 'Bet!' : 'Bet!'}
           </button>
@@ -464,6 +473,7 @@ function BetDetailsPage() {
               })
               return confirmed
             }}
+            onTransactionComplete={handleTransactionComplete}
           />
         </div>
       </>}

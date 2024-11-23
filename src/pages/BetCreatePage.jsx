@@ -222,6 +222,14 @@ function BetCreatePage() {
     }
   }
 
+  const handleTransactionComplete = async () => {
+    if (walletPublicIdentity) {
+      await fetchBalance(walletPublicIdentity) // Fetch the latest balance
+    }
+    // fetchBets('active')
+    // navigate('/')
+  }
+
   useEffect(() => {
     if (balance !== null && bet.costs) {
       setHasEnoughBalance(BigInt(balance) >= BigInt(bet.costs))
@@ -342,6 +350,7 @@ function BetCreatePage() {
         onConfirm={async () => {
           return await signIssueBetTx(bet)
         }}
+        onTransactionComplete={handleTransactionComplete}
       />
     </div>
   )
