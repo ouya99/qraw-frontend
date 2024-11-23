@@ -240,7 +240,7 @@ function BetDetailsPage() {
         await fetchBalance(walletPublicIdentity)
       }
       if (!hasEnoughBalance) {
-        alert(`You do not have enough balance to join this bet. Your balance: ${balance}, join bet fee: ${optionCosts}`)
+        alert(`You do not have enough balance to join this bet. Your balance: ${formatQubicAmount(balance)}, join bet fee: ${formatQubicAmount(optionCosts)}`)
         return
       }
       setShowConfirmTxModal(true)
