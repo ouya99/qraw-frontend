@@ -33,7 +33,7 @@ const ConnectLink = () => {
             <span>Lock Wallet</span>
           </span>
           {balance && (
-            <div className={`text-white mt-2 text-[14px] cursor-pointer ${isNotEnoughFund ? 'text-red font-bold animate-blink' : 'text-white'}`}
+            <div className={`hidden md:block text-white mt-2 text-[14px] cursor-pointer ${isNotEnoughFund ? 'text-red font-bold' : 'text-white'}`}
                  onClick={handleBalanceClick}
                  title={isNotEnoughFund ? "Please deposit funds into your account" : "Click to refresh balance"}
             >
