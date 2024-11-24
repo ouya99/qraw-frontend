@@ -279,9 +279,13 @@ function BetDetailsPage() {
               <div className='grid grid-cols-2 md-grid-cols-3 justify-between items-center w-full'>
                 <LabelData lbl="Bet closes at"
                            value={`${formatDate(bet.close_date)} ${bet.close_time.slice(0, -3)} UTC`}
+                           description="The date and time when the bet will no longer be joinable and will be moved to the Locked Bet section."
                 />
                 <LabelData lbl="Slots taken" value={sumArray(bet.current_num_selection)}/>
-                <LabelData lbl="Fee %" value={sumArray(bet.oracle_fee) + ' %'}/>
+                <LabelData lbl="Fee %"
+                           value={sumArray(bet.oracle_fee) + ' %'}
+                           description={"Total fees for Oracle Providers"}
+                />
                 <LabelData lbl="Burning" value={'2 %'}/>
               </div>
               <div className=' flex flex-col justify-center items-center size-full'>
@@ -300,12 +304,15 @@ function BetDetailsPage() {
                 <div className='grid md:grid-cols-3'>
                   <LabelData lbl='Open'
                              value={`${formatDate(bet.open_date)} ${bet.open_time} UTC`}
+                             description="The date and time when the bet becomes available for joining."
                   />
                   <LabelData lbl='Close'
                              value={`${formatDate(bet.close_date)} ${bet.close_time} UTC`}
+                             description="The date and time when the bet will no longer be joinable and will be moved to the Locked Bet section."
                   />
                   <LabelData lbl='End'
                              value={`${formatDate(bet.end_date)} ${bet.end_time} UTC`}
+                             description="The date and time when the oracle providers can publish the results. After the results are published, payouts will be made to bettors."
                   />
                 </div>
                 <LabelData lbl='Creator' value={truncateMiddle(bet.creator, 40)}/>
