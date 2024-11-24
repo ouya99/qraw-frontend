@@ -1,7 +1,6 @@
 import React, {useState, forwardRef, useImperativeHandle} from 'react';
-import LabelWithPopover from './LabelWithPopover';
 
-const InputNumbers = forwardRef(({id, label, placeholder, description, maxLimit = Infinity, onChange}, ref) => {
+const InputNumbers = forwardRef(({id, labelComponent, placeholder, maxLimit = Infinity, onChange}, ref) => {
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
 
@@ -38,7 +37,7 @@ const InputNumbers = forwardRef(({id, label, placeholder, description, maxLimit 
 
   return (
     <div>
-      <LabelWithPopover label={label} description={description}/>
+      {labelComponent}
       <input
         id={id}
         type="text"  // change to "text" to prevent "e" input, while using regex for validation

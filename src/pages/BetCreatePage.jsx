@@ -14,6 +14,7 @@ import {useQuotteryContext} from "../contexts/QuotteryContext"
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper"
 import {hashBetData, hashUniqueData} from "../components/qubic/util/hashUtils"
 import {formatQubicAmount} from "../components/qubic/util"
+import LabelWithPopover from "../components/qubic/ui/LabelWithPopover"
 
 function BetCreatePage() {
 
@@ -243,7 +244,13 @@ function BetCreatePage() {
           <InputMaxChars
             id="description"
             ref={descriptionRef}
-            label="Bet description"
+            labelComponent={
+              <LabelWithPopover
+                htmlFor="description"
+                label="Bet Description"
+                description="This is the bet description with a maximum of 100 characters."
+              />
+            }
             max={100}
             placeholder="Enter bet description"
             onChange={(value) => {
@@ -254,7 +261,13 @@ function BetCreatePage() {
           {/* Close Date and Time */}
           <SelectDateTime
             ref={closeDateTimeRef}
-            label="Close Date and Time"
+            labelComponent={
+              <LabelWithPopover
+                htmlFor="close"
+                label="Close Date and Time (UTC timezone)"
+                description="The date when the bet will no longer be joinable and will be moved to the Locked Bet section."
+              />
+            }
             fieldId="close"
             onChange={handleCloseDateTimeChange}
           />
@@ -262,7 +275,13 @@ function BetCreatePage() {
           {/* End Date and Time */}
           <SelectDateTime
             ref={endDateTimeRef}
-            label="End Date and Time"
+            labelComponent={
+              <LabelWithPopover
+                htmlFor="end"
+                label="End Date and Time (UTC timezone)"
+                description="The date when the oracle providers are allowed to publish the results. After the results have been published, payouts will be made to bettors."
+              />
+            }
             fieldId="end"
             onChange={handleEndDateTimeChange}
             minDateTime={calculateMinEndDateTime()}
@@ -270,11 +289,10 @@ function BetCreatePage() {
 
           {/* Bet options */}
           <div>
-            <span className="block text-white mb-2">
-              Bet Options (min. 2)
-            </span>
-            <p className='text-grey mb-5'>Here we go with a small help description.</p>
-
+            <LabelWithPopover
+              label="Bet Options (min. 2)"
+              description="Options for a bet. Max number of options: 8, min number of options: 2. Press 'Add Option' to add more options. Press 'X' at the end of the option field to remove an option. Each option's max length is 32 characters."
+            />
             <OptionsList
               max={8}
               options={bet.options}
@@ -285,11 +303,10 @@ function BetCreatePage() {
 
           {/* Oracle Providers */}
           <div>
-            <span className="block text-white mb-2">
-              Oracle Providers (min. 1)
-            </span>
-            <p className='text-grey mb-5'>Here we go with a small help description.</p>
-
+            <LabelWithPopover
+              label="Oracle Providers (min. 1)"
+              description="List the 60-character public address of Oracle Providers and their corresponding fees. The oracle provider publishes the bet's results. Min number of oracle providers is 1, max is 8. It's recommended that the total fees of all oracle providers not exceed 10%. Note that if the fees are too high, no one will join your bet. Press 'Add Provider' to add more Oracle Providers. Press 'X' at the end of the field to remove one."
+            />
             <ProvidersList
               max={8}
               providers={bet.providers}
@@ -300,18 +317,28 @@ function BetCreatePage() {
           {/* Settings */}
           <InputNumbers
             id="amountPerSlot"
-            label="Amount of Qus per Slot"
+            labelComponent={
+              <LabelWithPopover
+                htmlFor="amountPerSlot"
+                label="Amount of Qubics per Slot"
+                description="The amount of qubics to debit per slot when someone joins the bet. The minimum amount is 10,000 qubics."
+              />
+            }
             placeholder="Enter amount of Qus per slot"
-            description="Here we go with a small help description."
             ref={amountPerSlotRef}
             onChange={handleAmountPerSlotChange}
           />
 
           <InputNumbers
             id="maxBetSlots"
-            label="Maximum Number of Bet Slots per Option"
+            labelComponent={
+              <LabelWithPopover
+                htmlFor="maxBetSlots"
+                label="Maximum Number of Bet Slots per Option"
+                description="Maximum number of bet slots available for all bettors to bet on your bet. The maximum slots per option per bet is 1024 slots."
+              />
+            }
             placeholder="Enter max bet slots"
-            description="Here we go with a small help description."
             ref={maxBetSlotsRef}
             maxLimit={1024}
             onChange={handleMaxBetSlotsChange}

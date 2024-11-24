@@ -9,7 +9,7 @@ import timezone from 'dayjs/plugin/timezone'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-const SelectDateTime = forwardRef(({ label, fieldId, onChange, minDateTime }, ref) => {
+const SelectDateTime = forwardRef(({ labelComponent, fieldId, onChange, minDateTime }, ref) => {
   const [selectedDateTime, setSelectedDateTime] = useState(null)
   const [error, setError] = useState('')
 
@@ -51,7 +51,7 @@ const SelectDateTime = forwardRef(({ label, fieldId, onChange, minDateTime }, re
 
   return (
     <div>
-      <label className="block text-white mb-2">{label} (UTC)</label>
+      {labelComponent}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateTimePicker
           label={null}
