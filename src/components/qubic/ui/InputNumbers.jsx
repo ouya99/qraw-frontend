@@ -1,5 +1,4 @@
 import React, {useState, forwardRef, useImperativeHandle} from 'react';
-import LabelWithPopover from './LabelWithPopover';
 
 const InputNumbers = forwardRef(({id, labelComponent, placeholder, maxLimit = Infinity, onChange}, ref) => {
   const [value, setValue] = useState('');
