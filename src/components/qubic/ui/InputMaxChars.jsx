@@ -1,6 +1,6 @@
 import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 
-const InputMaxChars = forwardRef(({ id, label, max, placeholder, initialValue = '', regEx = /.*/, onChange }, ref) => {
+const InputMaxChars = forwardRef(({ id, labelComponent, max, placeholder, initialValue = '', regEx = /.*/, onChange }, ref) => {
   const [value, setValue] = useState(initialValue);
   const [numChars, setNumChars] = useState(initialValue.length);
   const [error, setError] = useState('');
@@ -40,9 +40,7 @@ const InputMaxChars = forwardRef(({ id, label, max, placeholder, initialValue = 
 
   return (
     <div>
-      <label htmlFor={id} className="block text-white mb-2">
-        {label}
-      </label>
+      {labelComponent}
       <input
         id={id}
         type="text"
