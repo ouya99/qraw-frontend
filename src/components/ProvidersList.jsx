@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import InputMaxChars from './qubic/ui/InputMaxChars';
 import InputRegEx from './qubic/ui/InputRegEx';
+import LabelWithPopover from './qubic/ui/LabelWithPopover';
 
 const ProvidersList = ({max, providers: initialProviders, onChange}) => {
   const [providers, setProviders] = useState(initialProviders);
@@ -16,6 +17,7 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
     newProviders[index] = {...newProviders[index], [field]: value};
     setProviders(newProviders);
     onChange(newProviders);
+    validateProviders(newProviders);
     validateFees(newProviders);
 
   };
@@ -45,35 +47,43 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
     const newProviders = providers.filter((_, i) => i !== index);
     setProviders([...newProviders]);
     onChange(newProviders);
+    validateProviders(newProviders)
     validateFees(newProviders)
   };
 
-  useEffect(() => {
-    const validateProviders = () => {
-      const newErrors = {};
-      providers.forEach((provider, index) => {
-        if (!provider.name) {
-          newErrors[`publicId_${index}`] = 'Oracle ID is required';
+  const validateProviders = (providerList) => {
+      const newErrors = {}
+    providerList.forEach((provider, index) => {
+        if (!provider.publicId) {
+          newErrors[`publicId_${index}`] = 'Oracle ID is required'
         }
         if (!provider.fee) {
-          newErrors[`fee_${index}`] = 'Fee is required';
+          newErrors[`fee_${index}`] = 'Fee is required'
         }
-      });
+      })
       setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    };
-    validateProviders();
+      return Object.keys(newErrors).length === 0
+    }
+
+  useEffect(() => {
+    validateProviders(providers)
     validateFees(providers)
-  }, [providers]);
+  }, [providers])
 
   return (
     <div className="space-y-4">
       {providers.map((provider, index) => (
-        <div key={index} className="flex items-stretch space-x-2">
-          <div className="flex-grow">
+        <div key={index} className="flex flex-wrap items-start space-x-0 md:space-x-2">
+          <div className="flex-grow w-full md:w-auto">
             <InputMaxChars
               id={`provider-publicId-${index}`}
+              labelComponent={
+                <LabelWithPopover
+                  htmlFor={`provider-publicId-${index}`}
               label={`Oracle ${index + 1} - ID`}
+                  description="Enter the 60-character public ID of the Oracle Provider."
+                />
+              }
               max={60}
               placeholder="Enter Oracle ID"
               initialValue={provider.publicId}
@@ -82,10 +92,16 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
             />
             {errors[`publicId_${index}`] && <p className="text-red-500">{errors[`publicId_${index}`]}</p>}
           </div>
-          <div className="w-32">
+          <div className="w-full md:w-32">
             <InputRegEx
               id={`provider-fee-${index}`}
-              label={`Fee %`}
+              labelComponent={
+                <LabelWithPopover
+                  htmlFor={`provider-fee-${index}`}
+                  label={`Fee ${index + 1} %`}
+                  description="Enter the fee percentage for this Oracle Provider."
+                />
+              }
               initialValue={provider.fee}
               onChange={(value) => handleProviderChange(index, 'fee', value)}
             />
@@ -96,9 +112,10 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
               e.preventDefault();
               handleDeleteProvider(index);
             }}
-            className="text-red-500 disabled:text-gray-500"
+            className="text-red-500 disabled:text-gray-500 mt-2 md:mt-0 md:ml-2"
             disabled={providers.length <= 1}
           >
+            {/* Delete Icon */}
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                  className="w-6 h-6">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
@@ -114,6 +131,7 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
           Add Provider
         </button>
       )}
+      {totalFeeError && <p className="text-red-500">{totalFeeError}</p>}
     </div>
   );
 };
