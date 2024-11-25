@@ -41,6 +41,7 @@ function BetCreatePage() {
   const descriptionRef = useRef()
   const closeDateTimeRef = useRef()
   const endDateTimeRef = useRef()
+  const optionsRef = useRef()
   const amountPerSlotRef = useRef()
   const maxBetSlotsRef = useRef()
   const providersRef = useRef()
@@ -49,7 +50,7 @@ function BetCreatePage() {
     const isDescriptionValid = descriptionRef.current.validate()
     const isCloseDateTimeValid = closeDateTimeRef.current.validate()
     const isEndDateTimeValid = endDateTimeRef.current.validate()
-    const isOptionsValid = bet.options.length >= 2
+    const isOptionsValid = optionsRef.current.validate()
     const isProvidersValid = providersRef.current.validate()
     const isAmountPerSlotValid = amountPerSlotRef.current.validate()
     const isMaxBetSlotsValid = maxBetSlotsRef.current.validate()
@@ -298,6 +299,7 @@ function BetCreatePage() {
               max={8}
               options={bet.options}
               onChange={handleOptionsChange}
+              ref={optionsRef}
             />
             {errors.options && <p className="text-red-500">{errors.options}</p>}
           </div>

@@ -1,9 +1,9 @@
-import React, {useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import React, {useEffect, useState, forwardRef, useImperativeHandle} from 'react';
 import InputMaxChars from './qubic/ui/InputMaxChars';
 import InputRegEx from './qubic/ui/InputRegEx';
 import LabelWithPopover from './qubic/ui/LabelWithPopover';
 
-const ProvidersList = forwardRef(({ max, providers: initialProviders, onChange }, ref) => {
+const ProvidersList = forwardRef(({max, providers: initialProviders, onChange}, ref) => {
   const [providers, setProviders] = useState(initialProviders);
   const [errors, setErrors] = useState({});
   const [totalFeeError, setTotalFeeError] = useState('')
@@ -51,18 +51,25 @@ const ProvidersList = forwardRef(({ max, providers: initialProviders, onChange }
   };
 
   const validateProviders = (providerList) => {
-      const newErrors = {}
+    const newErrors = {}
+    const uniqueIds = new Set()
+
     providerList.forEach((provider, index) => {
-        if (!provider.publicId || !provider.publicId.trim()) {
-          newErrors[`publicId_${index}`] = 'Oracle ID is required'
-        }
-        if (!provider.fee || !provider.fee.trim()) {
-          newErrors[`fee_${index}`] = 'Fee is required'
-        }
-      })
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0
-    }
+      if (!provider.publicId || !provider.publicId.trim()) {
+        newErrors[`publicId_${index}`] = 'Oracle ID is required'
+      } else if (uniqueIds.has(provider.publicId.trim())) {
+        newErrors[`publicId_${index}`] = 'Oracle IDs must be unique'
+      } else {
+        uniqueIds.add(provider.publicId.trim())
+      }
+
+      if (!provider.fee || !provider.fee.trim()) {
+        newErrors[`fee_${index}`] = 'Fee is required'
+      }
+    })
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   useImperativeHandle(ref, () => ({
     validate: () => {
@@ -82,7 +89,7 @@ const ProvidersList = forwardRef(({ max, providers: initialProviders, onChange }
               labelComponent={
                 <LabelWithPopover
                   htmlFor={`provider-publicId-${index}`}
-              label={`Oracle ${index + 1} - ID`}
+                  label={`Oracle ${index + 1} - ID`}
                   description="Enter the 60-character public ID of the Oracle Provider."
                 />
               }

@@ -1,9 +1,21 @@
-import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import React, {useEffect, useState, forwardRef, useImperativeHandle} from 'react';
 
-const InputMaxChars = forwardRef(({ id, labelComponent, max, placeholder, initialValue = '', regEx = /.*/, onChange }, ref) => {
+const InputMaxChars = forwardRef(({
+                                    id,
+                                    labelComponent,
+                                    max,
+                                    placeholder,
+                                    initialValue = '',
+                                    regEx = /.*/,
+                                    onChange,
+                                    externalError = '',
+                                  },
+                                  ref) => {
   const [value, setValue] = useState(initialValue);
   const [numChars, setNumChars] = useState(initialValue.length);
-  const [error, setError] = useState('');
+  const [error, setError] = useState('')
+  const [touched, setTouched] = useState(false);
+
 
   const handleChange = (event) => {
     const newValue = event.target.value;
@@ -18,6 +30,10 @@ const InputMaxChars = forwardRef(({ id, labelComponent, max, placeholder, initia
     }
   };
 
+  const handleBlur = () => {
+    setTouched(true)
+  }
+
   useEffect(() => {
     setValue(initialValue);
     setNumChars(initialValue.length);
@@ -26,17 +42,19 @@ const InputMaxChars = forwardRef(({ id, labelComponent, max, placeholder, initia
   useImperativeHandle(ref, () => ({
     validate: () => {
       if (value.length === 0) {
-        setError('This field is required');
-        return false;
+        setError('This field is required')
+        return false
       } else if (value.length > max) {
-        setError(`Maximum ${max} characters allowed`);
-        return false;
+        setError(`Maximum ${max} characters allowed`)
+        return false
       } else {
-        setError('');
-        return true;
+        setError('')
+        return true
       }
     }
   }));
+
+  const displayError = externalError || error
 
   return (
     <div>
@@ -48,9 +66,13 @@ const InputMaxChars = forwardRef(({ id, labelComponent, max, placeholder, initia
         placeholder={placeholder}
         value={value}
         onChange={handleChange}
+        onBlur={handleBlur}
       />
       <div className="text-right text-gray-500 text-sm mt-1">
-        {error && <p className="text-red-500">{error}</p>} {numChars}/{max}
+        {displayError && (touched || externalError) && (
+          <p className="text-red-500 text-left">{displayError}</p>
+        )}
+        {numChars}/{max}
       </div>
     </div>
   );
