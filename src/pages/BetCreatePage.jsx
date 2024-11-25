@@ -43,13 +43,14 @@ function BetCreatePage() {
   const endDateTimeRef = useRef()
   const amountPerSlotRef = useRef()
   const maxBetSlotsRef = useRef()
+  const providersRef = useRef()
 
   const validateForm = () => {
     const isDescriptionValid = descriptionRef.current.validate()
     const isCloseDateTimeValid = closeDateTimeRef.current.validate()
     const isEndDateTimeValid = endDateTimeRef.current.validate()
     const isOptionsValid = bet.options.length >= 2
-    const isProvidersValid = bet.providers.length >= 1 && bet.providers.every(provider => provider.publicId && provider.fee)
+    const isProvidersValid = providersRef.current.validate()
     const isAmountPerSlotValid = amountPerSlotRef.current.validate()
     const isMaxBetSlotsValid = maxBetSlotsRef.current.validate()
 
@@ -311,6 +312,7 @@ function BetCreatePage() {
               max={8}
               providers={bet.providers}
               onChange={handleProvidersChange}
+              ref={providersRef}
             />
           </div>
 

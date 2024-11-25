@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import InputMaxChars from './qubic/ui/InputMaxChars';
 import InputRegEx from './qubic/ui/InputRegEx';
 import LabelWithPopover from './qubic/ui/LabelWithPopover';
 
-const ProvidersList = ({max, providers: initialProviders, onChange}) => {
+const ProvidersList = forwardRef(({ max, providers: initialProviders, onChange }, ref) => {
   const [providers, setProviders] = useState(initialProviders);
   const [errors, setErrors] = useState({});
   const [totalFeeError, setTotalFeeError] = useState('')
@@ -13,24 +13,23 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
   }, [initialProviders]);
 
   const handleProviderChange = (index, field, value) => {
-    const newProviders = [...providers];
-    newProviders[index] = {...newProviders[index], [field]: value};
-    setProviders(newProviders);
-    onChange(newProviders);
-    validateProviders(newProviders);
-    validateFees(newProviders);
-
-  };
+    const newProviders = [...providers]
+    newProviders[index] = {...newProviders[index], [field]: value}
+    setProviders(newProviders)
+    onChange(newProviders)
+  }
 
   const validateFees = (providerList) => {
     const totalFees = providerList.reduce((sum, provider) => {
-      return sum + (parseFloat(provider.fee) || 0);
+      return sum + (parseFloat(provider.fee) || 0)
     }, 0)
 
     if (totalFees > 100) {
       setTotalFeeError('The total sum of provider fees cannot exceed 100%.')
+      return false
     } else {
       setTotalFeeError('')
+      return true
     }
   }
 
@@ -47,17 +46,17 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
     const newProviders = providers.filter((_, i) => i !== index);
     setProviders([...newProviders]);
     onChange(newProviders);
-    validateProviders(newProviders)
-    validateFees(newProviders)
+    // validateProviders(newProviders)
+    // validateFees(newProviders)
   };
 
   const validateProviders = (providerList) => {
       const newErrors = {}
     providerList.forEach((provider, index) => {
-        if (!provider.publicId) {
+        if (!provider.publicId || !provider.publicId.trim()) {
           newErrors[`publicId_${index}`] = 'Oracle ID is required'
         }
-        if (!provider.fee) {
+        if (!provider.fee || !provider.fee.trim()) {
           newErrors[`fee_${index}`] = 'Fee is required'
         }
       })
@@ -65,10 +64,13 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
       return Object.keys(newErrors).length === 0
     }
 
-  useEffect(() => {
-    validateProviders(providers)
-    validateFees(providers)
-  }, [providers])
+  useImperativeHandle(ref, () => ({
+    validate: () => {
+      const isValidProviders = validateProviders(providers)
+      const isValidFees = validateFees(providers)
+      return isValidProviders && isValidFees
+    },
+  }))
 
   return (
     <div className="space-y-4">
@@ -134,6 +136,6 @@ const ProvidersList = ({max, providers: initialProviders, onChange}) => {
       {totalFeeError && <p className="text-red-500">{totalFeeError}</p>}
     </div>
   );
-};
+});
 
 export default ProvidersList;
