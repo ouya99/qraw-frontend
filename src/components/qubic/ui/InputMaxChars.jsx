@@ -21,13 +21,18 @@ const InputMaxChars = forwardRef(({
     setTouched(true)
     const newValue = event.target.value
 
-    if (regEx.test(newValue) && newValue.length <= max) {
-      setError('')
-      setNumChars(newValue.length)
+    if (regEx.test(newValue)) {
       setValue(newValue)
       onChange(newValue)
-    } else if (newValue.length > max) {
-      setError(`Maximum ${max} characters allowed`)
+      setNumChars(newValue.length)
+
+      if (newValue.length > max) {
+        setError(`Maximum ${max} characters allowed`)
+      } else {
+        setError('')
+      }
+    } else {
+      setError('Invalid input format')
     }
   }
 
