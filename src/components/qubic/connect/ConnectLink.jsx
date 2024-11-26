@@ -17,8 +17,6 @@ const ConnectLink = () => {
     }
   }
 
-  console.log('balance:', balance)
-
   const isNotEnoughFund = parseInt(balance) <= MIN_BALANCE_THRESHOLD
 
   return (<>
