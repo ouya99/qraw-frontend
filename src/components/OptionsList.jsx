@@ -1,7 +1,8 @@
-import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react'
+import React, {useEffect, useState, forwardRef, useImperativeHandle} from 'react'
 import InputMaxChars from './qubic/ui/InputMaxChars';
+import LabelWithPopover from "./qubic/ui/LabelWithPopover"
 
-const OptionsList = forwardRef(({ max, options: initialOptions, onChange }, ref) => {
+const OptionsList = forwardRef(({max, options: initialOptions, onChange}, ref) => {
   const [options, setOptions] = useState(initialOptions);
   const [errors, setErrors] = useState({})
 
@@ -15,7 +16,7 @@ const OptionsList = forwardRef(({ max, options: initialOptions, onChange }, ref)
     setOptions(newOptions)
     onChange(newOptions)
     setErrors((prevErrors) => {
-      const newErrors = { ...prevErrors }
+      const newErrors = {...prevErrors}
       delete newErrors[index]
       return newErrors
     })
@@ -49,7 +50,7 @@ const OptionsList = forwardRef(({ max, options: initialOptions, onChange }, ref)
     options.forEach((option, index) => {
       if (!option.trim()) {
         newErrors[index] = 'Option cannot be empty'
-      } else if (uniqueOptions.has(option.trim())) {
+      } else if (uniqueOptions.has(option.trim()) && option.trim() !== '') {
         newErrors[index] = 'Options must be unique'
       } else {
         uniqueOptions.add(option.trim())
@@ -78,6 +79,11 @@ const OptionsList = forwardRef(({ max, options: initialOptions, onChange }, ref)
               initialValue={option}
               onChange={(value) => handleOptionChange(index, value)}
               externalError={errors[index]}
+              labelComponent={<LabelWithPopover
+                htmlFor={`option-${index}`}
+                label={`Option ${index + 1}`}
+                description={`Enter the description for option ${index + 1} (max 32 chars)`}
+              />}
             />
           </div>
           <button

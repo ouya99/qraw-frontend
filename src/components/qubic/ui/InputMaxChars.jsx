@@ -18,17 +18,18 @@ const InputMaxChars = forwardRef(({
 
 
   const handleChange = (event) => {
-    const newValue = event.target.value;
+    setTouched(true)
+    const newValue = event.target.value
 
     if (regEx.test(newValue) && newValue.length <= max) {
-      setError('');
-      setNumChars(newValue.length);
-      setValue(newValue);
-      onChange(newValue);
+      setError('')
+      setNumChars(newValue.length)
+      setValue(newValue)
+      onChange(newValue)
     } else if (newValue.length > max) {
-      setError(`Maximum ${max} characters allowed`);
+      setError(`Maximum ${max} characters allowed`)
     }
-  };
+  }
 
   const handleBlur = () => {
     setTouched(true)
@@ -41,6 +42,7 @@ const InputMaxChars = forwardRef(({
 
   useImperativeHandle(ref, () => ({
     validate: () => {
+      setTouched(true)
       if (value.length === 0) {
         setError('This field is required')
         return false
