@@ -20,9 +20,16 @@ function BetCreatePage() {
 
   const navigate = useNavigate()
   const [showConfirmTxModal, setShowConfirmTxModal] = useState(false)
-  const { connected, toggleConnectModal } = useQubicConnect()
-  const { fetchBets, signIssueBetTx, balance, issueBetTxCosts, fetchBalance, walletPublicIdentity } = useQuotteryContext()
-  const { wallet } = useQubicConnect()
+  const {connected, toggleConnectModal, wallet} = useQubicConnect()
+  const {
+    fetchBets,
+    signIssueBetTx,
+    balance,
+    issueBetTxCosts,
+    fetchBalance,
+    walletPublicIdentity,
+    state,
+  } = useQuotteryContext()
 
   const [bet, setBet] = useState({
     description: '',
@@ -92,7 +99,7 @@ function BetCreatePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ hash: encodedHash, description }),
+        body: JSON.stringify({hash: encodedHash, description}),
       })
       const data = await response.json()
       return data.success
@@ -105,7 +112,7 @@ function BetCreatePage() {
   const handleOptionsChange = newOptions => setBet({...bet, options: newOptions})
   const handleCloseDateTimeChange = dateTime => {
     setBet(prevBet => {
-      const newBet = { ...prevBet, closeDateTime: dateTime }
+      const newBet = {...prevBet, closeDateTime: dateTime}
 
       if (prevBet.endDateTime && prevBet.endDateTime.date && prevBet.endDateTime.time) {
         const closeDateTime = new Date(`${dateTime.date}T${dateTime.time}Z`)
@@ -126,7 +133,7 @@ function BetCreatePage() {
   }
 
   const calculateMinEndDateTime = () => {
-    const { date, time } = bet.closeDateTime || {}
+    const {date, time} = bet.closeDateTime || {}
 
     if (!date || !time) {
       return null
@@ -146,13 +153,13 @@ function BetCreatePage() {
     const minDate = isoString.split('T')[0]
     const minTime = isoString.split('T')[1].slice(0, 5) // Get HH:MM
 
-    return { date: minDate, time: minTime }
+    return {date: minDate, time: minTime}
   }
 
-  const handleEndDateTimeChange = dateTime => setBet({ ...bet, endDateTime: dateTime })
+  const handleEndDateTimeChange = dateTime => setBet({...bet, endDateTime: dateTime})
   const handleProvidersChange = newProviders => setBet({...bet, providers: newProviders})
-  const handleAmountPerSlotChange = value => setBet({ ...bet, amountPerSlot: value })
-  const handleMaxBetSlotsChange = value => setBet({ ...bet, maxBetSlots: value })
+  const handleAmountPerSlotChange = value => setBet({...bet, amountPerSlot: value})
+  const handleMaxBetSlotsChange = value => setBet({...bet, maxBetSlots: value})
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -232,6 +239,9 @@ function BetCreatePage() {
     // navigate('/')
   }
 
+  const nodeInfo = state.nodeInfo || {}
+  const minBetSlotAmount = nodeInfo.min_bet_slot_amount || 10000
+
   return (
     <div className='mt-[90px] sm:px-30 md:px-130'>
       <div className="max-w-3xl mx-auto p-4">
@@ -256,7 +266,7 @@ function BetCreatePage() {
             max={100}
             placeholder="Enter bet description"
             onChange={(value) => {
-              setBet({ ...bet, description: value })
+              setBet({...bet, description: value})
             }}
           />
 
@@ -325,13 +335,13 @@ function BetCreatePage() {
               <LabelWithPopover
                 htmlFor="amountPerSlot"
                 label="Amount of Qubics per Slot"
-                description="The amount of qubics to debit per slot when someone joins the bet. The minimum amount is 10,000 qubics."
+                description={`The amount of qubics to debit per slot when someone joins the bet. The minimum amount is ${formatQubicAmount(minBetSlotAmount)} qubics.`}
               />
             }
             placeholder="Enter amount of Qus per slot"
             ref={amountPerSlotRef}
             onChange={handleAmountPerSlotChange}
-            minLimit={10000}
+            minLimit={minBetSlotAmount}
           />
 
           <InputNumbers
@@ -370,7 +380,7 @@ function BetCreatePage() {
         }}
         tx={{
           title: 'Create Bet',
-          description: <BetCreateConfirm bet={bet} />,
+          description: <BetCreateConfirm bet={bet}/>,
         }}
         onConfirm={async () => {
           return await signIssueBetTx(bet)

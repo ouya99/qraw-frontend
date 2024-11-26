@@ -1,4 +1,5 @@
 import React, {useState, forwardRef, useImperativeHandle} from 'react';
+import {formatQubicAmount} from "../util";
 
 const InputNumbers = forwardRef(({id, labelComponent, placeholder, minLimit = 0, maxLimit = Infinity, onChange}, ref) => {
   const [value, setValue] = useState('');
@@ -18,9 +19,9 @@ const InputNumbers = forwardRef(({id, labelComponent, placeholder, minLimit = 0,
       } else {
         const numericValue = Number(newValue)
         if (numericValue < minLimit) {
-          setError(`Value must be greater than or equal to ${minLimit}`)
+          setError(`Value must be greater than or equal to ${formatQubicAmount(minLimit)}`)
         } else if (numericValue > maxLimit) {
-          setError(`Value must be less than or equal to ${maxLimit}`)
+          setError(`Value must be less than or equal to ${formatQubicAmount(maxLimit)}`)
         } else {
           setError('')
         }
@@ -38,11 +39,11 @@ const InputNumbers = forwardRef(({id, labelComponent, placeholder, minLimit = 0,
       }
       const numericValue = Number(value)
       if (numericValue < minLimit) {
-        setError(`Value must be greater than or equal to ${minLimit}`)
+        setError(`Value must be greater than or equal to ${formatQubicAmount(minLimit)}`)
         return false
       }
       if (numericValue > maxLimit) {
-        setError(`Value must be less than or equal to ${maxLimit}`)
+        setError(`Value must be less than or equal to ${formatQubicAmount(maxLimit)}`)
         return false
       }
       setError('')
