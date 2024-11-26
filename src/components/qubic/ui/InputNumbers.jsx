@@ -1,39 +1,54 @@
 import React, {useState, forwardRef, useImperativeHandle} from 'react';
 
-const InputNumbers = forwardRef(({id, labelComponent, placeholder, maxLimit = Infinity, onChange}, ref) => {
+const InputNumbers = forwardRef(({id, labelComponent, placeholder, minLimit = 0, maxLimit = Infinity, onChange}, ref) => {
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    const newValue = e.target.value;
+    const newValue = e.target.value
 
-    const regEx = /^[0-9]*$/;
+    const regEx = /^[0-9]*$/
 
-    if (regEx.test(newValue) && Number(newValue) <= maxLimit && Number(newValue) >= 0) {
-      setValue(newValue);
-      setError('');
-      onChange(newValue);
-    } else if (Number(newValue) > maxLimit) {
-      setError(`Value must be less than or equal to ${maxLimit}`);
+    if (regEx.test(newValue)) {
+      setValue(newValue)
+      onChange(newValue)
+
+      if (newValue === '') {
+        setError('')
+      } else {
+        const numericValue = Number(newValue)
+        if (numericValue < minLimit) {
+          setError(`Value must be greater than or equal to ${minLimit}`)
+        } else if (numericValue > maxLimit) {
+          setError(`Value must be less than or equal to ${maxLimit}`)
+        } else {
+          setError('')
+        }
+      }
     } else {
-      setError('Invalid input');
+      setError('Invalid input')
     }
-  };
+  }
 
   useImperativeHandle(ref, () => ({
     validate: () => {
       if (value === '') {
-        setError('This field is required');
-        return false;
+        setError('This field is required')
+        return false
       }
-      if (Number(value) > maxLimit) {
-        setError(`Value must be less than or equal to ${maxLimit}`);
-        return false;
+      const numericValue = Number(value)
+      if (numericValue < minLimit) {
+        setError(`Value must be greater than or equal to ${minLimit}`)
+        return false
       }
-      setError('');
-      return true;
+      if (numericValue > maxLimit) {
+        setError(`Value must be less than or equal to ${maxLimit}`)
+        return false
+      }
+      setError('')
+      return true
     }
-  }));
+  }))
 
   return (
     <div>

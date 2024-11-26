@@ -331,6 +331,7 @@ function BetCreatePage() {
             placeholder="Enter amount of Qus per slot"
             ref={amountPerSlotRef}
             onChange={handleAmountPerSlotChange}
+            minLimit={10000}
           />
 
           <InputNumbers
