@@ -198,7 +198,7 @@ function BetDetailsPage() {
         // Determine the button text and state based on conditions
         if (!isAfterEndDate) {
           // The date hasn't arrived yet. Tell the Oracle Provider "You Need to Calm Down"
-          setPublishButtonText(`Publish bet after ${bet.end_date} ${bet.end_time} UTC)`);
+          setPublishButtonText(`Publish bet after ${formatDate(bet.end_date)} ${bet.end_time} UTC)`);
         } else if (!hasEnoughParticipants) {
           // Not enough participants
           setPublishButtonText('Unable to publish bet (not enough parties joined the bet)')

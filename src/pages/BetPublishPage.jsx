@@ -4,6 +4,7 @@ import {useQuotteryContext} from '../contexts/QuotteryContext'
 import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
 import Card from '../components/qubic/Card'
+import {formatDate} from '../components/qubic/util/commons'
 
 const BetPublishPage = () => {
   const {id} = useParams()
@@ -89,7 +90,7 @@ const BetPublishPage = () => {
           <>
             {!isAfterEndDate && (
               <p className="text-gray-50 mt-4">
-                Publish bet (please come back after {bet.end_date} {bet.end_time} UTC)
+                Publish bet (please come back after {formatDate(bet.end_date)} {bet.end_time} UTC)
               </p>
             )}
             {isAfterEndDate && !hasEnoughParticipants && (
