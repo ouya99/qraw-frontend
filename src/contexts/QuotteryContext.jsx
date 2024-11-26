@@ -250,7 +250,6 @@ export const QuotteryProvider = ({children}) => {
         },
       })
       const data = await response.json()
-      console.log('Balance fetched:', data)
       setBalance(data.balance.balance)
     } catch (error) {
       console.error('Error fetching balance:', error)

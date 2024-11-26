@@ -1,19 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState, forwardRef, useImperativeHandle} from 'react'
 import InputMaxChars from './qubic/ui/InputMaxChars';
+import LabelWithPopover from "./qubic/ui/LabelWithPopover"
 
-const OptionsList = ({ max, options: initialOptions, onChange }) => {
+const OptionsList = forwardRef(({max, options: initialOptions, onChange}, ref) => {
   const [options, setOptions] = useState(initialOptions);
+  const [errors, setErrors] = useState({})
 
   useEffect(() => {
     setOptions(initialOptions);
   }, [initialOptions]);
 
   const handleOptionChange = (index, value) => {
-    const newOptions = [...options];
-    newOptions[index] = value;
-    setOptions(newOptions);
-    onChange(newOptions);
-  };
+    const newOptions = [...options]
+    newOptions[index] = value
+    setOptions(newOptions)
+    onChange(newOptions)
+    setErrors((prevErrors) => {
+      const newErrors = {...prevErrors}
+      delete newErrors[index]
+      return newErrors
+    })
+  }
 
   const handleAddOption = (event) => {
     event.preventDefault();
@@ -25,13 +32,42 @@ const OptionsList = ({ max, options: initialOptions, onChange }) => {
   };
 
   const handleDeleteOption = (index) => {
-    const newOptions = options.filter((_, i) => i !== index);
-    setOptions(newOptions);
-    onChange(newOptions);
-  };
+    const newOptions = options.filter((_, i) => i !== index)
+    setOptions(newOptions)
+    onChange(newOptions)
+    validateOptions(newOptions)
+  }
+
+
+  const validateOptions = () => {
+    const newErrors = {};
+    const uniqueOptions = new Set();
+
+    if (options.length < 2) {
+      newErrors.global = 'You must provide at least two options.'
+    }
+
+    options.forEach((option, index) => {
+      if (!option.trim()) {
+        newErrors[index] = 'Option cannot be empty'
+      } else if (uniqueOptions.has(option.trim()) && option.trim() !== '') {
+        newErrors[index] = 'Options must be unique'
+      } else {
+        uniqueOptions.add(option.trim())
+      }
+    })
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0
+  }
+
+  useImperativeHandle(ref, () => ({
+    validate: validateOptions,
+  }))
 
   return (
     <div className="space-y-4">
+      {errors.global && <p className="text-red-500">{errors.global}</p>}
       {options.map((option, index) => (
         <div key={index} className="flex items-center space-x-2">
           <div className="flex-grow">
@@ -42,6 +78,12 @@ const OptionsList = ({ max, options: initialOptions, onChange }) => {
               placeholder="Enter option"
               initialValue={option}
               onChange={(value) => handleOptionChange(index, value)}
+              externalError={errors[index]}
+              labelComponent={<LabelWithPopover
+                htmlFor={`option-${index}`}
+                label={`Option ${index + 1}`}
+                description={`Enter the description for option ${index + 1} (max 32 chars)`}
+              />}
             />
           </div>
           <button
@@ -78,7 +120,7 @@ const OptionsList = ({ max, options: initialOptions, onChange }) => {
         </button>
       )}
     </div>
-  );
-};
+  )
+})
 
 export default OptionsList;
