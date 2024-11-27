@@ -93,7 +93,7 @@ const SelectDateTime = forwardRef(({ labelComponent, fieldId, onChange, minDateT
           }}
         />
       </LocalizationProvider>
-      {error && <p className="text-red-500 text-right text-sm">{error}</p>}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>
   )
 })
