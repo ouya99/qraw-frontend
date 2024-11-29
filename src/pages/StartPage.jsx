@@ -50,9 +50,9 @@ function StartPage() {
               ))}
             </div>
 
-            <h2
-              className="text-3xl font-semibold justify-between items-center mt-[48px] px-20 text-primary-40 text-center mt-12 mb-12">Historical
-              Bets</h2>
+            <h2 className="text-3xl font-semibold justify-between items-center mt-[48px] px-20 text-primary-40 text-center mt-12 mb-12">
+              Historical Bets
+            </h2>
             {renderHistoricalBets()}
           </>
         )
@@ -80,7 +80,7 @@ function StartPage() {
                   key={bet.bet_id}
                   data={bet}
                   onClick={() => navigate('/bet/' + bet.bet_id)}
-                  // status={'locked'}
+                  status={'locked'}
                 />
               ))}
             </div>
@@ -128,7 +128,7 @@ function StartPage() {
                   key={bet.bet_id}
                   data={bet}
                   onClick={() => navigate('/bet/' + bet.bet_id)}
-                  // status={'locked'}
+                  status={'locked'}
                 />
               ))}
             </div>
@@ -163,7 +163,7 @@ function StartPage() {
                 key={bet.bet_id}
                 data={bet}
                 onClick={() => navigate('/bet/' + bet.bet_id)}
-                // status={bet.result !== -1 ? 'published' : ''}
+                status={bet.result !== -1 ? 'published' : ''}
               />
             ))}
           </div>
