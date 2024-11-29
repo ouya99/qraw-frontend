@@ -39,12 +39,6 @@ const betReducer = (state, action) => {
   }
 }
 
-const ifExceedsDatetime = (compareDate, compareTime) => {
-  const date = new Date(`20${compareDate}T${compareTime}Z`); // Create a new Date object with the compareDate and compareTime
-  const now = new Date(); // Get the current date and time
-  return now > date; // Return true if current date/time exceeds compare date/time
-};
-
 export const QuotteryProvider = ({children}) => {
   const [state, dispatch] = useReducer(betReducer, {
     activeBets: [],

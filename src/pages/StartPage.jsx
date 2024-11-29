@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useEffect} from 'react'
 import {useNavigate} from 'react-router-dom'
 import BetOverviewCard from '../components/BetOverviewCard'
 import Dropdown from '../components/qubic/Dropdown'
@@ -149,7 +149,7 @@ function StartPage() {
       let coreNodeBets = [...state.activeBets, ...state.lockedBets, ...state.waitingForResultsBets]
       fetchHistoricalBets(coreNodeBets, filterOptions[currentFilterOption].value, currentPage)
     }
-  }, [currentPage, state.activeBets, state.lockedBets, state.waitingForResultsBets])
+  }, [currentPage, state.activeBets, state.lockedBets, state.waitingForResultsBets, currentFilterOption])
 
   const renderHistoricalBets = () => {
     return (
@@ -178,7 +178,6 @@ function StartPage() {
 
     // Determine the range of page numbers to display
     const pageNumbers = []
-    const maxPageNumbersToShow = 11 // Current page + 5 before and after
     let startPage = Math.max(currentPage - 5, 1)
     let endPage = Math.min(currentPage + 5, totalPages)
 
