@@ -5,7 +5,7 @@ import logoShort from '../../assets/logo/logo-text-short.svg'
 const Footer = () => {
   // get the name of the current route
   const { pathname } = useLocation()
-  
+
   // if the current route is not '/bet/:id', render the footer
   if(pathname.indexOf('/bet/') === -1) {
     return (
@@ -16,8 +16,8 @@ const Footer = () => {
               {'\u00A9'} {new Date().getFullYear()} Qubic
             </span>
           </div>
-          
-          <div className="flex items-center gap-2">          
+
+          <div className="flex items-center gap-2">
             <a
               style={{ textDecoration: 'none', color: 'white' }}
               className="text-12 leading-18 font-space"
@@ -25,6 +25,15 @@ const Footer = () => {
               href="https://qubic.org/Terms-of-service"
             >
               Terms of service
+            </a>
+            <span className="text-gray-50">•</span>
+            <a
+              style={{ textDecoration: 'none', color: 'white' }}
+              className="text-12 leading-18 font-space"
+              target='_blank' rel="noreferrer"
+              href="https://github.com/qubic/quottery-frontend/wiki"
+            >
+              Wiki
             </a>
             <span className="text-gray-50">•</span>
             <a
@@ -51,7 +60,7 @@ const Footer = () => {
         </div>
     )
   }
-  
+
   return null
 }
 
