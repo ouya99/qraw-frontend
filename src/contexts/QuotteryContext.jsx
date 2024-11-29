@@ -3,7 +3,12 @@ import React, {createContext, useContext, useEffect, useReducer, useState} from 
 import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
 import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto'
 import {httpEndpoint, useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
-import {fetchActiveBets, fetchBetDetail, fetchNodeInfo, fetchAndVerifyBetDescription} from '../components/qubic/util/betApi';
+import {
+  fetchActiveBets,
+  fetchBetDetail,
+  fetchNodeInfo,
+  fetchAndVerifyBetDescription
+} from '../components/qubic/util/betApi';
 import {backendUrl, excludedBetIds} from '../components/qubic/util/commons'
 
 const QuotteryContext = createContext()
@@ -11,18 +16,26 @@ const QuotteryContext = createContext()
 
 const betReducer = (state, action) => {
   switch (action.type) {
-    case 'SET_BETS':
+    case 'SET_CORE_BETS':
       return {
         ...state,
-        bets: action.payload
-      }
+        activeBets: action.payload.activeBets,
+        lockedBets: action.payload.lockedBets,
+        waitingForResultsBets: action.payload.waitingForResultsBets,
+      };
+    case 'SET_HISTORICAL_BETS':
+      return {
+        ...state,
+        historicalBets: action.payload.bets,
+        historicalPagination: action.payload.pagination,
+      };
     case 'SET_NODE_INFO':
       return {
         ...state,
-        nodeInfo: action.payload
-      }
+        nodeInfo: action.payload,
+      };
     default:
-      return state
+      return state;
   }
 }
 
@@ -33,7 +46,14 @@ const ifExceedsDatetime = (compareDate, compareTime) => {
 };
 
 export const QuotteryProvider = ({children}) => {
-  const [state, dispatch] = useReducer(betReducer, {bets: [], nodeInfo: {}})
+  const [state, dispatch] = useReducer(betReducer, {
+    activeBets: [],
+    lockedBets: [],
+    waitingForResultsBets: [],
+    historicalBets: [],
+    historicalPagination: {currentPage: 1, totalPages: 1},
+    nodeInfo: {},
+  })
   const [loading, setLoading] = useState(true)
   const [betsFilter, setBetsFilter] = useState('active')
   const {wallet, broadcastTx, getTick} = useQubicConnect()
@@ -41,6 +61,10 @@ export const QuotteryProvider = ({children}) => {
   const [walletPublicIdentity, setWalletPublicIdentity] = useState('')
   const qHelper = new QubicHelper()
   const [coreNodeBetIds, setCoreNodeBetIds] = useState([])
+  const [historicalLoading, setHistoricalLoading] = useState(false)
+  const [currentFilterOption, setCurrentFilterOption] = useState(1) // 0 = All, 1 = Active, 2 = Locked, 3 = Inactive
+  const [currentPage, setCurrentPage] = useState(1)
+  const [inputPage, setInputPage] = useState('')
 
 
   // Fetch bets using the Qubic HTTP API
@@ -82,15 +106,47 @@ export const QuotteryProvider = ({children}) => {
         }
       }
     }
-  };
+  }
 
-  const fetchBackendApiBets = async (filter) => {
-    const response = await fetch(`${backendUrl}/get_${filter}_bets`);
-    const data = await response.json();
+  const fetchHistoricalBets = async (coreNodeBets, filter, page = 1) => {
+    setHistoricalLoading(true)
+
+    let backendBets = []
+    let paginationInfo = {currentPage: 1, totalPages: 1}
+
+    try {
+      const backendData = await fetchBackendApiBets('inactive', page, 10)
+      backendBets = backendData.bets
+      paginationInfo = backendData.pagination
+    } catch (error) {
+      console.error('Error fetching bets from backend API:', error)
+    }
+
+    const backendBetsUnique = backendBets.filter(
+      (backendBet) => !coreNodeBets.some((coreBet) => areBetsEqual(coreBet, backendBet))
+    )
+
+    dispatch({
+      type: 'SET_HISTORICAL_BETS',
+      payload: {bets: backendBetsUnique, pagination: paginationInfo},
+    })
+    setHistoricalLoading(false)
+  }
+
+  const fetchBackendApiBets = async (filter, page = 1, pageSize = 10) => {
+    const response = await fetch(
+      `${backendUrl}/get_${filter}_bets?page_size=${pageSize}&page=${page}`
+    )
+    const data = await response.json()
+
+    const paginationInfo = data.page || {
+      current_page: 1,
+      total_pages: 1,
+    }
 
     var filteredBetList = data.bet_list || []
     if (data.bet_list) {
-      const filteredBetList = data.bet_list.filter(bet => !excludedBetIds.includes(bet.bet_id))
+      // const filteredBetList = data.bet_list.filter(bet => !excludedBetIds.includes(bet.bet_id))
 
       for (const bet of filteredBetList) {
         // parse list fields using JSON.parse
@@ -115,7 +171,13 @@ export const QuotteryProvider = ({children}) => {
       }
     }
 
-    return filteredBetList || [];
+    return {
+      bets: filteredBetList,
+      pagination: {
+        currentPage: paginationInfo.current_page,
+        totalPages: paginationInfo.total_pages,
+      },
+    }
   };
 
   const areBetsEqual = (bet1, bet2) => {
@@ -145,11 +207,8 @@ export const QuotteryProvider = ({children}) => {
     );
   };
 
-  const fetchBets = async (filter) => {
+  const fetchBets = async (filter, page = 1) => {
     setLoading(true)
-
-    let bets = []
-
     // First, attempt to fetch bets from the Qubic HTTP API
     let qubicApiBets = []
     let qubicApiAvailable = true
@@ -161,67 +220,48 @@ export const QuotteryProvider = ({children}) => {
       qubicApiAvailable = false
     }
 
-    if (filter === 'inactive' || filter === 'all') {
-      // Fetch bets from backend API
-      let backendBets = []
-      try {
-        backendBets = await fetchBackendApiBets(filter)
-      } catch (error) {
-        console.error('Error fetching bets from backend API:', error)
-      }
+    // Initialize arrays for categorized bets
+    let activeBets = []
+    let lockedBets = []
+    let waitingForResultsBets = []
 
-      // Combine bets from both sources
-      let allBets = []
+    if (qubicApiAvailable && qubicApiBets) {
+      // Categorize bets from core node
+      const now = new Date()
+      for (const bet of qubicApiBets) {
+        const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z')
+        const endDate = new Date('20' + bet.end_date + 'T' + bet.end_time + 'Z')
 
-      if (qubicApiAvailable && qubicApiBets) {
-        allBets = qubicApiBets
-      }
-
-      // Remove duplicates
-      const backendBetsUnique = backendBets.filter(
-        (backendBet) => !allBets.some((qubicBet) => areBetsEqual(qubicBet, backendBet))
-      )
-
-      allBets = allBets.concat(backendBetsUnique)
-
-      if (filter === 'inactive') {
-        // For 'inactive' bets, filter bets where the end date has been exceeded
-        bets = allBets.filter((bet) => ifExceedsDatetime(bet.end_date, bet.end_time))
-      } else {
-        // For 'all' bets, include all bets after removing duplicates
-        bets = allBets
-      }
-    } else if (filter === 'active' || filter === 'locked') {
-      if (qubicApiAvailable && qubicApiBets) {
-        // Filter bets based on 'active' or 'locked' status
-        bets = qubicApiBets.filter((bet) => {
-          const closeDateExceeded = ifExceedsDatetime(bet.close_date, bet.close_time)
-          const endDateExceeded = ifExceedsDatetime(bet.end_date, bet.end_time)
-          if (filter === 'active') {
-            return !closeDateExceeded
-          } else if (filter === 'locked') {
-            return closeDateExceeded && !endDateExceeded
-          }
-        })
-      } else {
-        // Qubic HTTP API is unavailable, fall back to backend API
-        console.log('Qubic HTTP API unavailable, fetching bets from backend API.')
-        try {
-          bets = await fetchBackendApiBets(filter)
-        } catch (error) {
-          console.error('Error fetching bets from backend API:', error)
+        if (now < closeDate) {
+          activeBets.push(bet)
+        } else if (now >= closeDate && now < endDate) {
+          lockedBets.push(bet)
+        } else if (now >= endDate) {
+          waitingForResultsBets.push(bet)
         }
       }
     }
 
+    // Combine all core node bets for filtering duplication
+    let coreNodeBets = [...activeBets, ...lockedBets, ...waitingForResultsBets]
+
+    if (filter === 'inactive' || filter === 'all') {
+      await fetchHistoricalBets(coreNodeBets, filter, page)
+    }
+
+    // Dispatch bets based on the filter
     dispatch({
-      type: 'SET_BETS',
-      payload: bets,
+      type: 'SET_CORE_BETS',
+      payload: {
+        activeBets: filter === 'active' || filter === 'all' ? activeBets : [],
+        lockedBets: filter === 'locked' || filter === 'all' ? lockedBets : [],
+        waitingForResultsBets:
+          filter === 'inactive' || filter === 'all' ? waitingForResultsBets : [],
+      },
     })
 
-    await fetchNodeInfoAndUpdate()
-
-    setLoading(false)
+    await fetchNodeInfoAndUpdate();
+    setLoading(false);
   }
 
   const fetchNodeInfoAndUpdate = async () => {
@@ -562,7 +602,15 @@ export const QuotteryProvider = ({children}) => {
       coreNodeBetIds,
       walletPublicIdentity,
       balance,
-      fetchBalance
+      fetchBalance,
+      historicalLoading,
+      fetchHistoricalBets,
+      currentFilterOption,
+      setCurrentFilterOption,
+      currentPage,
+      setCurrentPage,
+      inputPage,
+      setInputPage,
     }}>
       {children}
     </QuotteryContext.Provider>
