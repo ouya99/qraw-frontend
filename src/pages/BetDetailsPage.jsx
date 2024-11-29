@@ -249,6 +249,14 @@ function BetDetailsPage() {
     }
   }
 
+  const handleCancel = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate('/')
+    }
+  }
+
   return (
     <div className='sm:px-30 md:px-130'>
       {loading && <div className='text-center mt-[105px] text-white'>Loading...</div>}
@@ -441,7 +449,7 @@ function BetDetailsPage() {
           border-t border-solid border-gray-70 bg-gray-90
         '>
           <button className='bg-[rgba(26,222,245,0.1)] flex-none py-[8px] px-[16px] text-18 text-primary-40 font-space'
-                  onClick={() => navigate('/')}
+                  onClick={handleCancel}
           >
             Cancel
           </button>

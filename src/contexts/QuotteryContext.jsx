@@ -62,6 +62,10 @@ export const QuotteryProvider = ({children}) => {
   const qHelper = new QubicHelper()
   const [coreNodeBetIds, setCoreNodeBetIds] = useState([])
   const [historicalLoading, setHistoricalLoading] = useState(false)
+  const [currentFilterOption, setCurrentFilterOption] = useState(1) // 0 = All, 1 = Active, 2 = Locked, 3 = Inactive
+  const [currentPage, setCurrentPage] = useState(1)
+  const [inputPage, setInputPage] = useState('')
+
 
   // Fetch bets using the Qubic HTTP API
   const fetchQubicHttpApiBets = async (maxRetryCount = 3) => {
@@ -601,6 +605,12 @@ export const QuotteryProvider = ({children}) => {
       fetchBalance,
       historicalLoading,
       fetchHistoricalBets,
+      currentFilterOption,
+      setCurrentFilterOption,
+      currentPage,
+      setCurrentPage,
+      inputPage,
+      setInputPage,
     }}>
       {children}
     </QuotteryContext.Provider>

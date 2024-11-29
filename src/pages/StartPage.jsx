@@ -7,10 +7,18 @@ import LoadingSpinner from '../components/LoadingSpinner'
 
 function StartPage() {
   const navigate = useNavigate()
-  const {state, loading, setBetsFilter, fetchBets, historicalLoading, fetchHistoricalBets} = useQuotteryContext()
-  const [currentFilterOption, setCurrentFilterOption] = useState(1) // 0 = All, 1 = Active, 2 = Locked, 3 = Inactive
-  const [currentPage, setCurrentPage] = useState(1)
-  const [inputPage, setInputPage] = useState('')
+  const {state,
+    loading,
+    setBetsFilter,
+    fetchBets,
+    historicalLoading,
+    fetchHistoricalBets,
+    currentFilterOption,
+    setCurrentFilterOption,
+    currentPage,
+    setCurrentPage,
+    inputPage,
+    setInputPage,} = useQuotteryContext()
 
   const filterOptions = [
     {label: 'All', value: 'all'},
