@@ -7,6 +7,7 @@ import { sumArray } from "./qubic/util"
 import {formatDate} from "../components/qubic/util/commons"
 
 function BetOverviewCard({ data, onClick, status='' }) {
+  const slots_taken = sumArray(data.current_num_selection)
   let status_string = ''
   switch (status) {
     case 'active': {
@@ -30,13 +31,18 @@ function BetOverviewCard({ data, onClick, status='' }) {
     }
   }
 
+  // Bet badges
   let hot_level = ''
-  if (data.current_total_qus >= 1000000000) { // 1bil
-    hot_level = '💎'
-  } else if (data.current_total_qus >= 500000000) { // 500mil
-    hot_level = '🔥'
-  } else if (data.current_total_qus >= 100000000) { // 100mil
-    hot_level = '❤️'
+  if (data.current_total_qus >= 1000000000 || slots_taken >= 100) { // 1bil
+    hot_level = '💎' // Level Giant Diamond
+  } else if (data.current_total_qus >= 500000000 || slots_taken >= 50) { // 500mil
+    hot_level = '🐦‍🔥' // Level Fire Phoenix
+  } else if (data.current_total_qus >= 100000000 || slots_taken >= 10) { // 100mil
+    hot_level = '🔥' // Level Holy Flame
+  } else if (data.current_total_qus >= 10000000 || slots_taken >= 5) { // 50mil
+    hot_level = '🐣' // Level Chick
+  } else if (data.current_total_qus >= 0) {
+    hot_level = '🥚' // Level Egg
   }
 
   return (
