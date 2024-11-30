@@ -12,6 +12,7 @@ import {sumArray} from '../components/qubic/util'
 import {fetchBetDetail} from '../components/qubic/util/betApi'
 import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
 import {excludedBetIds, externalJsonAssetUrl, formatDate} from '../components/qubic/util/commons'
+import {useConfig} from "../contexts/ConfigContext"
 
 /* global BigInt */
 
@@ -31,6 +32,7 @@ function BetDetailsPage() {
   const [hasEnoughParticipants, setHasEnoughParticipants] = useState(false)
   const [publishButtonText, setPublishButtonText] = useState('')
   const [hasEnoughBalance, setHasEnoughBalance] = useState(true)
+  const {httpEndpoint, backendUrl} = useConfig()
 
 
   const navigate = useNavigate()
@@ -112,7 +114,7 @@ function BetDetailsPage() {
       }
 
       const betId = parseInt(id)
-      const updatedBet = await fetchBetDetail(betId, coreNodeBetIds)
+      const updatedBet = await fetchBetDetail(httpEndpoint, backendUrl, betId, coreNodeBetIds)
 
       const isNewFormat = updatedBet.bet_desc.startsWith('###')
 

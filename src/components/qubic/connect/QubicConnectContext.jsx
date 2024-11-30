@@ -1,20 +1,19 @@
 /* global BigInt */
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { QubicHelper } from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
+import React, {createContext, useContext, useEffect, useState} from 'react'
+import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
 import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto'
+import {useConfig} from "../../../contexts/ConfigContext"
 
 const QubicConnectContext = createContext()
-// TODO move to config
-// export const httpEndpoint = 'https://91.210.226.146' // test system
-export const httpEndpoint = 'https://rpc.qubic.org' // live system
 
-export function QubicConnectProvider({ children }) {
+export function QubicConnectProvider({children}) {
   const [connected, setConnected] = useState(false)
   const [wallet, setWallet] = useState(null)
   const [showConnectModal, setShowConnectModal] = useState(false)
 
   const qHelper = new QubicHelper()
+  const {httpEndpoint} = useConfig()
 
   useEffect(() => {
     const wallet = localStorage.getItem('wallet')
@@ -160,9 +159,9 @@ export function QubicConnectProvider({ children }) {
 }
 
 export function useQubicConnect() {
-    const context =  useContext(QubicConnectContext)
-    if (context === undefined) {
-      throw new Error("useQubicConnect must be used within a QubicConnectProvider")
-    }
-    return context
+  const context = useContext(QubicConnectContext)
+  if (context === undefined) {
+    throw new Error("useQubicConnect must be used within a QubicConnectProvider")
+  }
+  return context
 }
