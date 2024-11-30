@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import pkg from '../../../package.json'
 import logoShort from '../../assets/logo/logo-text-short.svg'
@@ -11,6 +11,8 @@ const Footer = () => {
   const { pathname } = useLocation()
   const { connectedToCustomServer, resetEndpoints } = useConfig()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [tapCount, setTapCount] = useState(0)
+  const [showConnectButton, setShowConnectButton] = useState(false)
 
   const handleConnectClick = () => {
     if (connectedToCustomServer) {
@@ -20,6 +22,26 @@ const Footer = () => {
       setIsModalOpen(true)
     }
   }
+
+  const handleVersionTap = () => {
+    if (connectedToCustomServer) return // Always show if connected to custom server
+    setTapCount((prevCount) => prevCount + 1)
+  }
+
+  useEffect(() => {
+    if (tapCount >= 10) {
+      setShowConnectButton(true)
+    } else if (tapCount > 0) {
+      const timeout = setTimeout(() => setTapCount(0), 2000) // Reset after 2 seconds of inactivity
+      return () => clearTimeout(timeout)
+    }
+  }, [tapCount])
+
+  useEffect(() => {
+    if (connectedToCustomServer) {
+      setShowConnectButton(true)
+    }
+  }, [connectedToCustomServer])
 
   // if the current route is not '/bet/:id', render the footer
   if(pathname.indexOf('/bet/') === -1) {
@@ -69,16 +91,24 @@ const Footer = () => {
               Network Status
             </a>
             <span className="text-gray-50">•</span>
-            <button
-              style={{ textDecoration: 'none', color: 'white', background: 'none', border: 'none', cursor: 'pointer' }}
-              className="text-12 leading-18 font-space"
-              onClick={handleConnectClick}
+            {/* Show the "Connect to server" button if conditions are met */}
+            {showConnectButton && (
+              <>
+                <button
+                  style={{ textDecoration: 'none', color: 'white', background: 'none', border: 'none', cursor: 'pointer' }}
+                  className="text-12 leading-18 font-space"
+                  onClick={handleConnectClick}
+                >
+                  {connectedToCustomServer ? 'Disconnect' : 'Connect to server'}
+                </button>
+              </>
+            )}
+            <span
+              onClick={handleVersionTap}
+              className='text-gray-50 text-12 cursor-pointer'
             >
-              {connectedToCustomServer ? 'Disconnect' : 'Connect to server'}
-            </button>
-            <span className='text-gray-50 text-12'>
-                Version {pkg.version}
-            </span>
+            Version {pkg.version}
+          </span>
           </div>
           <ServerConfigModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </div>
