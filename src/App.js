@@ -10,9 +10,11 @@ import './App.css'
 import { QubicConnectProvider } from './components/qubic/connect/QubicConnectContext'
 import { QuotteryProvider } from './contexts/QuotteryContext'
 import Footer from './components/layout/Footer'
+import {ConfigProvider} from "./contexts/ConfigContext"
 
 function App() {
   return (
+    <ConfigProvider>
     <QubicConnectProvider>
       <QuotteryProvider>
         <BrowserRouter>
@@ -35,6 +37,7 @@ function App() {
         </BrowserRouter>
       </QuotteryProvider>
     </QubicConnectProvider>
+    </ConfigProvider>
   )
 }
 

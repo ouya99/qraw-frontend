@@ -2,14 +2,15 @@
 import React, {createContext, useContext, useEffect, useReducer, useState} from 'react'
 import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
 import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto'
-import {httpEndpoint, useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
+import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import {
   fetchActiveBets,
   fetchBetDetail,
   fetchNodeInfo,
   fetchAndVerifyBetDescription
 } from '../components/qubic/util/betApi';
-import {backendUrl, excludedBetIds} from '../components/qubic/util/commons'
+import {excludedBetIds} from '../components/qubic/util/commons'
+import {useConfig} from "./ConfigContext"
 
 const QuotteryContext = createContext()
 
@@ -59,20 +60,21 @@ export const QuotteryProvider = ({children}) => {
   const [currentFilterOption, setCurrentFilterOption] = useState(1) // 0 = All, 1 = Active, 2 = Locked, 3 = Inactive
   const [currentPage, setCurrentPage] = useState(1)
   const [inputPage, setInputPage] = useState('')
+  const { httpEndpoint, backendUrl } = useConfig()
 
 
   // Fetch bets using the Qubic HTTP API
   const fetchQubicHttpApiBets = async (maxRetryCount = 3) => {
     for (let i = 0; i < maxRetryCount; i++) {
       try {
-        const activeBetIds = await fetchActiveBets();
+        const activeBetIds = await fetchActiveBets(httpEndpoint);
 
         const filteredBetIds = activeBetIds.filter(id => !excludedBetIds.includes(id))
         setCoreNodeBetIds(filteredBetIds)
 
         return Promise.all(
           filteredBetIds.map(async (betId) => {
-            const bet = await fetchBetDetail(betId, filteredBetIds)
+            const bet = await fetchBetDetail(httpEndpoint, backendUrl, betId, filteredBetIds)
             bet.creator = await qHelper.getIdentity(bet.creator); // Update creator field with human-readable identity
 
             bet.oracle_public_keys = bet.oracle_id
@@ -260,7 +262,7 @@ export const QuotteryProvider = ({children}) => {
 
   const fetchNodeInfoAndUpdate = async () => {
     try {
-      const nodeInfo = await fetchNodeInfo();
+      const nodeInfo = await fetchNodeInfo(httpEndpoint, backendUrl);
       nodeInfo.game_operator = await qHelper.getIdentity(nodeInfo.game_operator);
       dispatch({
         type: 'SET_NODE_INFO',
@@ -374,7 +376,7 @@ export const QuotteryProvider = ({children}) => {
   }
 
   const issueBetTxCosts = async (bet) => {
-    const nodeInfo = await fetchNodeInfo()
+    const nodeInfo = await fetchNodeInfo(httpEndpoint, backendUrl)
     return parseInt(bet.maxBetSlots) * bet.options.length * nodeInfo.fee_per_slot_per_hour * calculateDiffHours(bet)
   }
 
