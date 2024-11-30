@@ -1,17 +1,18 @@
 /* global BigInt */
 import {Buffer} from 'buffer';
 import base64 from 'base-64';
-import {HEADERS, makeJsonData, QTRY_CONTRACT_INDEX, QUERY_SMART_CONTRACT_API_URI, backendUrl} from './commons';
+import {HEADERS, makeJsonData, QTRY_CONTRACT_INDEX} from './commons';
 import {QubicHelper} from '@qubic-lib/qubic-ts-library/dist/qubicHelper'
 import {externalJsonAssetUrl, debuglog} from './commons'
 import {hashBetData} from "./hashUtils"
 
 // Get Node's info using qubic-http's API
-export const fetchNodeInfo = async () => {
+export const fetchNodeInfo = async (httpEndpoint, backendUrl) => {
   try {
     const jsonData = makeJsonData(QTRY_CONTRACT_INDEX, 1, 0, "");
+    const query_smart_contract_api_uri = `${httpEndpoint}/v1/querySmartContract`
 
-    const response = await fetch(QUERY_SMART_CONTRACT_API_URI, {
+    const response = await fetch(query_smart_contract_api_uri, {
       method: 'POST',
       headers: HEADERS,
       body: JSON.stringify(jsonData),
@@ -96,10 +97,11 @@ export const fetchNodeInfo = async () => {
 // In the frontend/UI, "active" bets haven't reached close dates,
 // "locked" bets haven't reached end dates, and "inactive" bets have exceeded end dates.
 // This function retrieves Quottery core active bet IDs using the qubic-http API.
-export const fetchActiveBets = async () => {
+export const fetchActiveBets = async (httpEndpoint) => {
   const json_data = makeJsonData(QTRY_CONTRACT_INDEX, 4, 0, '');
+  const query_smart_contract_api_uri = `${httpEndpoint}/v1/querySmartContract`
 
-  const response = await fetch(QUERY_SMART_CONTRACT_API_URI, {
+  const response = await fetch(query_smart_contract_api_uri, {
     method: 'POST',
     headers: HEADERS,
     body: JSON.stringify(json_data),
@@ -181,15 +183,15 @@ const bufferToUint8Array = (buffer) => {
   return new Uint8Array(buffer);
 };
 
-export const fetchBetDetail = async (betId, coreNodeBetIds) => {
+export const fetchBetDetail = async (httpEndpoint, backendUrl, betId, coreNodeBetIds) => {
   if (coreNodeBetIds.includes(betId)) {
     // Bet is in core node, use qubic-http API
-    const bet = await fetchBetDetailFromCoreNode(betId)
+    const bet = await fetchBetDetailFromCoreNode(httpEndpoint, betId)
     await fetchAndVerifyBetDescription(bet)
     return bet
   } else {
     // Bet is not in core node, use the old backend API to fetch from historical database
-    const bet = await fetchBetDetailFromBackendApi(betId)
+    const bet = await fetchBetDetailFromBackendApi(backendUrl, betId)
     await fetchAndVerifyBetDescription(bet)
     return bet
   }
@@ -247,7 +249,7 @@ export const fetchAndVerifyBetDescription = async (bet) => {
   }
 }
 
-export const fetchBetDetailFromBackendApi = async (betId) => {
+export const fetchBetDetailFromBackendApi = async (backendUrl, betId) => {
   try {
     const response = await fetch(`${backendUrl}/get_all_bets`)
     const data = await response.json()
@@ -294,16 +296,18 @@ export const fetchBetDetailFromBackendApi = async (betId) => {
 }
 
 // Function to fetch details of a specific bet given the bet id
-export const fetchBetDetailFromCoreNode = async (betId, maxRetryCount = 3) => {
+export const fetchBetDetailFromCoreNode = async (httpEndpoint, betId, maxRetryCount = 3) => {
   const betIdBuffer = Buffer.alloc(4);
   betIdBuffer.writeUInt32LE(betId, 0);
   const inputBase64 = base64.encode(betIdBuffer);
+  const query_smart_contract_api_uri = `${httpEndpoint}/v1/querySmartContract`
+
 
   const json_data = makeJsonData(QTRY_CONTRACT_INDEX, 2, 4, inputBase64);
   let retry = 0
   for (let attempt = 0; attempt < maxRetryCount; attempt++) {
     try {
-      const response = await fetch(QUERY_SMART_CONTRACT_API_URI, {
+      const response = await fetch(query_smart_contract_api_uri, {
         method: 'POST',
         headers: HEADERS,
         body: JSON.stringify(json_data),
