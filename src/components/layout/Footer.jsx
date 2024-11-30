@@ -1,10 +1,25 @@
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import pkg from '../../../package.json'
 import logoShort from '../../assets/logo/logo-text-short.svg'
+import {useConfig} from "../../contexts/ConfigContext"
+import ServerConfigModal from "../qubic/connect/ServerConfigModal"
+import {useQuotteryContext} from "../../contexts/QuotteryContext"
 
 const Footer = () => {
   // get the name of the current route
   const { pathname } = useLocation()
+  const { connectedToCustomServer, resetEndpoints } = useConfig()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleConnectClick = () => {
+    if (connectedToCustomServer) {
+      resetEndpoints()
+      window.location.reload()
+    } else {
+      setIsModalOpen(true)
+    }
+  }
 
   // if the current route is not '/bet/:id', render the footer
   if(pathname.indexOf('/bet/') === -1) {
@@ -53,10 +68,19 @@ const Footer = () => {
             >
               Network Status
             </a>
+            <span className="text-gray-50">•</span>
+            <button
+              style={{ textDecoration: 'none', color: 'white', background: 'none', border: 'none', cursor: 'pointer' }}
+              className="text-12 leading-18 font-space"
+              onClick={handleConnectClick}
+            >
+              {connectedToCustomServer ? 'Disconnect' : 'Connect to server'}
+            </button>
             <span className='text-gray-50 text-12'>
                 Version {pkg.version}
             </span>
           </div>
+          <ServerConfigModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </div>
     )
   }
