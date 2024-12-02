@@ -4,7 +4,6 @@ import pkg from '../../../package.json'
 import logoShort from '../../assets/logo/logo-text-short.svg'
 import {useConfig} from "../../contexts/ConfigContext"
 import ServerConfigModal from "../qubic/connect/ServerConfigModal"
-import {useQuotteryContext} from "../../contexts/QuotteryContext"
 
 const Footer = () => {
   // get the name of the current route

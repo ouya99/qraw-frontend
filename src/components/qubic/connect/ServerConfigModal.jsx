@@ -2,7 +2,6 @@ import { useState } from 'react'
 import Card from "../Card"
 import CloseIcon from '../../../assets/close.svg'
 import {useConfig} from "../../../contexts/ConfigContext"
-import {QuotteryProvider, useQuotteryContext} from "../../../contexts/QuotteryContext"
 
 const ServerConfigModal = ({ isOpen, onClose }) => {
   const { updateEndpoints } = useConfig()
