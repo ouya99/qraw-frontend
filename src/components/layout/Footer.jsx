@@ -10,8 +10,6 @@ const Footer = () => {
   const { pathname } = useLocation()
   const { connectedToCustomServer, resetEndpoints } = useConfig()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [tapCount, setTapCount] = useState(0)
-  const [showConnectButton, setShowConnectButton] = useState(false)
 
   const handleConnectClick = () => {
     if (connectedToCustomServer) {
@@ -21,26 +19,6 @@ const Footer = () => {
       setIsModalOpen(true)
     }
   }
-
-  const handleVersionTap = () => {
-    if (connectedToCustomServer) return // Always show if connected to custom server
-    setTapCount((prevCount) => prevCount + 1)
-  }
-
-  useEffect(() => {
-    if (tapCount >= 10) {
-      setShowConnectButton(true)
-    } else if (tapCount > 0) {
-      const timeout = setTimeout(() => setTapCount(0), 2000) // Reset after 2 seconds of inactivity
-      return () => clearTimeout(timeout)
-    }
-  }, [tapCount])
-
-  useEffect(() => {
-    if (connectedToCustomServer) {
-      setShowConnectButton(true)
-    }
-  }, [connectedToCustomServer])
 
   // if the current route is not '/bet/:id', render the footer
   if(pathname.indexOf('/bet/') === -1) {
@@ -91,7 +69,7 @@ const Footer = () => {
             </a>
             <span className="text-gray-50">•</span>
             {/* Show the "Connect to server" button if conditions are met */}
-            {showConnectButton && (
+            {(
               <>
                 <button
                   style={{ textDecoration: 'none', color: 'white', background: 'none', border: 'none', cursor: 'pointer' }}
@@ -103,7 +81,6 @@ const Footer = () => {
               </>
             )}
             <span
-              onClick={handleVersionTap}
               className='text-gray-50 text-12 cursor-pointer'
             >
             Version {pkg.version}
