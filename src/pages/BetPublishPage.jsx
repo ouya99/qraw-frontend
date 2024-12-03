@@ -8,7 +8,7 @@ import {formatDate} from '../components/qubic/util/commons'
 
 const BetPublishPage = () => {
   const {id} = useParams()
-  const {state, fetchBets, signPublishResultTx, walletPublicIdentity} = useQuotteryContext()
+  const {state, signPublishResultTx, walletPublicIdentity} = useQuotteryContext()
   const {connected, toggleConnectModal} = useQubicConnect()
   const [bet, setBet] = useState(null)
   const [selectedOption, setSelectedOption] = useState(null)
@@ -27,7 +27,7 @@ const BetPublishPage = () => {
         return
       }
 
-      const betDetails = state.bets.find((b) => b.bet_id === parseInt(id))
+      const betDetails = state.waitingForResultsBets.find((b) => b.bet_id === parseInt(id))
       if (betDetails) {
         setBet(betDetails)
 
@@ -47,7 +47,7 @@ const BetPublishPage = () => {
         const afterEndDate = now > endDateTime
         setIsAfterEndDate(afterEndDate)
 
-        // Check if at least two options have been joined
+        // Check if at least one option has been joined
         const numOptionsJoined = betDetails.current_num_selection.filter(num => num > 0).length
         const enoughParticipants = numOptionsJoined >= 1
         setHasEnoughParticipants(enoughParticipants)
@@ -67,12 +67,13 @@ const BetPublishPage = () => {
         // Determine if the user can publish
         setCanPublish(afterEndDate && enoughParticipants && !hasPublished)
       } else {
-        await fetchBets('all')
+        alert('This bet is not waiting for results.')
+        navigate('/')
       }
     }
 
     fetchBetAndCheckConditions()
-  }, [id, state.bets, fetchBets, walletPublicIdentity, connected, navigate, toggleConnectModal])
+  }, [id, state.waitingForResultsBets, walletPublicIdentity, connected, navigate, toggleConnectModal])
 
   const handlePublish = async () => {
     if (!connected) {
@@ -90,7 +91,7 @@ const BetPublishPage = () => {
           <>
             {!isAfterEndDate && (
               <p className="text-gray-50 mt-4">
-                Publish bet (please come back after {formatDate(bet.end_date)} {bet.end_time} UTC)
+                Publish bet (please come back after {formatDate(bet.end_date)}{' '}{bet.end_time} UTC)
               </p>
             )}
             {isAfterEndDate && !hasEnoughParticipants && (
