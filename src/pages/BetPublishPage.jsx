@@ -8,7 +8,7 @@ import {formatDate} from '../components/qubic/util/commons'
 
 const BetPublishPage = () => {
   const {id} = useParams()
-  const {state, signPublishResultTx, walletPublicIdentity} = useQuotteryContext()
+  const {state, fetchBets, signPublishResultTx, walletPublicIdentity} = useQuotteryContext()
   const {connected, toggleConnectModal} = useQubicConnect()
   const [bet, setBet] = useState(null)
   const [selectedOption, setSelectedOption] = useState(null)
@@ -27,7 +27,9 @@ const BetPublishPage = () => {
         return
       }
 
-      const betDetails = state.waitingForResultsBets.find((b) => b.bet_id === parseInt(id))
+      const bets = [...state.activeBets, ...state.lockedBets, ...state.waitingForResultsBets, ...state.historicalBets]
+
+      const betDetails = bets.find((b) => b.bet_id === parseInt(id))
       if (betDetails) {
         setBet(betDetails)
 
@@ -67,13 +69,12 @@ const BetPublishPage = () => {
         // Determine if the user can publish
         setCanPublish(afterEndDate && enoughParticipants && !hasPublished)
       } else {
-        alert('This bet is not waiting for results.')
-        navigate('/')
+        await fetchBets('all')
       }
     }
 
     fetchBetAndCheckConditions()
-  }, [id, state.waitingForResultsBets, walletPublicIdentity, connected, navigate, toggleConnectModal])
+  }, [id, state, walletPublicIdentity, connected, navigate, toggleConnectModal])
 
   const handlePublish = async () => {
     if (!connected) {
