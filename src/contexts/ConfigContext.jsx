@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 
 // Default endpoints
 const DEFAULT_HTTP_ENDPOINT = 'https://rpc.qubic.org'
-const DEFAULT_BACKEND_URL = 'https://qb.qubic.org'
+const DEFAULT_BACKEND_URL = 'http://135.181.35.167:5000'
 
 const ConfigContext = createContext()
 

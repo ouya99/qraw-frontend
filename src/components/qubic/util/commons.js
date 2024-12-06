@@ -6,7 +6,7 @@ export const HEADERS = {
 export const MIN_BALANCE_THRESHOLD = 100
 export const QTRY_CONTRACT_INDEX = 2
 export const LOG_DEBUG = false
-export const excludedBetIds = [31, 34, 76]
+export const excludedBetIds = [31, 34, 58, 76]
 export const makeJsonData = (contractIndex, inputType, inputSize, requestData) => {
   return {
     contractIndex: contractIndex,
@@ -52,4 +52,4 @@ export const debuglog = (...message) => {
   }
 }
 
-export const externalJsonAssetUrl = 'https://qbtn.qubic.org' // test system
+export const externalJsonAssetUrl = 'http://135.181.35.167:5000'
