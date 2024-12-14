@@ -15,6 +15,7 @@ import {QubicHelper} from "@qubic-lib/qubic-ts-library/dist/qubicHelper"
 import {hashBetData, hashUniqueData} from "../components/qubic/util/hashUtils"
 import {formatQubicAmount} from "../components/qubic/util"
 import LabelWithPopover from "../components/qubic/ui/LabelWithPopover"
+import {externalJsonAssetUrl} from "../components/qubic/util/commons";
 
 function BetCreatePage() {
 
@@ -94,7 +95,7 @@ function BetCreatePage() {
 
   const uploadDescription = async (description, encodedHash) => {
     try {
-      const response = await fetch(`https://qbtn.qubic.org/upload`, {
+      const response = await fetch(`${externalJsonAssetUrl}/upload`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
