@@ -299,7 +299,7 @@ export const fetchBetDetailFromBackendApi = async (backendUrl, betId) => {
 export const fetchBetDetailFromCoreNode = async (httpEndpoint, betId, maxRetryCount = 3) => {
   const betIdBuffer = Buffer.alloc(4);
   betIdBuffer.writeUInt32LE(betId, 0);
-  const inputBase64 = base64.encode(betIdBuffer);
+  const inputBase64 = Buffer.from(betIdBuffer).toString('base64')
   const query_smart_contract_api_uri = `${httpEndpoint}/v1/querySmartContract`
 
 
