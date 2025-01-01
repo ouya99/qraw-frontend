@@ -251,7 +251,9 @@ export const fetchAndVerifyBetDescription = async (bet) => {
 
 export const fetchBetDetailFromBackendApi = async (backendUrl, betId) => {
   try {
-    const response = await fetch(`${backendUrl}/get_all_bets`)
+    const pageSize = 10
+    const page = Math.floor(betId / pageSize) + 1
+    const response = await fetch(`${backendUrl}/get_all_bets?page=${page}&page_size=${pageSize}`)
     const data = await response.json()
 
     if (data.bet_list) {
