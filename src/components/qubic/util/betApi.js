@@ -251,9 +251,7 @@ export const fetchAndVerifyBetDescription = async (bet) => {
 
 export const fetchBetDetailFromBackendApi = async (backendUrl, betId) => {
   try {
-    const pageSize = 10
-    const page = Math.floor(betId / pageSize) + 1
-    const response = await fetch(`${backendUrl}/get_all_bets?page=${page}&page_size=${pageSize}`)
+    const response = await fetch(`${backendUrl}/get_all_bets`)
     const data = await response.json()
 
     if (data.bet_list) {
@@ -431,5 +429,101 @@ export const fetchBetDetailFromCoreNode = async (httpEndpoint, betId, maxRetryCo
       console.log('Retrying...');
       retry++
     }
+  }
+};
+
+export const fetchParticipantsForBetOption = async (httpEndpoint, betId, optionId) => {
+  // Prepare the payload (8 bytes = 4 for betId, 4 for optionId)
+  const buffer = Buffer.alloc(8);
+  buffer.writeUInt32LE(betId, 0);
+  buffer.writeUInt32LE(optionId, 4);
+  const inputBase64 = buffer.toString('base64');
+
+  // Prepare the request for the SC (inputType = 3, inputSize = 8 => to be adapted according to Qtry SC)
+  const jsonData = makeJsonData(QTRY_CONTRACT_INDEX, 3, 8, inputBase64);
+  const queryUri = `${httpEndpoint}/v1/querySmartContract`;
+
+  const response = await fetch(queryUri, {
+    method: 'POST',
+    headers: HEADERS,
+    body: JSON.stringify(jsonData),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur fetchParticipantsForBetOption: ${response.status} ${response.statusText}`);
+  }
+
+  const responseData = await response.json();
+  const decodedData = base64.decode(responseData.responseData);
+  const buf = Buffer.from(decodedData, 'binary');
+
+  let offset = 0;
+  const participantCount = buf.readUInt32LE(offset);
+  offset += 4;
+
+  const participants = [];
+  const qHelper = new QubicHelper();
+
+  for (let i = 0; i < participantCount; i++) {
+    // Reading 32 bytes for the public key
+    const pubKeyBytes = new Uint8Array(buf.slice(offset, offset + 32));
+    offset += 32;
+
+    // Reading 8 bytes for the slot count
+    const slotCount = buf.readBigUInt64LE(offset);
+    offset += 8;
+
+    // Convert the public key to identity
+    const identity = await qHelper.getIdentity(pubKeyBytes);
+
+    participants.push({
+      identity,              // ex: "Q_ID_xxx"
+      publicKeyBytes: pubKeyBytes,
+      slotCount: slotCount,  // BigInt
+    });
+  }
+
+  return participants;
+};
+
+/**
+ * Fetches all bets where the given publicId participated.
+ *
+ * @param {string} httpEndpoint - The Qubic HTTP endpoint.
+ * @param {string} backendUrl - The backend API URL.
+ * @param {string} publicId - The public ID of the user.
+ * @return {Promise<Array>} - A list of bets with participation details.
+ */
+export const fetchBetsForParticipant = async (httpEndpoint, backendUrl, publicId) => {
+  try {
+    // Step 1: Fetch all active bets
+    const activeBetIds = await fetchActiveBets(httpEndpoint);
+
+    const betsWithParticipation = [];
+
+    // Step 2: Check each bet for participant's involvement
+    for (const betId of activeBetIds) {
+      const betDetail = await fetchBetDetail(httpEndpoint, backendUrl, betId, activeBetIds);
+
+      for (let i = 0; i < betDetail.option_desc.length; i++) {
+        const participants = await fetchParticipantsForBetOption(httpEndpoint, betId, i);
+
+        // Check if publicId is in participants
+        const isParticipant = participants.some(participant => participant.identity === publicId);
+
+        if (isParticipant) {
+          betsWithParticipation.push({
+            betId,
+            option: betDetail.option_desc[i],
+            description: betDetail.bet_desc,
+          });
+        }
+      }
+    }
+
+    return betsWithParticipation;
+  } catch (error) {
+    console.error('Error fetching bets for participant:', error);
+    throw error;
   }
 };

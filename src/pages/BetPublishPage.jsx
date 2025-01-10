@@ -3,7 +3,7 @@ import {useNavigate, useParams} from 'react-router-dom'
 import {useQuotteryContext} from '../contexts/QuotteryContext'
 import {useQubicConnect} from '../components/qubic/connect/QubicConnectContext'
 import ConfirmTxModal from '../components/qubic/connect/ConfirmTxModal'
-import Card from '../components/qubic/Card'
+import Card from '@mui/material/Card'
 import {formatDate} from '../components/qubic/util/commons'
 
 const BetPublishPage = () => {

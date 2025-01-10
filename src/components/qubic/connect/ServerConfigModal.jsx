@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Card from "../Card"
+import Card from "@mui/material/Card"
 import CloseIcon from '../../../assets/close.svg'
 import {useConfig} from "../../../contexts/ConfigContext"
 
@@ -27,7 +27,7 @@ const ServerConfigModal = ({ isOpen, onClose }) => {
     setHttpEndpointInput('')
     setBackendUrlInput('')
     setErrorMsg('')
-    setSelectedMode('form') // Reset mode
+    setSelectedMode('form')
     onClose()
   }
 

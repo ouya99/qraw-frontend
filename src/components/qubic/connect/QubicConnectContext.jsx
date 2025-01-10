@@ -119,17 +119,19 @@ export function QubicConnectProvider({children}) {
     const url = `${httpEndpoint}/v1/broadcast-transaction`
     const txEncoded = uint8ArrayToBase64(tx)
     const body = {encodedTransaction: txEncoded}
-    // console.log('body:', body)
+    console.log('Transaction body:', body);
     try {
       const response = await fetch(url, {
         method: 'POST',
         body: JSON.stringify(body),
       })
+      console.log('Server response:', response);
       // Check if the response status is OK (status code 200-299)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       const result = await response.json()
+      console.log('Result:', result)
       return result
     } catch (error) {
       console.error('Error:', error)

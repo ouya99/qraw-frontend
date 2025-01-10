@@ -1,7 +1,17 @@
-// format number input to 100,000,000 format
-export const formatQubicAmount = (amount, seperator = ',') => {
-    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, seperator).replace('.0','')
-}
+// Format number input to 100,000,000 format
+export const formatQubicAmount = (amount, separator = ',') => {
+  if (amount === null || amount === undefined || isNaN(Number(amount))) {
+    return '0';
+  }
+
+  // If amount is a big number, convert it to a string
+  return amount
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, separator)
+    .replace('.0', '');
+};
+
+
 
 export const truncateMiddle = (str, charsToRemove) => {
     const length = str.length

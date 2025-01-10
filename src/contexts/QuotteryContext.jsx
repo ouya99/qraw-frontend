@@ -7,7 +7,8 @@ import {
   fetchActiveBets,
   fetchBetDetail,
   fetchNodeInfo,
-  fetchAndVerifyBetDescription
+  fetchAndVerifyBetDescription,
+  fetchParticipantsForBetOption
 } from '../components/qubic/util/betApi';
 import {excludedBetIds} from '../components/qubic/util/commons'
 import {useConfig} from "./ConfigContext"

@@ -1,5 +1,5 @@
 /* global BigInt */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../contexts/SnackbarContext";
 import {
@@ -17,6 +17,9 @@ import {
   Alert,
   AlertTitle,
   useTheme,
+  Stepper,
+  Step,
+  StepLabel,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddCircleOutline from "@mui/icons-material/AddCircleOutline";
@@ -98,9 +101,16 @@ function BetCreatePage() {
   // Validation errors
   const [errors, setErrors] = useState({});
 
-  /**
-   * Return the identity of the creator of the bet
-   */
+  // Stepper
+  const [activeStep, setActiveStep] = useState(0);
+
+  const steps = [
+    "Informations principales",
+    "Dates & Options",
+    "Providers & Montants",
+    "Confirmation",
+  ];
+
   const getCreatorIdentity = async () => {
     const qHelper = new QubicHelper();
     const idPackage = await qHelper.createIdPackage(wallet);
@@ -108,9 +118,6 @@ function BetCreatePage() {
     return await qHelper.getIdentity(sourcePublicKey);
   };
 
-  /**
-   * Upload the bet description to the external JSON asset
-   */
   const uploadDescription = async (description, encodedHash) => {
     try {
       const response = await fetch(`${externalJsonAssetUrl}/upload`, {
@@ -128,9 +135,93 @@ function BetCreatePage() {
     }
   };
 
-  /**
-   * Validate the form data
-   */
+  const validateStep = (step) => {
+    let newErrors = {};
+
+    if (step === 0) {
+      // Step 0 : Description
+      if (!bet.description || bet.description.length === 0) {
+        newErrors.description = "Description is required.";
+      } else if (bet.description.length > 100) {
+        newErrors.description = "Description cannot exceed 100 characters.";
+      }
+    }
+
+    if (step === 1) {
+      // Step 1 : CloseDate / EndDate + Time, Options
+      const closeValid = bet.closeDate && bet.closeTime;
+      const endValid = bet.endDate && bet.endTime;
+      if (!closeValid) {
+        newErrors.closeDateTime = "Close date/time is required.";
+      }
+      if (!endValid) {
+        newErrors.endDateTime = "End date/time is required.";
+      }
+      if (closeValid && endValid) {
+        const closeDateTime = new Date(`${bet.closeDate}T${bet.closeTime}Z`);
+        const endDateTime = new Date(`${bet.endDate}T${bet.endTime}Z`);
+        if (endDateTime <= closeDateTime) {
+          newErrors.endDateTime = "End DateTime must be after Close DateTime.";
+        }
+      }
+
+      if (bet.options.length < 2) {
+        newErrors.options = "At least 2 options are required.";
+      } else {
+        for (let opt of bet.options) {
+          if (!opt || opt.trim() === "") {
+            newErrors.options = "All options must be non-empty.";
+            break;
+          }
+          if (opt.length > 32) {
+            newErrors.options = "Options cannot exceed 32 characters.";
+            break;
+          }
+        }
+      }
+    }
+
+    if (step === 2) {
+      // Step 2 : Providers, amountPerSlot, maxBetSlots
+      if (bet.providers.length < 1) {
+        newErrors.providers = "At least 1 provider is required.";
+      } else {
+        for (let p of bet.providers) {
+          if (!p.publicId || p.publicId.length !== 60) {
+            newErrors.providers =
+              "Each provider must have a 60-char publicId.";
+            break;
+          }
+          if (!p.fee || isNaN(Number(p.fee)) || Number(p.fee) < 0) {
+            newErrors.providers =
+              "Each provider must have a valid fee (>=0).";
+            break;
+          }
+        }
+      }
+
+      if (
+        !bet.amountPerSlot ||
+        isNaN(Number(bet.amountPerSlot)) ||
+        Number(bet.amountPerSlot) < minBetSlotAmount
+      ) {
+        newErrors.amountPerSlot = `Amount per slot must be >= ${minBetSlotAmount}.`;
+      }
+
+      if (
+        !bet.maxBetSlots ||
+        isNaN(Number(bet.maxBetSlots)) ||
+        Number(bet.maxBetSlots) < 1 ||
+        Number(bet.maxBetSlots) > 1024
+      ) {
+        newErrors.maxBetSlots = "Max bet slots must be between 1 and 1024.";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const validateForm = () => {
     let newErrors = {};
 
@@ -213,24 +304,27 @@ function BetCreatePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  /**
-   * Form submission
-   */
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleNext = () => {
+    if (validateStep(activeStep)) {
+      setActiveStep(activeStep + 1);
+    }
+  };
 
+  const handleBack = () => {
+    setActiveStep(activeStep - 1);
+  };
+
+  const handleSubmit = async () => {
     if (!connected) {
-      // If not connected, open the connect modal
       toggleConnectModal();
       return;
     }
 
-    // Validation
     if (!validateForm()) {
+      setActiveStep(steps.length - 1);
       return;
     }
 
-    // Close DateTime and End DateTime
     const closeDateTime = new Date(`${bet.closeDate}T${bet.closeTime}Z`);
     const endDateTime = new Date(`${bet.endDate}T${bet.endTime}Z`);
     const diffHours = (endDateTime - closeDateTime) / (1000 * 60 * 60);
@@ -247,11 +341,11 @@ function BetCreatePage() {
     const firstPartHash = hashBetData(
       bet.description,
       creatorIdentity,
-      bet.providers.map(p => p.publicId),
+      bet.providers.map((p) => p.publicId),
       bet.options
-    )
+    );
 
-    // Second part hash 
+    // Second part hash
     const secondPartHash = hashUniqueData();
     console.log(">>> secondPartHash:", secondPartHash, secondPartHash.length);
 
@@ -267,7 +361,6 @@ function BetCreatePage() {
       return;
     }
 
-    // We need to calculate the costs of the bet creation
     const betCopy = {
       ...bet,
       diffHours: diffHours,
@@ -275,7 +368,6 @@ function BetCreatePage() {
       endDateTime: { date: bet.endDate, time: bet.endTime },
     };
 
-    // Costs of the bet creation
     const betCreationFee = await issueBetTxCosts(betCopy);
     betCopy.costs = betCreationFee;
 
@@ -284,31 +376,27 @@ function BetCreatePage() {
       await fetchBalance(walletPublicIdentity);
     }
 
-    // Verify if the user has enough balance to create the bet
     if (balance !== null && BigInt(balance) < BigInt(betCreationFee)) {
       showSnackbar(
-        `You do not have enough balance to create this bet. Your balance: ${formatQubicAmount(balance)} Qubic. Bet creation fee: ${formatQubicAmount(betCreationFee)} Qubic.`,
+        `You do not have enough balance to create this bet. Your balance: ${formatQubicAmount(
+          balance
+        )} Qubic. Bet creation fee: ${formatQubicAmount(betCreationFee)} Qubic.`,
         "error"
       );
       return;
     }
 
-    // Bet data to send
     const betToSend = {
       ...betCopy,
       description: betDescriptionReference,
       descriptionFull: betCopy.description,
     };
 
-    // State update and show modal
     setBet(betToSend);
     setShowConfirmTxModal(true);
     console.log("Valid Bet:", betToSend);
   };
 
-  /**
-   * Callback when the transaction is complete
-   */
   const handleTransactionComplete = async () => {
     if (walletPublicIdentity) {
       await fetchBalance(walletPublicIdentity);
@@ -360,46 +448,14 @@ function BetCreatePage() {
   };
   const minEnd = calculateMinEndDateTime();
 
-  return (
-    <Container
-      maxWidth="md"
-      sx={{ mt: theme.spacing(10), mb: theme.spacing(4) }}
-    >
-      <Paper
-        elevation={0}
-        sx={{
-          p: { xs: 0, md: 4 },
-          backgroundColor: {
-            xs: theme.palette.background.default, // Fond pour les petits écrans
-            md: theme.palette.background.paper,  // Fond pour les écrans md et plus
-          },
-          borderRadius: 1,
-          border: {
-            md: `1px solid ${theme.palette.secondary.main}`,
-            xs: "none",
-          },
-        }}
-      >
-        {/* HEADER */}
-        <Box display="flex" alignItems="center" mb={3}>
-          <IconButton
-            aria-label="go back"
-            onClick={() => navigate("/")}
-            sx={{ mr: 2 }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h5" color="text.primary" fontWeight="bold">
-            Create New Bet
-          </Typography>
-        </Box>
-
-        <Divider sx={{ mb: theme.spacing(4) }} />
-
-        {/* FORM */}
-        <form onSubmit={handleSubmit}>
+  /**
+   * Retourne le contenu pour chaque step
+   */
+  const getStepContent = (stepIndex) => {
+    switch (stepIndex) {
+      case 0:
+        return (
           <Grid container spacing={3}>
-            {/* Description */}
             <Grid item xs={12}>
               <LabelWithPopover
                 label="Bet Description"
@@ -410,7 +466,9 @@ function BetCreatePage() {
                 fullWidth
                 variant="outlined"
                 value={bet.description}
-                onChange={(e) => setBet({ ...bet, description: e.target.value })}
+                onChange={(e) =>
+                  setBet({ ...bet, description: e.target.value })
+                }
                 placeholder="Enter bet description"
                 error={Boolean(errors.description)}
                 helperText={errors.description}
@@ -419,12 +477,20 @@ function BetCreatePage() {
                   backgroundColor: theme.palette.background.default,
                 }}
               />
-              <Typography variant="body2" align="right" color="text.secondary">
+              <Typography
+                variant="body2"
+                align="right"
+                color="text.secondary"
+              >
                 {bet.description.length}/100
               </Typography>
             </Grid>
+          </Grid>
+        );
 
-            {/* Close Date/Time */}
+      case 1:
+        return (
+          <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <LabelWithPopover
                 label="Close Date and Time (UTC)"
@@ -459,7 +525,9 @@ function BetCreatePage() {
                   />
                   <TimePicker
                     label="Close Time"
-                    value={bet.closeTime ? dayjs(bet.closeTime, "HH:mm") : null}
+                    value={
+                      bet.closeTime ? dayjs(bet.closeTime, "HH:mm") : null
+                    }
                     onChange={(newValue) =>
                       setBet({
                         ...bet,
@@ -485,7 +553,6 @@ function BetCreatePage() {
               </LocalizationProvider>
             </Grid>
 
-            {/* End Date/Time */}
             <Grid item xs={12} md={6}>
               <LabelWithPopover
                 label="End Date and Time (UTC)"
@@ -500,7 +567,9 @@ function BetCreatePage() {
                     onChange={(newValue) =>
                       setBet({
                         ...bet,
-                        endDate: newValue ? newValue.format("YYYY-MM-DD") : "",
+                        endDate: newValue
+                          ? newValue.format("YYYY-MM-DD")
+                          : "",
                       })
                     }
                     minDate={minEnd?.date ? dayjs(minEnd.date) : null}
@@ -519,14 +588,20 @@ function BetCreatePage() {
                   />
                   <TimePicker
                     label="End Time"
-                    value={bet.endTime ? dayjs(bet.endTime, "HH:mm") : null}
+                    value={
+                      bet.endTime ? dayjs(bet.endTime, "HH:mm") : null
+                    }
                     onChange={(newValue) =>
                       setBet({
                         ...bet,
-                        endTime: newValue ? newValue.format("HH:mm") : "",
+                        endTime: newValue
+                          ? newValue.format("HH:mm")
+                          : "",
                       })
                     }
-                    minTime={minEnd?.time ? dayjs(minEnd.time, "HH:mm") : null}
+                    minTime={
+                      minEnd?.time ? dayjs(minEnd.time, "HH:mm") : null
+                    }
                     slotProps={{
                       textField: {
                         fullWidth: true,
@@ -544,7 +619,6 @@ function BetCreatePage() {
               </LocalizationProvider>
             </Grid>
 
-            {/* Date / Time Error */}
             {(errors.closeDateTime || errors.endDateTime) && (
               <Grid item xs={12}>
                 <Alert severity="error" sx={{ mt: -2 }}>
@@ -563,7 +637,13 @@ function BetCreatePage() {
                 required
               />
               {bet.options.map((opt, index) => (
-                <Box key={index} display="flex" alignItems="center" gap={1} mt={1}>
+                <Box
+                  key={index}
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                  mt={1}
+                >
                   <TextField
                     fullWidth
                     variant="outlined"
@@ -577,7 +657,10 @@ function BetCreatePage() {
                     sx={{ backgroundColor: theme.palette.background.default }}
                   />
                   {bet.options.length > 2 && (
-                    <IconButton color="error" onClick={() => removeOption(index)}>
+                    <IconButton
+                      color="error"
+                      onClick={() => removeOption(index)}
+                    >
                       <Close />
                     </IconButton>
                   )}
@@ -604,8 +687,12 @@ function BetCreatePage() {
                 </Alert>
               )}
             </Grid>
+          </Grid>
+        );
 
-            {/* Providers */}
+      case 2:
+        return (
+          <Grid container spacing={3}>
             <Grid item xs={12}>
               <LabelWithPopover
                 label="Oracle Providers"
@@ -613,7 +700,13 @@ function BetCreatePage() {
                 required
               />
               {bet.providers.map((p, index) => (
-                <Box key={index} display="flex" alignItems="center" gap={1} mt={1}>
+                <Box
+                  key={index}
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                  mt={1}
+                >
                   <TextField
                     label="Provider PublicId"
                     placeholder="60-char ID"
@@ -625,7 +718,10 @@ function BetCreatePage() {
                       setBet({ ...bet, providers: newProv });
                     }}
                     error={Boolean(errors.providers)}
-                    sx={{ flex: 3, backgroundColor: theme.palette.background.default }}
+                    sx={{
+                      flex: 3,
+                      backgroundColor: theme.palette.background.default,
+                    }}
                   />
                   <TextField
                     label="Fee (%)"
@@ -638,13 +734,21 @@ function BetCreatePage() {
                       setBet({ ...bet, providers: newProv });
                     }}
                     InputProps={{
-                      endAdornment: <InputAdornment position="end"></InputAdornment>,
+                      endAdornment: (
+                        <InputAdornment position="end"></InputAdornment>
+                      ),
                     }}
                     error={Boolean(errors.providers)}
-                    sx={{ flex: 1, backgroundColor: theme.palette.background.default }}
+                    sx={{
+                      flex: 1,
+                      backgroundColor: theme.palette.background.default,
+                    }}
                   />
                   {bet.providers.length > 1 && (
-                    <IconButton color="error" onClick={() => removeProvider(index)}>
+                    <IconButton
+                      color="error"
+                      onClick={() => removeProvider(index)}
+                    >
                       <Close />
                     </IconButton>
                   )}
@@ -672,25 +776,27 @@ function BetCreatePage() {
               )}
             </Grid>
 
-            {/* Amount per slot */}
             <Grid item xs={12} md={6}>
               <LabelWithPopover
                 label="Amount of Qubics per Slot"
-                description={`Min amount is ${formatQubicAmount(minBetSlotAmount)} qubics.`}
+                description={`Min amount is ${formatQubicAmount(
+                  minBetSlotAmount
+                )} qubics.`}
                 required
               />
               <TextField
                 fullWidth
                 type="number"
                 value={bet.amountPerSlot}
-                onChange={(e) => setBet({ ...bet, amountPerSlot: e.target.value })}
+                onChange={(e) =>
+                  setBet({ ...bet, amountPerSlot: e.target.value })
+                }
                 error={Boolean(errors.amountPerSlot)}
                 helperText={errors.amountPerSlot}
                 sx={{ mt: 1, backgroundColor: theme.palette.background.default }}
               />
             </Grid>
 
-            {/* Max bet slots */}
             <Grid item xs={12} md={6}>
               <LabelWithPopover
                 label="Max Number of Bet Slots"
@@ -701,20 +807,139 @@ function BetCreatePage() {
                 fullWidth
                 type="number"
                 value={bet.maxBetSlots}
-                onChange={(e) => setBet({ ...bet, maxBetSlots: e.target.value })}
+                onChange={(e) =>
+                  setBet({ ...bet, maxBetSlots: e.target.value })
+                }
                 error={Boolean(errors.maxBetSlots)}
                 helperText={errors.maxBetSlots}
                 sx={{ mt: 1, backgroundColor: theme.palette.background.default }}
               />
             </Grid>
           </Grid>
+        );
 
-          <Box mt={4} display="flex" justifyContent="center">
+      case 3:
+        return (
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Review your Bet details
+            </Typography>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="body1">
+              <strong>Description:</strong> {bet.description}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Close Date/Time:</strong> {bet.closeDate} {bet.closeTime} (UTC)
+            </Typography>
+            <Typography variant="body1">
+              <strong>End Date/Time:</strong> {bet.endDate} {bet.endTime} (UTC)
+            </Typography>
+            <Typography variant="body1">
+              <strong>Options:</strong> {bet.options.join(", ")}
+            </Typography>
+            <Typography variant="body1" sx={{ mt: 2 }}>
+              <strong>Providers:</strong>
+            </Typography>
+            {bet.providers.map((p, index) => (
+              <Typography key={index} variant="body2" sx={{ ml: 2 }}>
+                {p.publicId} (fee: {p.fee}%)
+              </Typography>
+            ))}
+            <Typography variant="body1" sx={{ mt: 2 }}>
+              <strong>Amount per slot:</strong> {bet.amountPerSlot}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Max bet slots:</strong> {bet.maxBetSlots}
+            </Typography>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="body1" color="text.secondary">
+              Click "Create Bet" to finalize and sign the transaction.
+            </Typography>
+          </Box>
+        );
+
+      default:
+        return "Unknown step";
+    }
+  };
+
+  return (
+    <Container
+      maxWidth="md"
+      sx={{ mt: theme.spacing(10), mb: theme.spacing(4) }}
+    >
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 0, md: 4 },
+          backgroundColor: {
+            xs: theme.palette.background.default, // Fond pour les petits écrans
+            md: theme.palette.background.paper, // Fond pour les écrans md et plus
+          },
+          borderRadius: 1,
+          border: {
+            md: `1px solid ${theme.palette.secondary.main}`,
+            xs: "none",
+          },
+        }}
+      >
+        {/* HEADER */}
+        <Box display="flex" alignItems="center" mb={3}>
+          <IconButton
+            aria-label="go back"
+            onClick={() => navigate("/")}
+            sx={{ mr: 2 }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h5" color="text.primary" fontWeight="bold">
+            Create New Bet
+          </Typography>
+        </Box>
+
+        <Divider sx={{ mb: theme.spacing(4) }} />
+
+        {/* STEPPER */}
+        <Stepper activeStep={activeStep} alternativeLabel>
+          {steps.map((label, index) => (
+            <Step key={index}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+
+        <Divider sx={{ mt: 2, mb: theme.spacing(4) }} />
+
+        <Box sx={{ minHeight: "300px" }}>{getStepContent(activeStep)}</Box>
+
+        <Box
+          mt={4}
+          display="flex"
+          justifyContent={
+            activeStep === 0 ? "flex-end" : "space-between"
+          }
+        >
+          {activeStep > 0 && (
+            <Button variant="text" onClick={handleBack}>
+              Back
+            </Button>
+          )}
+
+          {activeStep < steps.length - 1 && (
+            <Button variant="outlined" onClick={handleNext}>
+              Next
+            </Button>
+          )}
+
+          {activeStep === steps.length - 1 && (
             <Button
               variant="outlined"
               color="primary"
-              type="submit"
-              size="large"
+              onClick={handleSubmit}
               startIcon={<RocketLaunchIcon />}
             >
               <Typography
@@ -724,8 +949,8 @@ function BetCreatePage() {
                 Create Bet
               </Typography>
             </Button>
-          </Box>
-        </form>
+          )}
+        </Box>
       </Paper>
 
       <ConfirmTxModal

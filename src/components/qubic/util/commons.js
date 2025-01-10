@@ -52,4 +52,6 @@ export const debuglog = (...message) => {
   }
 }
 
+// export const externalJsonAssetUrl = 'http://91.210.226.146'
 export const externalJsonAssetUrl = 'https://api.quottery.org'
+
