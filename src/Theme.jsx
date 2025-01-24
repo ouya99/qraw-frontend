@@ -103,6 +103,11 @@ export const lightTheme = createTheme({
         },
       },
     },
+    MuiTextField: {
+      defaultProps: {
+        variant: "filled",
+      },
+    },
   },
 });
 
@@ -154,8 +159,13 @@ export const darkTheme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          backgroundColor: customColors.black,
+          backgroundColor: customColors.darkBackground,
         },
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        variant: "filled",
       },
     },
   },

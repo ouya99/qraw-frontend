@@ -830,7 +830,7 @@ function BetDetailsPage() {
           </Card>
         )}
 
-        {/* BLOCK SLOTS + / - (avec Fade  & scroll) */}
+        {/* BLOCK SLOTS */}
         <Fade direction='up' in={selectedOption !== null}>
           <Box
             ref={betSlotsRef}
@@ -1017,7 +1017,6 @@ function BetDetailsPage() {
                   sx={{
                     whiteSpace: "nowrap",
                     textTransform: "none",
-                    // letterSpacing: "0.5px",
                   }}
                 >
                   {connected ? "BET" : "CONNECT & BET"}

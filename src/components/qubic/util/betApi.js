@@ -365,9 +365,10 @@ export const fetchBetDetailFromCoreNode = async (
       });
 
       if (!response.ok) {
-        throw new Error(
-          `Error fetching bet details: ${response.status} ${response.statusText}`
-        );
+        // throw new Error(
+        //   `Error fetching bet details: ${response.status} ${response.statusText}`
+        // );
+        return;
       }
 
       const responseData = await response.json();
@@ -504,72 +505,5 @@ export const fetchBetDetailFromCoreNode = async (
       console.log("Retrying...");
       retry++;
     }
-  }
-};
-
-export const fetchParticipantsForBetOption = async (
-  httpEndpoint,
-  betId,
-  optionId
-) => {
-  try {
-    const buffer = Buffer.alloc(8);
-    buffer.writeUInt32LE(betId, 0);
-    buffer.writeUInt32LE(optionId, 4);
-    const inputBase64 = buffer.toString("base64");
-
-    console.log(`fetchParticipantsForBetOption - betId: ${betId}, optionId: ${optionId}, inputBase64: ${inputBase64}`);
-
-    const jsonData = makeJsonData(QTRY_CONTRACT_INDEX, 3, 8, inputBase64);
-    const queryUri = `${httpEndpoint}/v1/querySmartContract`;
-
-    const response = await fetch(queryUri, {
-      method: "POST",
-      headers: HEADERS,
-      body: JSON.stringify(jsonData),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Erreur fetchParticipantsForBetOption: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const responseData = await response.json();
-    console.log("fetchParticipantsForBetOption - responseData:", responseData);
-
-    const decodedData = base64.decode(responseData.responseData);
-    const buf = Buffer.from(decodedData, "binary");
-
-    console.log("fetchParticipantsForBetOption - decodedData length:", buf.length);
-    console.log("fetchParticipantsForBetOption - buffer contents (first 64 bytes):", buf.slice(0, 64));
-
-    const participants = [];
-    const qHelper = new QubicHelper();
-
-    for (let i = 0; i < 1024; i++) { // 32 * 1024 / 32 = 1024 max participants
-      const offset = i * 32;
-      const pubKeyBytes = buf.slice(offset, offset + 32);
-
-      // Vérifier si la clé publique n'est pas toute à zéro
-      const isNonZero = pubKeyBytes.some(byte => byte !== 0);
-      if (isNonZero) {
-        const identity = await qHelper.getIdentity(new Uint8Array(pubKeyBytes));
-        let slotCount = BigInt(0);
-        participants.push({
-          identity,
-          publicKeyBytes: pubKeyBytes,
-          slotCount,
-        });
-        console.log(`Participant ${i + 1}: ${identity}, Slot Count: ${slotCount}`);
-      }
-    }
-
-    console.log(`fetchParticipantsForBetOption - Total participants: ${participants.length}`);
-
-    return participants;
-  } catch (error) {
-    console.error("Error in fetchParticipantsForBetOption:", error);
-    throw error;
   }
 };

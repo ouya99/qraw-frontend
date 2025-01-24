@@ -452,7 +452,6 @@ const ConnectModal = ({ open, onClose }) => {
             </Typography>
             <TextField
               fullWidth
-              variant='outlined'
               label='Private Seed'
               value={privateSeed}
               onChange={(e) => privateKeyValidate(e.target.value)}
@@ -539,7 +538,6 @@ const ConnectModal = ({ open, onClose }) => {
             </Typography>
             <Button
               startIcon={<UploadFileIcon />}
-              // align="center"
               fullWidth
               variant='outlined'
               color='warning'
@@ -561,14 +559,10 @@ const ConnectModal = ({ open, onClose }) => {
             )}
             <TextField
               fullWidth
-              variant='outlined'
               label='Password'
               type='password'
               value={password}
               onChange={handlePasswordChange}
-              // InputProps={{
-              //   style: { backgroundColor: theme.palette.background.paper },
-              // }}
               autoComplete='new-password'
             />
             <Box display='flex' gap={2} mt={2} justifyContent={"center"}>
@@ -695,21 +689,14 @@ const ConnectModal = ({ open, onClose }) => {
                   placeholder='Enter HTTP Endpoint'
                   value={httpEndpointInput}
                   onChange={(e) => setHttpEndpointInput(e.target.value)}
-                  // InputProps={{
-                  //   style: { backgroundColor: theme.palette.background.paper },
-                  // }}
                 />
                 <TextField
                   fullWidth
                   margin='normal'
-                  variant='outlined'
                   label='Backend URL'
                   placeholder='Enter Backend URL'
                   value={backendUrlInput}
                   onChange={(e) => setBackendUrlInput(e.target.value)}
-                  // InputProps={{
-                  //   style: { backgroundColor: theme.palette.background.paper },
-                  // }}
                 />
                 {errorMsg && (
                   <Typography color='error' mt={1}>

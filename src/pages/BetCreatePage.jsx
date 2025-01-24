@@ -431,7 +431,10 @@ function BetCreatePage() {
   return (
     <Container
       maxWidth='md'
-      sx={{ mt: theme.spacing(12), mb: theme.spacing(4) }}
+      sx={{
+        mt: { xs: theme.spacing(10), md: theme.spacing(12) },
+        mb: theme.spacing(4),
+      }}
     >
       <Paper
         elevation={0}
@@ -489,15 +492,11 @@ function BetCreatePage() {
               <TextField
                 fullWidth
                 label='Description'
-                variant='outlined'
+                variant='filled'
                 value={betDescInput}
                 onChange={(e) => setBetDescInput(e.target.value)}
                 placeholder='Enter bet description'
                 error={Boolean(errors.description)}
-                sx={{
-                  mt: 1,
-                  backgroundColor: theme.palette.background.default,
-                }}
                 inputProps={{ maxLength: 100 }}
               />
               {errors.description && (
@@ -518,7 +517,7 @@ function BetCreatePage() {
                 required
               />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Box display='flex' gap={2} mt={1}>
+                <Box display='flex' gap={2}>
                   <DatePicker
                     label='Close Date'
                     value={bet.closeDate ? dayjs(bet.closeDate) : null}
@@ -584,7 +583,7 @@ function BetCreatePage() {
                 required
               />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Box display='flex' gap={2} mt={1}>
+                <Box display='flex' gap={2}>
                   <DatePicker
                     label='End Date'
                     value={bet.endDate ? dayjs(bet.endDate) : null}
@@ -661,16 +660,11 @@ function BetCreatePage() {
                 required
               />
               {bet.options.map((opt, index) => (
-                <Box
-                  key={index}
-                  display='flex'
-                  alignItems='center'
-                  gap={1}
-                  mt={1}
-                >
+                <Box key={index} display='flex' alignItems='center' gap={1}>
                   <TextField
                     fullWidth
-                    variant='outlined'
+                    label={`Option ${index + 1}`}
+                    variant='filled'
                     value={opt}
                     onChange={(e) => {
                       const newOptions = [...bet.options];
@@ -678,7 +672,6 @@ function BetCreatePage() {
                       setBet({ ...bet, options: newOptions });
                     }}
                     error={Boolean(errors.options)}
-                    sx={{ backgroundColor: theme.palette.background.default }}
                     inputProps={{ maxLength: 32 }}
                   />
                   {bet.options.length > 2 && (
@@ -722,18 +715,12 @@ function BetCreatePage() {
                 required
               />
               {bet.providers.map((provider, index) => (
-                <Box
-                  key={index}
-                  display='flex'
-                  alignItems='flex-start'
-                  gap={2}
-                  mt={1}
-                >
+                <Box key={index} display='flex' alignItems='flex-start' gap={2}>
                   {/* Provider Public ID Field */}
                   <TextField
                     label='Provider Public ID'
                     placeholder='60-character ID (A-Z)'
-                    variant='outlined'
+                    variant='filled'
                     value={provider.publicId}
                     onChange={(e) => {
                       const value = e.target.value
@@ -746,9 +733,6 @@ function BetCreatePage() {
                     error={Boolean(errors.providers)}
                     sx={{
                       flex: 3,
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: theme.palette.background.default,
-                      },
                     }}
                     inputProps={{ maxLength: 60 }}
                   />
@@ -756,7 +740,7 @@ function BetCreatePage() {
                   {/* Fee Field */}
                   <TextField
                     label='Fee (%)'
-                    variant='outlined'
+                    variant='filled'
                     type='number'
                     value={provider.fee}
                     onChange={(e) => {
@@ -764,17 +748,9 @@ function BetCreatePage() {
                       newProviders[index].fee = e.target.value;
                       setBet({ ...bet, providers: newProviders });
                     }}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position='end'>%</InputAdornment>
-                      ),
-                    }}
                     error={Boolean(errors.providers)}
                     sx={{
                       flex: 1,
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: theme.palette.background.default,
-                      },
                     }}
                   />
 
@@ -839,10 +815,6 @@ function BetCreatePage() {
                   }
                 }}
                 error={Boolean(errors.amountPerSlot)}
-                sx={{
-                  mt: 1,
-                  backgroundColor: theme.palette.background.default,
-                }}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>Qubics</InputAdornment>
@@ -867,14 +839,13 @@ function BetCreatePage() {
                 fullWidth
                 type='number'
                 value={bet.maxBetSlots}
-                onChange={(e) =>
-                  setBet({ ...bet, maxBetSlots: e.target.value })
-                }
-                error={Boolean(errors.maxBetSlots)}
-                sx={{
-                  mt: 1,
-                  backgroundColor: theme.palette.background.default,
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value >= 0) {
+                    setBet({ ...bet, maxBetSlots: value });
+                  }
                 }}
+                error={Boolean(errors.maxBetSlots)}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>Slots</InputAdornment>

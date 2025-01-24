@@ -37,37 +37,6 @@ const BetPublishPage = () => {
   const [hasAlreadyPublished, setHasAlreadyPublished] = useState(false);
   const [canPublish, setCanPublish] = useState(false);
 
-  // Uncomment the following block to test the page without connecting to the Qubic network
-  // useEffect(() => {
-  //   const fetchBetAndCheckConditions = async () => {
-  //     setBet({
-  //       bet_id: 1,
-  //       full_description: "Example bet description",
-  //       bet_desc: "Bet example",
-  //       end_date: "01-01-2025",
-  //       end_time: "12:00",
-  //       oracle_id: ["dummy_wallet_id"],
-  //       current_num_selection: [5, 0, 3],
-  //       option_desc: ["Option 1", "Option 2", "Option 3"],
-  //     });
-
-  //     setIsOracleProvider(true);
-  //     setIsAfterEndDate(true);
-  //     setHasEnoughParticipants(true);
-  //     setHasAlreadyPublished(false);
-  //     setCanPublish(true);
-  //   };
-
-  //   fetchBetAndCheckConditions();
-  // }, [
-  //   id,
-  //   state,
-  //   walletPublicIdentity,
-  //   connected,
-  //   navigate,
-  //   toggleConnectModal,
-  // ]);
-
   useEffect(() => {
     const fetchBetAndCheckConditions = async () => {
       if (!connected || !walletPublicIdentity) {
