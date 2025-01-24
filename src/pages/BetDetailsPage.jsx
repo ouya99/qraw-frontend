@@ -813,8 +813,16 @@ function BetDetailsPage() {
 
         {/* No result AND bet is not active */}
         {bet.result === -1 && !bet.is_active && (
-          <Card sx={{ mb: 4, borderRadius: 2 }}>
-            <CardContent>
+          <Card elevation={0} sx={{ mb: 4 }}>
+            <CardContent
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "100%",
+                minHeight: 100,
+              }}
+            >
               <Typography variant='body2' color='text.secondary' align='center'>
                 We have no result for this bet yet.
               </Typography>

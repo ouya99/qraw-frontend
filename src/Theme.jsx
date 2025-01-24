@@ -2,7 +2,7 @@ import { createTheme } from "@mui/material/styles";
 
 // Main custom colors
 const customColors = {
-  // Qubic colors//
+  // Qubic colors
   qubicBlue: "#61f0fe",
   qubicBlueLight: "#2C3E50",
 
@@ -96,6 +96,13 @@ export const lightTheme = createTheme({
         },
       },
     },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: customColors.white,
+        },
+      },
+    },
   },
 });
 
@@ -134,5 +141,22 @@ export const darkTheme = createTheme({
       secondary: customColors.gray400,
     },
     divider: customColors.gray200,
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          fontWeight: 500,
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: customColors.black,
+        },
+      },
+    },
   },
 });

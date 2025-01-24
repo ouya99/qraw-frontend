@@ -369,7 +369,6 @@ function BetCreatePage() {
 
     setBetToSend(constructedBet);
     setShowConfirmTxModal(true);
-
   };
 
   /**
@@ -443,10 +442,6 @@ function BetCreatePage() {
             md: theme.palette.background.paper,
           },
           borderRadius: 1,
-          // border: {
-          //   md: `1px solid ${theme.palette.secondary.main}`,
-          //   xs: "none",
-          // },
         }}
       >
         {/* Header */}

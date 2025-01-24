@@ -16,9 +16,6 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 
-/**
- * ModernDropdown
- */
 const ModernDropdown = ({ options, selected, onSelect, icon }) => {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -47,10 +44,10 @@ const ModernDropdown = ({ options, selected, onSelect, icon }) => {
           p: 1.5,
           borderRadius: 3,
           cursor: "pointer",
-          border: `2px solid ${
+          border: `1px solid ${
             isOpen ? theme.palette.primary.main : theme.palette.divider
           }`,
-          transition: "background-color 0.2s ease, border-color 0.2s ease",
+          backgroundColor: theme.palette.background.paper,
         }}
       >
         {icon &&
@@ -113,7 +110,6 @@ const ModernDropdown = ({ options, selected, onSelect, icon }) => {
                   "&:hover": {
                     backgroundColor: theme.palette.background.paper,
                   },
-                  transition: "all 0.2s ease",
                 }}
               >
                 <Typography variant='body1' color={theme.palette.text.primary}>
@@ -149,7 +145,6 @@ const SearchFilter = ({
       component={motion.div}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
       sx={{ width: "100%" }}
     >
       <Grid container spacing={3} alignItems='center'>
@@ -186,12 +181,13 @@ const SearchFilter = ({
               ),
               sx: {
                 borderRadius: 3,
+                backgroundColor: theme.palette.background.paper,
                 "& .MuiOutlinedInput-notchedOutline": {
                   borderColor:
                     theme.palette.mode === "dark"
                       ? theme.palette.divider
                       : theme.palette.divider,
-                  borderWidth: 2,
+                  borderWidth: 1,
                 },
               },
             }}

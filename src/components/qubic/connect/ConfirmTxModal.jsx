@@ -280,7 +280,7 @@ const ConfirmTxModal = ({
               >
                 <CheckCircleIcon color='success' sx={{ fontSize: 36, mt: 2 }} />
                 <Typography variant='h6' color='success.main'>
-                  Transaction successful.
+                  Transaction completed.
                 </Typography>
               </Box>
             )}

@@ -230,9 +230,9 @@ export const fetchAndVerifyBetDescription = async (bet) => {
     const url = `${externalJsonAssetUrl}/bet_external_asset/${encodedHash}`;
 
     try {
-      console.log(
-        `[fetchAndVerifyBetDescription] Fetching new description from URL: ${url} for Bet ID ${betId}`
-      );
+      // console.log(
+      //   `[fetchAndVerifyBetDescription] Fetching new description from URL: ${url} for Bet ID ${betId}`
+      // );
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -282,7 +282,7 @@ export const fetchAndVerifyBetDescription = async (bet) => {
       // Add the description to the cache
       setBetDescription(betId, data.description);
     } catch (error) {
-      console.error("Error fetching or verifying full description:", error);
+      // console.error("Error fetching or verifying full description:", error);
       bet.full_description = "Description not available.";
       bet.description = bet.full_description;
     }
@@ -338,7 +338,7 @@ export const fetchBetDetailFromBackendApi = async (backendUrl, betId) => {
       throw new Error("No bet_list in backend API response.");
     }
   } catch (error) {
-    console.error("Error fetching bet detail from backend API:", error);
+    // console.error("Error fetching bet detail from backend API:", error);
     throw error;
   }
 };
