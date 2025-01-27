@@ -58,7 +58,7 @@ function LabelWithPopover({ label, description, required = false }) {
       <Tooltip title={description} placement='right'>
         <InfoOutlined
           fontSize='small'
-          sx={{ color: theme.palette.secondary.main, cursor: "help" }}
+          sx={{ color: theme.palette.primary.main, cursor: "help" }}
         />
       </Tooltip>
     </Box>

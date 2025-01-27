@@ -617,7 +617,7 @@ function BetDetailsPage() {
                   <Typography variant='body2' color='text.secondary'>
                     Creator
                   </Typography>
-                  <Typography variant='body2'>
+                  <Typography sx={{ fontSize: isMobile ? "0.9rem" : "1rem" }}>
                     {truncateMiddle(bet.creator, 40)}
                     <IconButton
                       onClick={copyToClipboard}

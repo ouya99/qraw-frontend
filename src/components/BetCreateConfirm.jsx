@@ -85,28 +85,24 @@ const BetCreateConfirm = ({ bet }) => {
         <Table>
           <TableBody>
             <TableRowItem
-              // icon={<DescriptionIcon fontSize="small" />}
               label='Description'
             >
               {bet.descriptionFull}
             </TableRowItem>
 
             <TableRowItem
-              // icon={<EventIcon fontSize="small" />}
               label='Closing Date & Time'
             >
               {bet.closeDateTime.date} {bet.closeDateTime.time}
             </TableRowItem>
 
             <TableRowItem
-              // icon={<EventIcon fontSize="small" />}
               label='End Date & Time'
             >
               {bet.endDateTime.date} {bet.endDateTime.time}
             </TableRowItem>
 
             <TableRowItem
-              // icon={<StorageIcon fontSize="small" />}
               label='Options'
             >
               <List dense sx={{ listStyleType: "disc", pl: 2, m: 0 }}>
@@ -119,7 +115,6 @@ const BetCreateConfirm = ({ bet }) => {
             </TableRowItem>
 
             <TableRowItem
-              // icon={<StorageIcon fontSize="small" />}
               label='Oracle Providers'
             >
               <List dense sx={{ listStyleType: "disc", pl: 2, m: 0 }}>
@@ -136,21 +131,18 @@ const BetCreateConfirm = ({ bet }) => {
             </TableRowItem>
 
             <TableRowItem
-              // icon={<AccountBalanceIcon fontSize="small" />}
               label='Qus Per Slot'
             >
               {bet.amountPerSlot.toLocaleString()} QUBIC
             </TableRowItem>
 
             <TableRowItem
-              // icon={<AccountBalanceIcon fontSize="small" />}
               label='Max Slots Per Option'
             >
               {bet.maxBetSlots}
             </TableRowItem>
 
             <TableRowItem
-              // icon={<AccountBalanceIcon fontSize="small" />}
               label='Creation Fees'
             >
               {bet.costs.toLocaleString()} QUBIC
@@ -158,7 +150,6 @@ const BetCreateConfirm = ({ bet }) => {
 
             {balance !== null && (
               <TableRowItem
-                // icon={<AccountBalanceIcon fontSize="small" />}
                 label='Your Balance'
               >
                 <Typography variant='body2'>
