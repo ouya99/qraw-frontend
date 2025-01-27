@@ -951,7 +951,7 @@ function BetCreatePage() {
         maxWidth='md'
         sx={{
           "& .MuiPaper-root": {
-            backgroundColor: theme.palette.background.default,
+            backgroundColor: theme.palette.background.paper,
           },
         }}
       >
