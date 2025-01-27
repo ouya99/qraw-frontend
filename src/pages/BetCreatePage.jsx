@@ -131,6 +131,7 @@ function BetCreatePage() {
 
   useEffect(() => {
     updateBetCreationFee();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     bet.closeDate,
     bet.closeTime,

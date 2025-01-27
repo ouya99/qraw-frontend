@@ -67,13 +67,14 @@ const ConnectModal = ({ open, onClose }) => {
   const [backendUrlInput, setBackendUrlInput] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Snackbar handling
   const { showSnackbar } = useSnackbar();
 
   const copyToClipboard = () => {
     if (walletPublicIdentity) {
-      navigator.clipboard.writeText(walletPublicIdentity);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1000);
+      navigator.clipboard.writeText(walletPublicIdentity).then(() => {
+        showSnackbar("Public ID copied!", "success");
+      });
     }
   };
 

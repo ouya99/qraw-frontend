@@ -339,6 +339,7 @@ export const QuotteryProvider = ({ children }) => {
     getIdentityAndBalance();
 
     return () => {};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
 
   // Refresh balance every 5 minutes
@@ -350,6 +351,7 @@ export const QuotteryProvider = ({ children }) => {
       }, 300000); // 5 minutes in milliseconds
     }
     return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletPublicIdentity]);
 
   // Helper function to write a fixed-size byte array or string

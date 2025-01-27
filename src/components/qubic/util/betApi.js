@@ -365,10 +365,9 @@ export const fetchBetDetailFromCoreNode = async (
       });
 
       if (!response.ok) {
-        // throw new Error(
-        //   `Error fetching bet details: ${response.status} ${response.statusText}`
-        // );
-        return;
+        throw new Error(
+          `Error fetching bet details: ${response.status} ${response.statusText}`
+        );
       }
 
       const responseData = await response.json();

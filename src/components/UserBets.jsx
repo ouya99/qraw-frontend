@@ -1,3 +1,4 @@
+// src/pages/UserBets.jsx
 import React, { useEffect, useState } from "react";
 import {
   Typography,
@@ -17,8 +18,8 @@ import HistoryIcon from "@mui/icons-material/History";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { truncateMiddle } from "../components/qubic/util";
-import CustomSnackbar from "../components/qubic/ui/CustomSnackbar";
 import AnimateBars from "../components/qubic/ui/AnimateBars";
+import { useSnackbar } from "../contexts/SnackbarContext";
 
 const UserBets = () => {
   const { state, fetchBets } = useQuotteryContext();
@@ -32,12 +33,9 @@ const UserBets = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
 
+  const { showSnackbar } = useSnackbar();
+
   const [copied, setCopied] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
   useEffect(() => {
     const fetchAllBets = async () => {
@@ -53,6 +51,7 @@ const UserBets = () => {
     if (walletPublicIdentity) {
       fetchAllBets();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletPublicIdentity]);
 
   const handleBetClick = (betId) => {
@@ -102,25 +101,13 @@ const UserBets = () => {
       .writeText(walletPublicIdentity)
       .then(() => {
         setCopied(true);
-        setSnackbar({
-          open: true,
-          message: "Public ID copied !",
-          severity: "success",
-        });
+        showSnackbar("Public ID copied!", "success");
         setTimeout(() => setCopied(false), 2000);
       })
       .catch((err) => {
         console.error("Failed to copy Public ID:", err);
-        setSnackbar({
-          open: true,
-          message: "Failed to copy Public ID",
-          severity: "error",
-        });
+        showSnackbar("Failed to copy Public ID", "error");
       });
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   const BetsHeader = ({ icon, title, address }) => (
@@ -248,6 +235,7 @@ const UserBets = () => {
         <BetsHeader
           icon={<ActiveIcon fontSize={isMobile ? "small" : "inherit"} />}
           title='Active Bets'
+          address={walletPublicIdentity}
         />
         {annotatedActiveBets.length > 0 ? (
           renderBets(annotatedActiveBets)
@@ -262,6 +250,7 @@ const UserBets = () => {
         <BetsHeader
           icon={<HistoryIcon fontSize={isMobile ? "small" : "inherit"} />}
           title='Historical Bets'
+          address={walletPublicIdentity}
         />
         {annotatedHistoricalBets.length > 0 ? (
           renderBets(annotatedHistoricalBets)
@@ -271,13 +260,6 @@ const UserBets = () => {
           </Typography>
         )}
       </Box>
-
-      <CustomSnackbar
-        open={snackbar.open}
-        handleClose={handleCloseSnackbar}
-        message={snackbar.message}
-        severity={snackbar.severity}
-      />
     </Container>
   );
 };

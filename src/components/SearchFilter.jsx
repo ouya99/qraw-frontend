@@ -16,7 +16,7 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 
-const ModernDropdown = ({ options, selected, onSelect, icon }) => {
+const CustomDropdown = ({ options, selected, onSelect, icon }) => {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -48,6 +48,9 @@ const ModernDropdown = ({ options, selected, onSelect, icon }) => {
             isOpen ? theme.palette.primary.main : theme.palette.divider
           }`,
           backgroundColor: theme.palette.background.paper,
+          "&:hover": {
+            borderColor: theme.palette.primary.main,
+          },
         }}
       >
         {icon &&
@@ -182,11 +185,11 @@ const SearchFilter = ({
               sx: {
                 borderRadius: 3,
                 backgroundColor: theme.palette.background.paper,
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: theme.palette.primary.main,
+                },
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor:
-                    theme.palette.mode === "dark"
-                      ? theme.palette.divider
-                      : theme.palette.divider,
+                  borderColor: theme.palette.divider,
                   borderWidth: 1,
                 },
               },
@@ -194,7 +197,7 @@ const SearchFilter = ({
           />
         </Grid>
         <Grid item xs={12} md={3}>
-          <ModernDropdown
+          <CustomDropdown
             options={filterOptions}
             selected={currentFilterOption}
             onSelect={onFilterChange}

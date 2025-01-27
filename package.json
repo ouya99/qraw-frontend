@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.0.0",
     "@mui/material": "^6.1.6",
     "@mui/x-data-grid": "^7.23.3",
@@ -23,7 +22,6 @@
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
     "react-simple-typewriter": "^5.0.1",
-    "react-toastify": "^11.0.0",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4"
   },
