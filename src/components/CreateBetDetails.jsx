@@ -54,27 +54,27 @@ const CreateBetDetails = ({
 
   const details = [
     {
-      icon: <DescriptionIcon color='action' />,
+      icon: <DescriptionIcon color="action" />,
       label: "Bet description",
       value: truncateMiddle(title, 60, 36, isSmallScreen),
     },
     {
-      icon: <CalendarTodayIcon color='action' />,
+      icon: <CalendarTodayIcon color="action" />,
       label: "Closing DateTime",
       value: formatDateTime(closeDate, closeTime),
     },
     {
-      icon: <EventAvailableIcon color='action' />,
+      icon: <EventAvailableIcon color="action" />,
       label: "End DateTime",
       value: formatDateTime(endDate, endTime),
     },
     {
-      icon: <ListAltIcon color='action' />,
+      icon: <ListAltIcon color="action" />,
       label: "Options",
       value: options?.join(", "),
     },
     {
-      icon: <PeopleIcon color='action' />,
+      icon: <PeopleIcon color="action" />,
       label: "Providers",
       value: providers?.map((provider) => (
         <Box
@@ -86,13 +86,13 @@ const CreateBetDetails = ({
           }}
         >
           <Typography
-            variant='body2'
+            variant="body2"
             sx={{ fontWeight: 500, color: theme.palette.text.primary }}
           >
             {truncateMiddle(provider.publicId, 40, 24, isSmallScreen)}
           </Typography>
           <Typography
-            variant='body2'
+            variant="body2"
             sx={{ fontWeight: 500, color: theme.palette.text.secondary }}
           >
             Fee: {provider.fee}%
@@ -101,12 +101,12 @@ const CreateBetDetails = ({
       )),
     },
     {
-      icon: <MonetizationOnIcon color='action' />,
+      icon: <MonetizationOnIcon color="action" />,
       label: "Amount per Slot",
       value: `${formatQubicAmount(amountPerSlot)} QUBIC`,
     },
     {
-      icon: <GroupWorkIcon color='action' />,
+      icon: <GroupWorkIcon color="action" />,
       label: "Max Bet Slots",
       value: maxBetSlots,
     },
@@ -135,7 +135,7 @@ const CreateBetDetails = ({
                 <ListItemText
                   primary={
                     <Typography
-                      variant='body2'
+                      variant="body2"
                       sx={{
                         fontWeight: 500,
                         color: theme.palette.text.secondary,
@@ -146,7 +146,7 @@ const CreateBetDetails = ({
                   }
                   secondary={
                     <Typography
-                      variant='body2'
+                      variant="body2"
                       sx={{
                         fontWeight: 500,
                         color: theme.palette.text.primary,
@@ -164,12 +164,12 @@ const CreateBetDetails = ({
           <Divider />
           <ListItem disableGutters>
             <ListItemIcon sx={{ minWidth: 40 }}>
-              <CreditCardIcon color='action' />
+              <CreditCardIcon color="action" />
             </ListItemIcon>
             <ListItemText
               primary={
                 <Typography
-                  variant='body2'
+                  variant="body2"
                   sx={{
                     color: theme.palette.text.secondary,
                   }}
@@ -179,7 +179,7 @@ const CreateBetDetails = ({
               }
               secondary={
                 <Typography
-                  variant='body2'
+                  variant="body2"
                   sx={{
                     fontWeight: 500,
                     color: theme.palette.text.main,

@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import Card from '@mui/material/Card';
-import CloseIcon from '../../../assets/close.svg';
-import { useConfig } from '../../../contexts/ConfigContext';
+import { useState } from "react";
+import Card from "@mui/material/Card";
+import CloseIcon from "../../../assets/close.svg";
+import { useConfig } from "../../../contexts/ConfigContext";
 
 const ServerConfigModal = ({ isOpen, onClose }) => {
   const { updateEndpoints } = useConfig();
-  const [selectedMode, setSelectedMode] = useState('form');
-  const [httpEndpointInput, setHttpEndpointInput] = useState('');
-  const [backendUrlInput, setBackendUrlInput] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
+  const [selectedMode, setSelectedMode] = useState("form");
+  const [httpEndpointInput, setHttpEndpointInput] = useState("");
+  const [backendUrlInput, setBackendUrlInput] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSave = () => {
     if (!httpEndpointInput || !backendUrlInput) {
-      setErrorMsg('Please enter both HTTP Endpoint and Backend URL.');
+      setErrorMsg("Please enter both HTTP Endpoint and Backend URL.");
       return;
     }
     // TODO: Add URL validation here
@@ -24,10 +24,10 @@ const ServerConfigModal = ({ isOpen, onClose }) => {
 
   const handleClose = () => {
     // Reset the inputs and errors when closing
-    setHttpEndpointInput('');
-    setBackendUrlInput('');
-    setErrorMsg('');
-    setSelectedMode('form');
+    setHttpEndpointInput("");
+    setBackendUrlInput("");
+    setErrorMsg("");
+    setSelectedMode("form");
     onClose();
   };
 
@@ -54,7 +54,7 @@ const ServerConfigModal = ({ isOpen, onClose }) => {
               />
             </div>
 
-            {selectedMode === 'form' && (
+            {selectedMode === "form" && (
               <div className="text-white mt-4">
                 <label className="block mb-2">HTTP Endpoint:</label>
                 <input

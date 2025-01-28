@@ -147,7 +147,7 @@ function BetOverviewCard({ data, onClick, status = "" }) {
           />
         )}
 
-        <Stack direction='row' alignItems='center' spacing={2} mb={0}>
+        <Stack direction="row" alignItems="center" spacing={2} mb={0}>
           {statusData && (
             <Chip
               icon={statusData.icon}
@@ -174,12 +174,12 @@ function BetOverviewCard({ data, onClick, status = "" }) {
                   },
                 },
               }}
-              variant='filled'
-              size='small'
+              variant="filled"
+              size="small"
             />
           )}
           <Typography
-            variant='h6'
+            variant="h6"
             noWrap
             sx={{
               fontWeight: 600,
@@ -208,8 +208,8 @@ function BetOverviewCard({ data, onClick, status = "" }) {
         <Grid container spacing={3} mb={3}>
           <Grid item xs={12}>
             <Stack
-              direction='row'
-              alignItems='center'
+              direction="row"
+              alignItems="center"
               spacing={1}
               sx={{ color: theme.palette.text.secondary }}
             >
@@ -222,7 +222,7 @@ function BetOverviewCard({ data, onClick, status = "" }) {
                 }}
               />
               <Typography
-                variant='body2'
+                variant="body2"
                 sx={{
                   fontSize: "0.9rem",
                   [theme.breakpoints.down("sm")]: {
@@ -286,14 +286,14 @@ function BetOverviewCard({ data, onClick, status = "" }) {
             ].map((item, index) => (
               <Grid item xs={4} key={index}>
                 <Stack
-                  direction='row'
-                  alignItems='center'
+                  direction="row"
+                  alignItems="center"
                   spacing={0.5}
                   sx={{ color: theme.palette.text.secondary }}
                 >
                   {item.icon}
                   <Typography
-                    variant='body2'
+                    variant="body2"
                     sx={{
                       fontWeight: 500,
                       color: theme.palette.text.primary,
@@ -313,17 +313,17 @@ function BetOverviewCard({ data, onClick, status = "" }) {
         </Grid>
 
         <Box
-          display='flex'
-          flexDirection='row'
-          alignItems='center'
-          justifyContent='space-between'
+          display="flex"
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="space-between"
           mt={2}
         >
-          <Box display='flex' alignItems='center' gap={1}>
+          <Box display="flex" alignItems="center" gap={1}>
             {hotLevelIcon}
           </Box>
 
-          <Box display='flex' alignItems='center' gap={1}>
+          <Box display="flex" alignItems="center" gap={1}>
             {isDarkMode ? (
               <QubicSymbolWhite
                 style={{
@@ -343,7 +343,7 @@ function BetOverviewCard({ data, onClick, status = "" }) {
             )}
 
             <Typography
-              variant='h6'
+              variant="h6"
               sx={{
                 fontWeight: 600,
                 color: theme.palette.text.primary,

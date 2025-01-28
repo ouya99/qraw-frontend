@@ -63,7 +63,7 @@ const CustomDropdown = ({ options, selected, onSelect, icon }) => {
             },
           })}
         <Typography
-          variant='body1'
+          variant="body1"
           sx={{
             flexGrow: 1,
             color: isOpen
@@ -115,7 +115,7 @@ const CustomDropdown = ({ options, selected, onSelect, icon }) => {
                   },
                 }}
               >
-                <Typography variant='body1' color={theme.palette.text.primary}>
+                <Typography variant="body1" color={theme.palette.text.primary}>
                   {option.label}
                 </Typography>
               </Box>
@@ -150,25 +150,25 @@ const SearchFilter = ({
       animate={{ opacity: 1, y: 0 }}
       sx={{ width: "100%" }}
     >
-      <Grid container spacing={3} alignItems='center'>
+      <Grid container spacing={3} alignItems="center">
         <Grid item xs={12} md={9}>
           <TextField
             fullWidth
-            variant='outlined'
-            placeholder='Search bets...'
+            variant="outlined"
+            placeholder="Search bets..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             InputProps={{
               startAdornment: (
-                <InputAdornment position='start'>
+                <InputAdornment position="start">
                   <SearchIcon sx={{ mr: 1 }} />
                 </InputAdornment>
               ),
               endAdornment: searchTerm && (
-                <InputAdornment position='end'>
-                  <Tooltip title='Clear search'>
+                <InputAdornment position="end">
+                  <Tooltip title="Clear search">
                     <IconButton
-                      size='small'
+                      size="small"
                       onClick={handleClearSearch}
                       sx={{
                         color: theme.palette.text.secondary,
@@ -177,7 +177,7 @@ const SearchFilter = ({
                         },
                       }}
                     >
-                      <ClearIcon fontSize='small' />
+                      <ClearIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                 </InputAdornment>

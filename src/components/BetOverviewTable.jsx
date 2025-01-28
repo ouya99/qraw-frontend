@@ -159,12 +159,12 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
       sortComparator: (v1, v2) => v1.value - v2.value,
       renderHeader: () => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
           gap={0.5}
         >
-          <Typography variant='subtitle2' fontWeight='bold'>
+          <Typography variant="subtitle2" fontWeight="bold">
             Status
           </Typography>
         </Box>
@@ -175,14 +175,14 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
         const IconComponent = sData.icon;
         return (
           <Box
-            display='flex'
-            alignItems='center'
-            justifyContent='center'
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
             gap={0.5}
-            height='100%'
+            height="100%"
           >
             <IconComponent
-              fontSize='small'
+              fontSize="small"
               sx={{
                 color:
                   theme.palette.mode === "dark" ? sData.darkColor : sData.color,
@@ -200,15 +200,15 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
       flex: 1,
       sortable: true,
       renderHeader: () => (
-        <Box display='flex' alignItems='center' gap={0.5}>
-          <Typography variant='subtitle2' fontWeight='bold'>
+        <Box display="flex" alignItems="center" gap={0.5}>
+          <Typography variant="subtitle2" fontWeight="bold">
             Description
           </Typography>
         </Box>
       ),
       renderCell: (params) => (
-        <Box display='flex' alignItems='center' height='100%'>
-          <Typography variant='body2' noWrap>
+        <Box display="flex" alignItems="center" height="100%">
+          <Typography variant="body2" noWrap>
             {params.value}
           </Typography>
         </Box>
@@ -223,20 +223,20 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
       sortable: true,
       sortComparator: (v1, v2) => v1.value - v2.value,
       renderHeader: () => (
-        <Box display='flex' alignItems='center' gap={0.5}>
-          <Typography variant='subtitle2' fontWeight='bold'>
+        <Box display="flex" alignItems="center" gap={0.5}>
+          <Typography variant="subtitle2" fontWeight="bold">
             Closing (UTC)
           </Typography>
         </Box>
       ),
       renderCell: (params) => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          height='100%'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          height="100%"
         >
-          <Typography variant='body2'>{params.value.display}</Typography>
+          <Typography variant="body2">{params.value.display}</Typography>
         </Box>
       ),
       headerAlign: "center",
@@ -250,24 +250,24 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
       type: "number",
       renderHeader: () => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
           gap={0.5}
         >
-          <Typography variant='subtitle2' fontWeight='bold'>
+          <Typography variant="subtitle2" fontWeight="bold">
             Slots
           </Typography>
         </Box>
       ),
       renderCell: (params) => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          height='100%'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          height="100%"
         >
-          <Typography variant='body2'>{params.value}</Typography>
+          <Typography variant="body2">{params.value}</Typography>
         </Box>
       ),
       headerAlign: "center",
@@ -281,24 +281,24 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
       type: "number",
       renderHeader: () => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
           gap={0.5}
         >
-          <Typography variant='subtitle2' fontWeight='bold'>
+          <Typography variant="subtitle2" fontWeight="bold">
             Fee (%)
           </Typography>
         </Box>
       ),
       renderCell: (params) => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          height='100%'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          height="100%"
         >
-          <Typography variant='body2'>{params.value} %</Typography>
+          <Typography variant="body2">{params.value} %</Typography>
         </Box>
       ),
       headerAlign: "center",
@@ -312,24 +312,24 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
       type: "number",
       renderHeader: () => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
           gap={0.5}
         >
-          <Typography variant='subtitle2' fontWeight='bold'>
+          <Typography variant="subtitle2" fontWeight="bold">
             Burn (%)
           </Typography>
         </Box>
       ),
       renderCell: (params) => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          height='100%'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          height="100%"
         >
-          <Typography variant='body2'>{params.value} %</Typography>
+          <Typography variant="body2">{params.value} %</Typography>
         </Box>
       ),
       headerAlign: "center",
@@ -343,22 +343,22 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
       sortComparator: (v1, v2) => v1.value - v2.value,
       renderHeader: () => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
           gap={0.5}
         >
-          <Typography variant='subtitle2' fontWeight='bold'>
+          <Typography variant="subtitle2" fontWeight="bold">
             Total Qubic
           </Typography>
         </Box>
       ),
       renderCell: (params) => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          height='100%'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          height="100%"
           gap={0.5}
         >
           {theme.palette.mode === "dark" ? (
@@ -379,7 +379,7 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
             />
           )}
 
-          <Typography variant='body2'>{params.value.display}</Typography>
+          <Typography variant="body2">{params.value.display}</Typography>
         </Box>
       ),
       headerAlign: "center",
@@ -393,22 +393,22 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
       sortComparator: (v1, v2) => v2.value - v1.value,
       renderHeader: () => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
           gap={0.5}
         >
-          <Typography variant='subtitle2' fontWeight='bold'>
+          <Typography variant="subtitle2" fontWeight="bold">
             Popularity
           </Typography>
         </Box>
       ),
       renderCell: (params) => (
         <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          height='100%'
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          height="100%"
         >
           {params.value.display}
         </Box>
@@ -450,7 +450,7 @@ function BetOverviewTable({ bets, onRowClick, loading }) {
               pageSize: 10,
             },
           }}
-          paginationMode='client'
+          paginationMode="client"
           pageSizeOptions={[10, 25, 50, 100]}
           onRowClick={(params) => onRowClick(params.row.bet_id)}
         />

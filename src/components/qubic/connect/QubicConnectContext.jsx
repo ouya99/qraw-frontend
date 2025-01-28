@@ -1,9 +1,9 @@
 /* global BigInt */
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { QubicHelper } from '@qubic-lib/qubic-ts-library/dist/qubicHelper';
-import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto';
-import { useConfig } from '../../../contexts/ConfigContext';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { QubicHelper } from "@qubic-lib/qubic-ts-library/dist/qubicHelper";
+import Crypto from "@qubic-lib/qubic-ts-library/dist/crypto";
+import { useConfig } from "../../../contexts/ConfigContext";
 
 const QubicConnectContext = createContext();
 
@@ -16,7 +16,7 @@ export function QubicConnectProvider({ children }) {
   const { httpEndpoint } = useConfig();
 
   useEffect(() => {
-    const wallet = localStorage.getItem('wallet');
+    const wallet = localStorage.getItem("wallet");
     if (wallet) {
       setWallet(wallet);
       setConnected(true);
@@ -24,13 +24,13 @@ export function QubicConnectProvider({ children }) {
   }, []);
 
   const connect = (wallet) => {
-    localStorage.setItem('wallet', wallet);
+    localStorage.setItem("wallet", wallet);
     setWallet(wallet);
     setConnected(true);
   };
 
   const disconnect = () => {
-    localStorage.removeItem('wallet');
+    localStorage.removeItem("wallet");
     setWallet(null);
     setConnected(false);
   };
@@ -49,12 +49,12 @@ export function QubicConnectProvider({ children }) {
     const qCrypto = await Crypto;
     const tick = await getTick();
     const tickOffset = 5;
-    console.log('tick:', tick + tickOffset);
+    console.log("tick:", tick + tickOffset);
     // build Quottery TX
     const quotteryTxSize = qHelper.TRANSACTION_SIZE + 16;
     const sourcePrivateKey = idPackage.privateKey;
     const sourcePublicKey = idPackage.publicKey;
-    console.log('Public id:', await qHelper.getIdentity(sourcePublicKey));
+    console.log("Public id:", await qHelper.getIdentity(sourcePublicKey));
     const tx = new Uint8Array(quotteryTxSize).fill(0);
     const txView = new DataView(tx.buffer);
     const contractIndex = 2;
@@ -113,9 +113,9 @@ export function QubicConnectProvider({ children }) {
     tx.set(signedtx, offset);
     offset += qHelper.SIGNATURE_LENGTH;
 
-    console.log('bet:', bet);
+    console.log("bet:", bet);
     const txResult = await broadcastTx(tx);
-    console.log('Response:', txResult);
+    console.log("Response:", txResult);
 
     return {
       targetTick: tick + tickOffset,
@@ -127,22 +127,22 @@ export function QubicConnectProvider({ children }) {
     const url = `${httpEndpoint}/v1/broadcast-transaction`;
     const txEncoded = uint8ArrayToBase64(tx);
     const body = { encodedTransaction: txEncoded };
-    console.log('Transaction body:', body);
+    console.log("Transaction body:", body);
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(body),
       });
-      console.log('Server response:', response);
+      console.log("Server response:", response);
       // Check if the response status is OK (status code 200-299)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result = await response.json();
-      console.log('Result:', result);
+      console.log("Result:", result);
       return result;
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -151,7 +151,7 @@ export function QubicConnectProvider({ children }) {
     const tick = await tickResult.json();
     // check if tick is valid
     if (!tick || !tick.tickInfo || !tick.tickInfo.tick) {
-      console.warn('getTick: Invalid tick');
+      console.warn("getTick: Invalid tick");
       return 0;
     }
     return tick.tickInfo.tick;
@@ -180,7 +180,7 @@ export function useQubicConnect() {
   const context = useContext(QubicConnectContext);
   if (context === undefined) {
     throw new Error(
-      'useQubicConnect must be used within a QubicConnectProvider'
+      "useQubicConnect must be used within a QubicConnectProvider"
     );
   }
   return context;

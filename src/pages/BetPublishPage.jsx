@@ -124,7 +124,7 @@ const BetPublishPage = () => {
 
   return (
     <Box sx={{ mt: 8, px: { xs: 2, md: 6 }, maxWidth: 800, mx: "auto" }}>
-      <Typography variant='h4' color='text.primary' gutterBottom align='center'>
+      <Typography variant="h4" color="text.primary" gutterBottom align="center">
         <PublishIcon sx={{ verticalAlign: "middle", mr: 1 }} />
         Publish Bet Result
       </Typography>
@@ -133,8 +133,8 @@ const BetPublishPage = () => {
         <Box sx={{ mt: 4 }}>
           {!isAfterEndDate && (
             <Alert
-              severity='info'
-              icon={<ScheduleIcon fontSize='inherit' />}
+              severity="info"
+              icon={<ScheduleIcon fontSize="inherit" />}
               sx={{ mb: 2 }}
             >
               Please publish the bet after{" "}
@@ -145,8 +145,8 @@ const BetPublishPage = () => {
           )}
           {isAfterEndDate && !hasEnoughParticipants && (
             <Alert
-              severity='warning'
-              icon={<PeopleIcon fontSize='inherit' />}
+              severity="warning"
+              icon={<PeopleIcon fontSize="inherit" />}
               sx={{ mb: 2 }}
             >
               Cannot publish the bet: <strong>not enough participants</strong>{" "}
@@ -155,8 +155,8 @@ const BetPublishPage = () => {
           )}
           {isAfterEndDate && hasEnoughParticipants && hasAlreadyPublished && (
             <Alert
-              severity='warning'
-              icon={<WarningAmberIcon fontSize='inherit' />}
+              severity="warning"
+              icon={<WarningAmberIcon fontSize="inherit" />}
               sx={{ mb: 2 }}
             >
               The bet result has already been published.
@@ -166,18 +166,18 @@ const BetPublishPage = () => {
             <>
               <Card sx={{ p: 3, mb: 4, backgroundColor: "background.paper" }}>
                 <Stack spacing={2}>
-                  <Typography variant='h5' color='text.primary'>
+                  <Typography variant="h5" color="text.primary">
                     {bet.full_description || bet.bet_desc}
                   </Typography>
                   <Divider />
                   <Grid container spacing={1}>
                     <Grid item xs={6}>
-                      <Typography variant='body1' color='text.secondary'>
+                      <Typography variant="body1" color="text.secondary">
                         <strong>Bet ID:</strong> {bet.bet_id}
                       </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                      <Typography variant='body1' color='text.secondary'>
+                      <Typography variant="body1" color="text.secondary">
                         <strong>End Date:</strong> {formatDate(bet.end_date)}{" "}
                         {bet.end_time} UTC
                       </Typography>
@@ -187,7 +187,7 @@ const BetPublishPage = () => {
               </Card>
 
               <Box sx={{ mb: 3 }}>
-                <Typography variant='h6' color='text.primary' gutterBottom>
+                <Typography variant="h6" color="text.primary" gutterBottom>
                   Select Winning Option
                 </Typography>
                 <RadioGroup
@@ -198,7 +198,7 @@ const BetPublishPage = () => {
                     <FormControlLabel
                       key={index}
                       value={index}
-                      control={<Radio color='primary' />}
+                      control={<Radio color="primary" />}
                       label={option}
                     />
                   ))}
@@ -206,13 +206,13 @@ const BetPublishPage = () => {
               </Box>
 
               <Button
-                variant='outlined'
-                color='primary'
+                variant="outlined"
+                color="primary"
                 startIcon={<PublishIcon />}
                 onClick={handlePublish}
                 disabled={selectedOption === null}
                 fullWidth
-                size='large'
+                size="large"
               >
                 PUBLISH RESULT
               </Button>

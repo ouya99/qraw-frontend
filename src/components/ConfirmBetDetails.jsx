@@ -28,24 +28,24 @@ const BetDetails = ({
 
   const details = [
     {
-      icon: <GamesIcon color='action' />,
+      icon: <GamesIcon color="action" />,
       label: "Bet on",
       value: title,
     },
     {
-      icon: <DoneOutlineIcon color='action' />,
+      icon: <DoneOutlineIcon color="action" />,
       label: "Option",
       value: betOptionDescription,
     },
     {
-      icon: <ViewModuleIcon color='action' />,
+      icon: <ViewModuleIcon color="action" />,
       label: "Slots",
       value: amountOfBetSlots,
     },
   ];
 
   return (
-    <Paper elevation={0} sx={{ mt: 1, backgroundColor: 'inherit' }}>
+    <Paper elevation={0} sx={{ mt: 1, backgroundColor: "inherit" }}>
       <Stack spacing={0}>
         <Typography
           variant={isSmallScreen ? "body1" : "h7"}
@@ -66,7 +66,7 @@ const BetDetails = ({
                 <ListItemText
                   primary={
                     <Typography
-                      variant='body2'
+                      variant="body2"
                       sx={{
                         fontWeight: 500,
                         color: theme.palette.text.secondary,
@@ -77,7 +77,7 @@ const BetDetails = ({
                   }
                   secondary={
                     <Typography
-                      variant='body2'
+                      variant="body2"
                       sx={{
                         fontWeight: 500,
                         color: theme.palette.text.primary,
@@ -96,12 +96,12 @@ const BetDetails = ({
 
           <ListItem disableGutters>
             <ListItemIcon sx={{ minWidth: 40 }}>
-              <AccountBalanceWalletIcon color='action' />
+              <AccountBalanceWalletIcon color="action" />
             </ListItemIcon>
             <ListItemText
               primary={
                 <Typography
-                  variant='body2'
+                  variant="body2"
                   sx={{
                     color: theme.palette.text.secondary,
                   }}
@@ -111,7 +111,7 @@ const BetDetails = ({
               }
               secondary={
                 <Typography
-                  variant='body2'
+                  variant="body2"
                   sx={{
                     fontWeight: 500,
                     color: theme.palette.text.main,

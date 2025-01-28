@@ -60,12 +60,12 @@ export default function BetCreationTutorial() {
 
   return (
     <Box sx={{ mt: 2, backgroundColor: theme.palette.background.default }}>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Follow these steps to understand each field of the form and finalize the
         creation of your bet.
       </Typography>
 
-      <Stepper activeStep={-1} orientation='vertical' nonLinear>
+      <Stepper activeStep={-1} orientation="vertical" nonLinear>
         {steps.map((step, index) => (
           <Step key={index} completed>
             <StepLabel
@@ -73,12 +73,12 @@ export default function BetCreationTutorial() {
                 style: { color: "#10b981" },
               }}
             >
-              <Typography variant='subtitle1' fontWeight='bold'>
+              <Typography variant="subtitle1" fontWeight="bold">
                 {`Step ${index + 1}: ${step.title}`}
               </Typography>
             </StepLabel>
             <Box sx={{ mb: 0, ml: 2 }}>
-              <Typography variant='body2'>{step.content}</Typography>
+              <Typography variant="body2">{step.content}</Typography>
             </Box>
           </Step>
         ))}

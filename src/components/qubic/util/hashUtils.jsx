@@ -1,13 +1,13 @@
 /* global BigInt */
-import CryptoJS from 'crypto-js';
-import { debuglog } from './commons';
-import { v4 as uuidv4 } from 'uuid';
+import CryptoJS from "crypto-js";
+import { debuglog } from "./commons";
+import { v4 as uuidv4 } from "uuid";
 
 export const base62Encode = (hexStr) => {
   const base62Chars =
-    '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const intVal = BigInt(`0x${hexStr}`);
-  let encoded = '';
+  let encoded = "";
   const base = BigInt(62);
 
   let value = intVal;
@@ -17,7 +17,7 @@ export const base62Encode = (hexStr) => {
     value = value / base;
   }
 
-  return encoded || '0';
+  return encoded || "0";
 };
 
 export function hashBetData(
@@ -29,17 +29,17 @@ export function hashBetData(
   const combinedData = [
     description,
     creatorIdentity,
-    oracleProviders.join('|'),
-    options.join('|'),
-  ].join('|');
+    oracleProviders.join("|"),
+    options.join("|"),
+  ].join("|");
 
-  debuglog('Combined Data:', combinedData);
+  debuglog("Combined Data:", combinedData);
 
   // Generate SHA-256 hash
   const hash = CryptoJS.SHA256(combinedData).toString();
 
-  debuglog('Hashed:', hash);
-  debuglog('Final hash:', base62Encode(hash).substring(0, 23));
+  debuglog("Hashed:", hash);
+  debuglog("Final hash:", base62Encode(hash).substring(0, 23));
   // Encode and truncate to 23 characters
   return base62Encode(hash).substring(0, 23);
 }

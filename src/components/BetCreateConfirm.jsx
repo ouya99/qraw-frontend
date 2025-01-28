@@ -23,8 +23,8 @@ const TableRowItem = ({ icon, label, children }) => {
   return (
     <TableRow>
       <TableCell
-        component='th'
-        scope='row'
+        component="th"
+        scope="row"
         sx={{
           display: "flex",
           alignItems: "center",
@@ -84,19 +84,19 @@ const BetCreateConfirm = ({ bet }) => {
       <TableContainer>
         <Table>
           <TableBody>
-            <TableRowItem label='Description'>
+            <TableRowItem label="Description">
               {bet.descriptionFull}
             </TableRowItem>
 
-            <TableRowItem label='Closing Date & Time'>
+            <TableRowItem label="Closing Date & Time">
               {bet.closeDateTime.date} {bet.closeDateTime.time}
             </TableRowItem>
 
-            <TableRowItem label='End Date & Time'>
+            <TableRowItem label="End Date & Time">
               {bet.endDateTime.date} {bet.endDateTime.time}
             </TableRowItem>
 
-            <TableRowItem label='Options'>
+            <TableRowItem label="Options">
               <List dense sx={{ listStyleType: "disc", pl: 2, m: 0 }}>
                 {bet.options.map((option, idx) => (
                   <ListItem key={idx} sx={{ display: "list-item", py: 0 }}>
@@ -106,7 +106,7 @@ const BetCreateConfirm = ({ bet }) => {
               </List>
             </TableRowItem>
 
-            <TableRowItem label='Oracle Providers'>
+            <TableRowItem label="Oracle Providers">
               <List dense sx={{ listStyleType: "disc", pl: 2, m: 0 }}>
                 {bet.providers.map((provider, idx) => (
                   <ListItem key={idx} sx={{ display: "list-item", py: 0 }}>
@@ -120,25 +120,25 @@ const BetCreateConfirm = ({ bet }) => {
               </List>
             </TableRowItem>
 
-            <TableRowItem label='Qus Per Slot'>
+            <TableRowItem label="Qus Per Slot">
               {bet.amountPerSlot.toLocaleString()} QUBIC
             </TableRowItem>
 
-            <TableRowItem label='Max Slots Per Option'>
+            <TableRowItem label="Max Slots Per Option">
               {bet.maxBetSlots}
             </TableRowItem>
 
-            <TableRowItem label='Creation Fees'>
+            <TableRowItem label="Creation Fees">
               {bet.costs.toLocaleString()} QUBIC
             </TableRowItem>
 
             {balance !== null && (
-              <TableRowItem label='Your Balance'>
-                <Typography variant='body2'>
+              <TableRowItem label="Your Balance">
+                <Typography variant="body2">
                   {formatQubicAmount(balance)} QUBIC
                 </Typography>
                 {!hasEnoughBalance && (
-                  <Alert severity='error' sx={{ mt: 1 }}>
+                  <Alert severity="error" sx={{ mt: 1 }}>
                     Insufficient balance to create this bet. Your balance:{" "}
                     {formatQubicAmount(balance)} QUBIC, creation fees:{" "}
                     {formatQubicAmount(bet.costs)} QUBIC.

@@ -150,9 +150,9 @@ function StartPage() {
     >
       <AnimatedBars />
       <Typography
-        variant='h6'
-        color='text.secondary'
-        textAlign='center'
+        variant="h6"
+        color="text.secondary"
+        textAlign="center"
         marginTop={2}
         sx={{ fontSize: { xs: "1rem", sm: "1.2rem", md: "1.5rem" } }}
       >
@@ -200,10 +200,10 @@ function StartPage() {
         overflow: "hidden",
       }}
     >
-      <Container maxWidth='lg'>
+      <Container maxWidth="lg">
         {/* Header Section */}
         <Box
-          component='header'
+          component="header"
           sx={{
             display: "flex",
             flexDirection: "column",
@@ -214,14 +214,14 @@ function StartPage() {
           }}
         >
           <Typography
-            variant='h2'
-            fontWeight='bold'
+            variant="h2"
+            fontWeight="bold"
             gutterBottom
             component={motion.h2}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            color='text.primary'
+            color="text.primary"
             sx={{
               fontSize: {
                 xs: "2.7rem",
@@ -235,7 +235,7 @@ function StartPage() {
           >
             Bet Anything.{" "}
             <Box
-              component='span'
+              component="span"
               sx={{
                 backgroundColor: theme.palette.primary.main,
                 color:
@@ -245,15 +245,15 @@ function StartPage() {
                 px: { xs: 0.5, sm: 1 },
                 fontSize: "inherit",
               }}
-              fontWeight='bold'
+              fontWeight="bold"
             >
               Anytime.
             </Box>
           </Typography>
           <Typography
-            color='text.secondary'
+            color="text.secondary"
             gutterBottom
-            fontWeight='bold'
+            fontWeight="bold"
             component={motion.div}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -275,7 +275,7 @@ function StartPage() {
               ]}
               loop={1}
               cursor
-              cursorStyle='_'
+              cursorStyle="_"
               typeSpeed={33}
               deleteSpeed={50}
               delaySpeed={1000}
@@ -284,7 +284,7 @@ function StartPage() {
           <Button
             onClick={() => navigate("/create")}
             startIcon={<GamepadIcon />}
-            variant='contained'
+            variant="contained"
             color={
               theme.palette.mode === "dark"
                 ? "secondary"
@@ -359,13 +359,13 @@ function StartPage() {
               onChange={(e, newVal) => {
                 if (newVal !== null) setViewMode(newVal);
               }}
-              aria-label='view mode'
-              size='small'
+              aria-label="view mode"
+              size="small"
             >
-              <ToggleButton value='cards' aria-label='cards view'>
+              <ToggleButton value="cards" aria-label="cards view">
                 <ViewModuleIcon />
               </ToggleButton>
-              <ToggleButton value='table' aria-label='table view'>
+              <ToggleButton value="table" aria-label="table view">
                 <TableChartIcon />
               </ToggleButton>
             </ToggleButtonGroup>
@@ -386,7 +386,7 @@ function StartPage() {
               <Grid
                 container
                 spacing={{ xs: 2, sm: 3, md: 4 }}
-                justifyContent='center'
+                justifyContent="center"
               >
                 <AnimatePresence>
                   {betsToDisplay.map((bet, index) => (
@@ -398,9 +398,9 @@ function StartPage() {
                       key={bet.bet_id}
                       component={motion.div}
                       variants={cardVariants}
-                      initial='initial'
-                      animate='animate'
-                      exit='exit'
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
                       transition={{ delay: index * 0.02 }}
                     >
                       <BetOverviewCard
