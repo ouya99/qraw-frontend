@@ -43,8 +43,7 @@ const UserBets = () => {
       await fetchBets("all");
       setIsLoading(false);
       setNoBetsFound(
-        (!activeBets || activeBets.length === 0) &&
-          (!historicalBets || historicalBets.length === 0)
+        annotatedActiveBets.length === 0 && annotatedHistoricalBets.length === 0
       );
     };
 
@@ -80,7 +79,7 @@ const UserBets = () => {
   const renderBets = (bets) => {
     if (isMobile) {
       return (
-        <Box display='flex' flexWrap='wrap' gap={2} justifyContent='center'>
+        <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center">
           {bets.map((bet) => (
             <BetOverviewCard
               key={bet.bet_id}
@@ -113,19 +112,19 @@ const UserBets = () => {
   const BetsHeader = ({ icon, title, address }) => (
     <Box
       mb={2}
-      display='flex'
+      display="flex"
       flexDirection={isMobile ? "column" : "row"}
       alignItems={isMobile ? "flex-start" : "center"}
       gap={isMobile ? 1 : 0}
     >
-      <Box display='flex' alignItems='center' gap={1}>
+      <Box display="flex" alignItems="center" gap={1}>
         {icon}
         <Typography variant={isMobile ? "subtitle1" : "h6"}>{title}</Typography>
       </Box>
       {isMobile && address && (
         <Typography
-          variant='body2'
-          color='textSecondary'
+          variant="body2"
+          color="textSecondary"
           sx={{ wordBreak: "break-all" }}
         >
           {address}
@@ -133,8 +132,8 @@ const UserBets = () => {
       )}
       {!isMobile && address && (
         <Typography
-          variant='body1'
-          color='textPrimary'
+          variant="body1"
+          color="textPrimary"
           sx={{ marginLeft: "auto", wordBreak: "break-all" }}
         >
           {address}
@@ -182,9 +181,9 @@ const UserBets = () => {
   }
 
   return (
-    <Container sx={{ mt: theme.spacing(10), mb: theme.spacing(4) }}>
+    <Container sx={{ mt: theme.spacing(12), mb: theme.spacing(4) }}>
       <Box
-        display='flex'
+        display="flex"
         flexDirection={isMobile ? "column" : "row"}
         justifyContent={isMobile ? "flex-start" : "space-between"}
         alignItems={isMobile ? "flex-start" : "center"}
@@ -194,14 +193,14 @@ const UserBets = () => {
           Summary of bets for address:
         </Typography>
         <Box
-          display='flex'
-          alignItems='center'
+          display="flex"
+          alignItems="center"
           gap={1}
           flexDirection={isMobile ? "column" : "row"}
         >
           <Typography
             variant={isMobile ? "body2" : "h6"}
-            color={theme.palette.primary.main}
+            color={theme.palette.secondary.contrastText}
             sx={{
               wordBreak: "break-all",
               display: "flex",
@@ -209,21 +208,21 @@ const UserBets = () => {
             }}
           >
             {truncateMiddle(walletPublicIdentity, 40)}
-            <Tooltip title='Copy Public ID'>
+            <Tooltip title="Copy Public ID">
               <IconButton
                 onClick={copyToClipboard}
-                size='small'
+                size="small"
                 sx={{
                   color: copied
                     ? theme.palette.success.main
-                    : theme.palette.text.secondary,
+                    : theme.palette.primary.main,
                 }}
-                aria-label='Copy Public ID'
+                aria-label="Copy Public ID"
               >
                 {copied ? (
-                  <CheckCircleIcon fontSize='small' />
+                  <CheckCircleIcon fontSize="small" />
                 ) : (
-                  <ContentCopyIcon fontSize='small' />
+                  <ContentCopyIcon fontSize="small" />
                 )}
               </IconButton>
             </Tooltip>
@@ -234,8 +233,8 @@ const UserBets = () => {
       <Box mb={4}>
         <BetsHeader
           icon={<ActiveIcon fontSize={isMobile ? "small" : "inherit"} />}
-          title='Active Bets'
-          address={walletPublicIdentity}
+          title="Active Bets"
+          // address={walletPublicIdentity}
         />
         {annotatedActiveBets.length > 0 ? (
           renderBets(annotatedActiveBets)
@@ -249,8 +248,8 @@ const UserBets = () => {
       <Box mb={4}>
         <BetsHeader
           icon={<HistoryIcon fontSize={isMobile ? "small" : "inherit"} />}
-          title='Historical Bets'
-          address={walletPublicIdentity}
+          title="Historical Bets"
+          // address={walletPublicIdentity}
         />
         {annotatedHistoricalBets.length > 0 ? (
           renderBets(annotatedHistoricalBets)

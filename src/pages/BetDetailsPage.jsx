@@ -98,8 +98,8 @@ function BetDetailsPage() {
   const betSlotsRef = useRef(null);
 
   const copyToClipboard = () => {
-    if (walletPublicIdentity) {
-      navigator.clipboard.writeText(walletPublicIdentity);
+    if (bet.creator) {
+      navigator.clipboard.writeText(bet.creator);
       setCopied(true);
       setTimeout(() => setCopied(false), 1000);
     }
@@ -341,8 +341,8 @@ function BetDetailsPage() {
   // --- Main render ---
   if (loading) {
     return (
-      <Container maxWidth='md' sx={{ mt: 12, mb: 4 }}>
-        <Box textAlign='center' justifyContent='center' my={50}>
+      <Container maxWidth="md" sx={{ mt: 12, mb: 4 }}>
+        <Box textAlign="center" justifyContent="center" my={50}>
           <AnimatedBars />
         </Box>
       </Container>
@@ -351,12 +351,12 @@ function BetDetailsPage() {
 
   if (!bet || bet.bet_id === undefined || bet.bet_id < 0) {
     return (
-      <Container maxWidth='md' sx={{ mt: 12, mb: 4, textAlign: "center" }}>
-        <Typography variant='h6' color='text.secondary'>
+      <Container maxWidth="md" sx={{ mt: 12, mb: 4, textAlign: "center" }}>
+        <Typography variant="h6" color="text.secondary">
           Bet not found or invalid Bet ID.
         </Typography>
         <Button
-          variant='outlined'
+          variant="outlined"
           startIcon={<KeyboardReturnIcon />}
           sx={{ mt: 2 }}
           onClick={() => navigate("/")}
@@ -368,7 +368,7 @@ function BetDetailsPage() {
   }
 
   return (
-    <Container maxWidth='md' sx={{ mt: 12, mb: 4, pb: 10 }}>
+    <Container maxWidth="md" sx={{ mt: 12, mb: 4, pb: 10 }}>
       {/* MAIN TITLE */}
       <Paper
         elevation={0}
@@ -379,16 +379,16 @@ function BetDetailsPage() {
           backgroundColor: theme.palette.background.default,
         }}
       >
-        <Box display='flex' alignItems='center' mb={3}>
+        <Box display="flex" alignItems="center" mb={3}>
           <IconButton
-            aria-label='go back'
+            aria-label="go back"
             onClick={() => navigate("/")}
             sx={{ mr: 2 }}
           >
             <ArrowBackIcon />
           </IconButton>
           <Typography
-            color='text.primary'
+            color="text.primary"
             fontWeight={400}
             sx={{
               fontSize: { xs: "1.1rem", sm: "1.6rem" },
@@ -402,10 +402,10 @@ function BetDetailsPage() {
 
         {/* TOTAL POT */}
         <Box
-          display='flex'
-          flexDirection='column'
-          alignItems='center'
-          justifyContent='center'
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
           mt={4}
         >
           <Box
@@ -422,7 +422,7 @@ function BetDetailsPage() {
               gap: 1.5,
             }}
           >
-            <Box display='flex' alignItems='center' justifyContent='center'>
+            <Box display="flex" alignItems="center" justifyContent="center">
               {theme.palette.mode === "dark" ? (
                 <QubicSymbolWhite
                   style={{
@@ -456,9 +456,9 @@ function BetDetailsPage() {
 
         {/* "Publish Bet" button */}
         {isOracleProvider && publishButtonText && (
-          <Box textAlign='center' mt={2}>
+          <Box textAlign="center" mt={2}>
             <Button
-              variant='contained'
+              variant="contained"
               color={
                 publishButtonText === "Publish bet" ? "primary" : "secondary"
               }
@@ -485,7 +485,7 @@ function BetDetailsPage() {
                       )} ${bet.close_time.slice(0, -3)} UTC`,
                       icon: (
                         <HourglassBottomIcon
-                          color='warning'
+                          color="warning"
                           sx={{ fontSize: 20, mr: 1 }}
                         />
                       ),
@@ -495,7 +495,7 @@ function BetDetailsPage() {
                       value: sumArray(bet.current_num_selection),
                       icon: (
                         <PeopleIcon
-                          color='secondary'
+                          color="secondary"
                           sx={{ fontSize: 20, mr: 1 }}
                         />
                       ),
@@ -505,7 +505,7 @@ function BetDetailsPage() {
                       value: `${sumArray(bet.oracle_fee)}%`,
                       icon: (
                         <MonetizationOnIcon
-                          color='secondary'
+                          color="secondary"
                           sx={{ fontSize: 20, mr: 1 }}
                         />
                       ),
@@ -515,7 +515,7 @@ function BetDetailsPage() {
                       value: "2%",
                       icon: (
                         <LocalFireDepartmentIcon
-                          color='error'
+                          color="error"
                           sx={{ fontSize: 20, mr: 1 }}
                         />
                       ),
@@ -523,10 +523,10 @@ function BetDetailsPage() {
                   ].map((item, idx) => (
                     <TableRow key={idx}>
                       <TableCell>
-                        <Box display='flex' alignItems='center'>
+                        <Box display="flex" alignItems="center">
                           {item.icon}
                           <Typography
-                            variant='body2'
+                            variant="body2"
                             sx={{
                               ml: 0.5,
                               fontSize: isMobile ? "0.9rem" : "1rem",
@@ -539,7 +539,7 @@ function BetDetailsPage() {
                       </TableCell>
                       <TableCell>
                         <Typography
-                          variant='body1'
+                          variant="body1"
                           sx={{
                             fontSize: isMobile ? "0.9rem" : "1rem",
                             whiteSpace: "nowrap",
@@ -587,7 +587,7 @@ function BetDetailsPage() {
                 )
               }
             >
-              <Box display='flex' alignItems='center' gap={1}>
+              <Box display="flex" alignItems="center" gap={1}>
                 <InfoIcon
                   sx={{
                     color:
@@ -598,7 +598,7 @@ function BetDetailsPage() {
                   }}
                 />
                 <Typography
-                  variant='body2'
+                  variant="body2"
                   color={
                     theme.palette.mode === "dark"
                       ? theme.palette.primary.main
@@ -611,17 +611,17 @@ function BetDetailsPage() {
             </AccordionSummary>
             <AccordionDetails>
               {/* CREATOR */}
-              <Box display='flex' alignItems='center' gap={2} mb={2}>
-                <AccountCircleIcon color='action' />
+              <Box display="flex" alignItems="center" gap={2} mb={2}>
+                <AccountCircleIcon color="action" />
                 <Box>
-                  <Typography variant='body2' color='text.secondary'>
+                  <Typography variant="body2" color="text.secondary">
                     Creator
                   </Typography>
-                  <Typography sx={{ fontSize: isMobile ? "0.9rem" : "1rem" }}>
+                  <Typography sx={{ fontSize: isMobile ? "0.8rem" : "0.9rem" }}>
                     {truncateMiddle(bet.creator, 40)}
                     <IconButton
                       onClick={copyToClipboard}
-                      size='small'
+                      size="small"
                       sx={{
                         color: copied
                           ? theme.palette.success.main
@@ -629,9 +629,9 @@ function BetDetailsPage() {
                       }}
                     >
                       {copied ? (
-                        <CheckCircleIcon fontSize='small' />
+                        <CheckCircleIcon fontSize="small" />
                       ) : (
-                        <ContentCopyIcon fontSize='small' />
+                        <ContentCopyIcon fontSize="small" />
                       )}
                     </IconButton>
                   </Typography>
@@ -641,31 +641,31 @@ function BetDetailsPage() {
                 {/* OPEN / CLOSE / END DATES */}
                 {[
                   {
-                    icon: <EventAvailableIcon color='primary' />,
+                    icon: <EventAvailableIcon color="primary" />,
                     label: "Open",
                     value: `${formatDate(bet.open_date)} ${bet.open_time} UTC`,
                   },
                   {
-                    icon: <HourglassBottomIcon color='secondary' />,
+                    icon: <HourglassBottomIcon color="secondary" />,
                     label: "Close",
                     value: `${formatDate(bet.close_date)} ${
                       bet.close_time
                     } UTC`,
                   },
                   {
-                    icon: <TimelineIcon color='success' />,
+                    icon: <TimelineIcon color="success" />,
                     label: "End",
                     value: `${formatDate(bet.end_date)} ${bet.end_time} UTC`,
                   },
                 ].map((item, idx) => (
                   <Grid item xs={12} md={4} key={idx}>
-                    <Box display='flex' alignItems='center' gap={2}>
+                    <Box display="flex" alignItems="center" gap={2}>
                       {item.icon}
                       <Box>
-                        <Typography variant='body2' color='text.secondary'>
+                        <Typography variant="body2" color="text.secondary">
                           {item.label}
                         </Typography>
-                        <Typography variant='body2'>{item.value}</Typography>
+                        <Typography variant="body2">{item.value}</Typography>
                       </Box>
                     </Box>
                   </Grid>
@@ -674,9 +674,9 @@ function BetDetailsPage() {
 
               {/* ORACLE PROVIDERS */}
               <Box mt={4}>
-                <Box display='flex' alignItems='center' gap={1} mb={1}>
-                  <InsightsIcon color='info' />
-                  <Typography variant='body2' color='text.secondary' ml={1}>
+                <Box display="flex" alignItems="center" gap={1} mb={1}>
+                  <InsightsIcon color="info" />
+                  <Typography variant="body2" color="text.secondary" ml={1}>
                     Oracle Provider(s):
                   </Typography>
                 </Box>
@@ -684,8 +684,8 @@ function BetDetailsPage() {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell align='left'>#</TableCell>
-                        <TableCell align='left'>Oracle ID</TableCell>
+                        <TableCell align="left">#</TableCell>
+                        <TableCell align="left">Oracle ID</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -707,9 +707,9 @@ function BetDetailsPage() {
           <Box sx={{ mb: 3, borderRadius: 3 }}>
             <CardContent>
               <Typography
-                variant='subtitle1'
-                color='text.secondary'
-                align='center'
+                variant="subtitle1"
+                color="text.secondary"
+                align="center"
                 sx={{ mb: 2 }}
               >
                 Bet Result
@@ -732,10 +732,10 @@ function BetDetailsPage() {
                     }}
                   >
                     <Typography
-                      variant='body1'
+                      variant="body1"
                       flex={1}
-                      textAlign='center'
-                      fontWeight='bold'
+                      textAlign="center"
+                      fontWeight="bold"
                       color={isWinner ? "#fff" : "inherit"}
                     >
                       {option} {calculateOptionPercentage(bet, index)}
@@ -756,19 +756,19 @@ function BetDetailsPage() {
           <Box sx={{ mb: 3, borderRadius: 3, mt: -2 }}>
             <CardContent>
               <Typography
-                variant='body2'
+                variant="body2"
                 fontWeight={400}
-                textAlign='start'
+                textAlign="start"
                 sx={{ mb: 3 }}
               >
                 Choose Your Option :
               </Typography>
 
-              <Stack direction='column' spacing={3} alignItems='center'>
+              <Stack direction="column" spacing={3} alignItems="center">
                 {bet.option_desc?.map((option, index) => (
                   <Button
                     key={index}
-                    variant='outlined'
+                    variant="outlined"
                     color={selectedOption === index ? "success" : "tertiary"}
                     onClick={() => setSelectedOption(index)}
                     fullWidth
@@ -783,7 +783,7 @@ function BetDetailsPage() {
                       }}
                     />
                     <Typography
-                      component='span'
+                      component="span"
                       variant={isSmallScreen ? "body2" : "body1"}
                       sx={{
                         flex: 1,
@@ -796,9 +796,9 @@ function BetDetailsPage() {
                     >
                       {option}{" "}
                       <Typography
-                        component='span'
+                        component="span"
                         variant={isSmallScreen ? "caption" : "body2"}
-                        color='inherit'
+                        color="inherit"
                         sx={{ ml: 1 }}
                       >
                         {calculateOptionPercentage(bet, index)}
@@ -823,7 +823,7 @@ function BetDetailsPage() {
                 minHeight: 100,
               }}
             >
-              <Typography variant='body2' color='text.secondary' align='center'>
+              <Typography variant="body2" color="text.secondary" align="center">
                 We have no result for this bet yet.
               </Typography>
             </CardContent>
@@ -831,7 +831,7 @@ function BetDetailsPage() {
         )}
 
         {/* BLOCK SLOTS */}
-        <Fade direction='up' in={selectedOption !== null}>
+        <Fade direction="up" in={selectedOption !== null}>
           <Box
             ref={betSlotsRef}
             sx={{
@@ -844,7 +844,7 @@ function BetDetailsPage() {
               <>
                 {/* Display the selected option */}
                 <Box sx={{ mb: 2, mt: -2, textAlign: "center" }}>
-                  <Typography variant='body2' color='text.primary' ml={2}>
+                  <Typography variant="body2" color="text.primary" ml={2}>
                     Option Selected:{" "}
                     <span style={{ color: theme.palette.primary.main }}>
                       {bet.option_desc[selectedOption]}
@@ -854,7 +854,7 @@ function BetDetailsPage() {
 
                 <Typography
                   variant={isMobile ? "body2" : "body1"}
-                  color='text.primary'
+                  color="text.primary"
                   sx={{ mb: 3, fontWeight: 500, textAlign: "center" }}
                 >
                   How many slots do you want to bet ?
@@ -869,8 +869,8 @@ function BetDetailsPage() {
                   }}
                 >
                   <Button
-                    variant='outlined'
-                    color='primary'
+                    variant="outlined"
+                    color="primary"
                     onClick={decAmountOfBetSlots}
                   >
                     <RemoveIcon />
@@ -888,8 +888,8 @@ function BetDetailsPage() {
                   />
 
                   <Button
-                    variant='outlined'
-                    color='primary'
+                    variant="outlined"
+                    color="primary"
                     onClick={incAmountOfBetSlots}
                   >
                     <AddIcon />
@@ -897,13 +897,13 @@ function BetDetailsPage() {
                 </Box>
 
                 <Box sx={{ mt: 3, textAlign: "center" }}>
-                  <Typography variant='body2' color='text.secondary'>
+                  <Typography variant="body2" color="text.secondary">
                     Price per slot: {formatQubicAmount(bet.amount_per_bet_slot)}{" "}
                     QUBIC
                   </Typography>
                   <Typography
-                    variant='body2'
-                    color='primary'
+                    variant="body2"
+                    color="primary"
                     sx={{
                       mt: 1,
                       textDecoration: "underline",
@@ -936,7 +936,7 @@ function BetDetailsPage() {
             zIndex: theme.zIndex.appBar,
           }}
         >
-          <Container maxWidth='lg'>
+          <Container maxWidth="lg">
             <Box
               sx={{
                 display: "flex",
@@ -949,7 +949,7 @@ function BetDetailsPage() {
             >
               {/* Cancel Button */}
               <Button
-                variant='text'
+                variant="text"
                 onClick={handleCancel}
                 startIcon={<CloseIcon />}
                 sx={{
@@ -961,7 +961,7 @@ function BetDetailsPage() {
                 }}
               >
                 {!isMobile && (
-                  <Typography variant='button' fontWeight='medium'>
+                  <Typography variant="button" fontWeight="medium">
                     CANCEL
                   </Typography>
                 )}
@@ -979,8 +979,8 @@ function BetDetailsPage() {
               >
                 <Typography
                   variant={isMobile ? "h7" : "h5"}
-                  component='div'
-                  color='primary'
+                  component="div"
+                  color="primary"
                   fontWeight={500}
                   sx={{
                     lineHeight: 1.2,
@@ -990,8 +990,8 @@ function BetDetailsPage() {
                   {Number(optionCosts).toLocaleString()}
                 </Typography>
                 <Typography
-                  variant='caption'
-                  color='text.secondary'
+                  variant="caption"
+                  color="text.secondary"
                   sx={{
                     textTransform: "uppercase",
                     letterSpacing: "1px",
@@ -1004,16 +1004,16 @@ function BetDetailsPage() {
 
               {/* Bet Button */}
               <Button
-                variant='outlined'
-                color='primary'
-                size='large'
+                variant="outlined"
+                color="primary"
+                size="large"
                 onClick={handleBetNowClick}
                 disabled={optionCosts === 0n}
                 startIcon={connected ? <RocketLaunchIcon /> : null}
               >
                 <Typography
                   variant={isMobile ? "body2" : "body1"}
-                  fontWeight='bold'
+                  fontWeight="bold"
                   sx={{
                     whiteSpace: "nowrap",
                     textTransform: "none",
