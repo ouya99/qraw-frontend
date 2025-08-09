@@ -136,7 +136,7 @@ export default function StartPage() {
     const result = await queryContract(
       'http://67.222.157.63:8000',
       15,
-      0,
+      2, // get info
       {},
       [],
       null,
