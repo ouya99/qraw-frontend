@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Default endpoints
 // const DEFAULT_HTTP_ENDPOINT = "https://rpc.qubic.org";
 // const DEFAULT_BACKEND_URL = "https://api.quottery.org";
 
 // Testnet endpoints
-const DEFAULT_HTTP_ENDPOINT = 'http://67.222.157.63:8000'
-const DEFAULT_BACKEND_URL = 'https://qbtn.qubic.org'
+const DEFAULT_HTTP_ENDPOINT = 'http://67.222.157.63:8000';
+const DEFAULT_BACKEND_URL = 'https://qbtn.qubic.org';
 
 const ConfigContext = createContext();
 
@@ -16,8 +16,9 @@ export const ConfigProvider = ({ children }) => {
   const [connectedToCustomServer, setConnectedToCustomServer] = useState(false);
 
   useEffect(() => {
-    const savedHttpEndpoint = localStorage.getItem("httpEndpoint");
-    const savedBackendUrl = localStorage.getItem("backendUrl");
+    console.log('huch');
+    const savedHttpEndpoint = localStorage.getItem('httpEndpoint');
+    const savedBackendUrl = localStorage.getItem('backendUrl');
 
     if (savedHttpEndpoint && savedBackendUrl) {
       setHttpEndpoint(savedHttpEndpoint);
@@ -30,8 +31,8 @@ export const ConfigProvider = ({ children }) => {
     setHttpEndpoint(DEFAULT_HTTP_ENDPOINT);
     setBackendUrl(DEFAULT_BACKEND_URL);
     setConnectedToCustomServer(false);
-    localStorage.removeItem("httpEndpoint");
-    localStorage.removeItem("backendUrl");
+    localStorage.removeItem('httpEndpoint');
+    localStorage.removeItem('backendUrl');
   };
 
   const updateEndpoints = (newHttpEndpoint, newBackendUrl) => {
@@ -39,8 +40,8 @@ export const ConfigProvider = ({ children }) => {
     setBackendUrl(newBackendUrl);
     setConnectedToCustomServer(true);
 
-    localStorage.setItem("httpEndpoint", newHttpEndpoint);
-    localStorage.setItem("backendUrl", newBackendUrl);
+    localStorage.setItem('httpEndpoint', newHttpEndpoint);
+    localStorage.setItem('backendUrl', newBackendUrl);
   };
 
   return (
