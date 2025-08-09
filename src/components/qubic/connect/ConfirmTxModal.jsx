@@ -21,8 +21,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import SyncIcon from "@mui/icons-material/Sync";
 import { useQubicConnect } from "./QubicConnectContext";
-import CreateBetDetails from "../../CreateBetDetails";
-import BetDetails from "../../ConfirmBetDetails";
+import CreateBetDetails from "../../ShoppingDetails";
+import BetDetails from "../../ConfirmShoppingDetails";
 
 /**
  * @param {object} props

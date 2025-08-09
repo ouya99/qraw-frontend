@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Stack,
-  useMediaQuery,
-  IconButton,
-} from "@mui/material";
+import { Box, Button, useMediaQuery, IconButton } from "@mui/material";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ConnectModal from "./ConnectModal";
@@ -34,14 +27,9 @@ const ConnectLink = () => {
 
   const icon = connected ? (
     <AccountBalanceWalletIcon
-      sx={{
-        color: connected
-          ? theme.palette.primary.main
-          : theme.palette.secondary.main,
-      }}
     />
   ) : (
-    <LockOpenIcon color="tertiary" />
+    <LockOpenIcon color='tertiary' />
   );
 
   return (
@@ -54,31 +42,23 @@ const ConnectLink = () => {
         {lg ? (
           <Button
             onClick={toggleConnectModal}
-            variant="outlined"
-            color={connected ? "primary" : "tertiary"}
-            startIcon={
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {icon}
-              </Box>
-            }
+            variant='standard'
+            startIcon={icon}
+            size='large'
+            sx={{
+              fontWeight: 600,
+              fontFamily: "monospace",
+              fontSize: "1rem",
+              px: 4,
+              py: 1.3,
+              borderRadius: 1,
+              letterSpacing: ".06em",
+              borderWidth: 2,
+            }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography
-                variant="body1"
-                fontWeight="bold"
-                sx={{ letterSpacing: 0.5 }}
-              >
-                {connected ? "WALLET" : "UNLOCK WALLET"}
-              </Typography>
-            </Stack>
+            {connected ? "Wallet" : "Unlock wallet"}
           </Button>
         ) : (
           <Box

@@ -14,7 +14,7 @@ import {
   fetchBetDetail,
   fetchNodeInfo,
   fetchAndVerifyBetDescription,
-} from "../components/qubic/util/betApi";
+} from "../components/qubic/util/qdrawApi";
 import { excludedBetIds } from "../components/qubic/util/commons";
 import { useConfig } from "./ConfigContext";
 

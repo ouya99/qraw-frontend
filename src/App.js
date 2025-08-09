@@ -1,20 +1,14 @@
-// src/App.js
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Header from "./components/layout/Header";
+import MainLayout from "./components/layout/MainLayout";
+import LandingLayout from "./components/layout/LandingLayout";
 import StartPage from "./pages/StartPage";
-import BetDetailsPage from "./pages/BetDetailsPage";
+import LandingPage from "./pages/LandingPage";
 import BetCreatePage from "./pages/BetCreatePage";
-import BetPublishPage from "./pages/BetPublishPage";
-import Footer from "./components/layout/Footer";
 import { ThemeContextProvider } from "./contexts/ThemeContext";
 import { ConfigProvider } from "./contexts/ConfigContext";
 import { QubicConnectProvider } from "./components/qubic/connect/QubicConnectContext";
 import { QuotteryProvider } from "./contexts/QuotteryContext";
-import UserBets from "./components/UserBets";
 import { SnackbarProvider } from "./contexts/SnackbarContext";
-import "./App.css";
-import { Box } from "@mui/material";
 
 function App() {
   return (
@@ -24,18 +18,29 @@ function App() {
           <QuotteryProvider>
             <SnackbarProvider>
               <BrowserRouter>
-                <Header />
-                <Box component="main">
-                  <Routes>
-                    /
-                    <Route path="/" element={<StartPage />} />
-                    <Route path="/bet/:id" element={<BetDetailsPage />} />
-                    <Route path="/create" element={<BetCreatePage />} />
-                    <Route path="/publish/:id" element={<BetPublishPage />} />
-                    <Route path="/user-bets" element={<UserBets />} />
-                  </Routes>
-                </Box>
-                <Footer />
+                <Routes>
+                  {/* Landing page */}
+                  <Route
+                    path='/landing'
+                    element={
+                      <LandingLayout>
+                        <LandingPage />
+                      </LandingLayout>
+                    }
+                  />
+                  {/* All other pages WITH header/footer */}
+                  <Route
+                    path='*'
+                    element={
+                      <MainLayout>
+                        <Routes>
+                          <Route path='/' element={<StartPage />} />
+                          <Route path='/create' element={<BetCreatePage />} />
+                        </Routes>
+                      </MainLayout>
+                    }
+                  />
+                </Routes>
               </BrowserRouter>
             </SnackbarProvider>
           </QuotteryProvider>

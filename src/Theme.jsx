@@ -3,27 +3,24 @@ import { createTheme } from "@mui/material/styles";
 // Main custom colors
 const customColors = {
   // Qubic colors
-  qubicBlue: "#61f0fe",
+  qubicBlue: "#1adef5",
   qubicBlueLight: "#2C3E50",
-
-  // Neutral colors
   white: "#ffffff",
   black: "#000000",
   darkBackground: "#121212",
   darkSurface: "#232323",
-
-  // Gray colors
+  
   gray50: "#f9fafb",
   gray100: "#f3f4f6",
   gray200: "#e5e7eb",
   gray300: "#d1d5db",
   gray400: "#9ca3af",
   gray500: "#6b7280",
-
-  // Accent colors
+  
   error: "#ef4444",
   warning: "#f59e0b",
   success: "#10b981",
+  rosePeps: "#f43f5e",
 };
 
 // Light theme
@@ -32,7 +29,7 @@ export const lightTheme = createTheme({
     mode: "light",
     primary: {
       main: customColors.qubicBlueLight,
-      contrastText: customColors.black,
+      contrastText: customColors.white,
     },
     secondary: {
       main: customColors.gray200,

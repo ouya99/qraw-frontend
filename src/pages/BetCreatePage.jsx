@@ -41,7 +41,6 @@ import { externalJsonAssetUrl } from "../components/qubic/util/commons";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
-import BetCreationTutorial from "../components/BetCreationTutorial";
 import dayjs from "dayjs";
 
 /**
@@ -976,7 +975,6 @@ function BetCreatePage() {
             backgroundColor: theme.palette.background.default,
           }}
         >
-          <BetCreationTutorial />
         </DialogContent>
       </Dialog>
     </Container>

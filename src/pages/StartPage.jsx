@@ -1,193 +1,137 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useMemo } from "react";
 import {
-  Typography,
-  Button,
-  Container,
   Box,
+  Container,
+  Typography,
+  List,
+  ListItem,
+  Paper,
+  Divider,
+  Stack,
+  Button,
   useTheme,
-  Grid,
-  ToggleButton,
-  ToggleButtonGroup,
+  alpha,
 } from "@mui/material";
-import GamepadIcon from "@mui/icons-material/Gamepad";
-import { useQuotteryContext } from "../contexts/QuotteryContext";
-import { Typewriter } from "react-simple-typewriter";
-import { motion, AnimatePresence } from "framer-motion";
-import ModernSearchFilter from "../components/SearchFilter";
-import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import TableChartIcon from "@mui/icons-material/TableChart";
-import AnimatedBars from "../components/qubic/ui/AnimateBars";
-import { useMediaQuery } from "@mui/material";
-import BetOverviewCard from "../components/BetOverviewCard";
-import BetOverviewTable from "../components/BetOverviewTable";
+import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
+import GroupIcon from "@mui/icons-material/Group";
+import { motion } from "framer-motion";
+import logo from "../assets/logo/logoWin.svg";
+import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumberOutlined";
 
-function StartPage() {
-  const navigate = useNavigate();
+const DRAW_INTERVAL = 15;
+const NB_PARTICIPANTS = 24;
+const PUBLIC_ID_LENGTH = 60;
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const INITIAL_POT = "700.000.000";
+
+const randomPublicId = () =>
+  Array.from(
+    { length: PUBLIC_ID_LENGTH },
+    () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]
+  ).join("");
+
+// Draw Animation
+function MatrixReveal({ id, duration = 8000, onComplete }) {
   const theme = useTheme();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isFilterLoading, setIsFilterLoading] = useState(false);
-  const [viewMode, setViewMode] = useState("table");
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-
-  const {
-    state,
-    loading,
-    setBetsFilter,
-    fetchBets,
-    historicalLoading,
-    fetchHistoricalBets,
-    currentFilterOption,
-    setCurrentFilterOption,
-    currentPage,
-    setCurrentPage,
-  } = useQuotteryContext();
-
-  const filterOptions = [
-    { label: "All", value: "all" },
-    { label: "Active", value: "active" },
-    { label: "Locked", value: "locked" },
-    { label: "Inactive", value: "inactive" },
-  ];
-
-  const handleBetClick = (betId) => {
-    navigate(`/bet/${betId}`);
-  };
-
-  const filteredBets = (bets) =>
-    bets.filter((bet) =>
-      (bet.full_description || bet.bet_desc || "")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    );
-
-  const annotateBetsWithStatus = () => {
-    const activeBets = state.activeBets.map((bet) => ({
-      ...bet,
-      status: "active",
-    }));
-    const lockedBets = state.lockedBets.map((bet) => ({
-      ...bet,
-      status: "locked",
-    }));
-    const waitingBets = state.waitingForResultsBets.map((bet) => ({
-      ...bet,
-      status: "waiting",
-    }));
-    const historicalBets = state.historicalBets.map((bet) => ({
-      ...bet,
-      status: "historical",
-    }));
-
-    let combined = [];
-    const filterValue = filterOptions[currentFilterOption].value;
-    switch (filterValue) {
-      case "all":
-        combined = [
-          ...activeBets,
-          ...lockedBets,
-          ...waitingBets,
-          ...historicalBets,
-        ];
-        break;
-      case "active":
-        combined = [...activeBets];
-        break;
-      case "locked":
-        combined = [...lockedBets];
-        break;
-      case "inactive":
-        combined = [...waitingBets, ...historicalBets];
-        break;
-      default:
-        combined = [];
-    }
-    return filteredBets(combined);
-  };
+  const [display, setDisplay] = useState(() => id.replace(/./g, () => "█"));
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsFilterLoading(true);
-      try {
-        await fetchBets(filterOptions[currentFilterOption].value, currentPage);
-
-        if (
-          ["inactive", "all"].includes(filterOptions[currentFilterOption].value)
-        ) {
-          const coreNodeBets = [
-            ...state.activeBets,
-            ...state.lockedBets,
-            ...state.waitingForResultsBets,
-          ];
-          await fetchHistoricalBets(
-            coreNodeBets,
-            filterOptions[currentFilterOption].value,
-            currentPage
-          );
-        }
-      } catch (error) {
-        console.error("Fetch error:", error);
-      } finally {
-        setIsFilterLoading(false);
+    if (!id) return;
+    const indices = Array.from({ length: id.length }, (_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    const start = performance.now();
+    let frameId;
+    const animate = (time) => {
+      const elapsed = time - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const toReveal = Math.floor(progress * id.length);
+      const next = display.split("");
+      for (let k = 0; k < toReveal; k++) {
+        const idx = indices[k];
+        next[idx] = id[idx];
+      }
+      for (let k = toReveal; k < id.length; k++) {
+        const idx = indices[k];
+        next[idx] =
+          Math.random() > 0.6
+            ? ALPHABET[Math.floor(Math.random() * ALPHABET.length)]
+            : "█";
+      }
+      setDisplay(next.join(""));
+      if (progress < 1) {
+        frameId = requestAnimationFrame(animate);
+      } else {
+        setDisplay(id);
+        if (onComplete) onComplete();
       }
     };
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [id, duration]);
 
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentFilterOption, currentPage]);
-
-  const renderLoading = () => (
+  return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        mt: { xs: 4, sm: 6, md: 8 },
-        mb: { xs: 4, sm: 6, md: 8 },
-        gap: 2,
+        fontFamily: "monospace",
+        letterSpacing: "0.05em",
+        fontSize: { xs: "1rem", sm: "1.3rem", md: "1.6rem" },
+        color: theme.palette.primary.main,
+        userSelect: "all",
+        wordBreak: "break-all",
+        textAlign: "center",
+        lineHeight: 1.4,
+        p: { xs: 2, sm: 3 },
+        borderRadius: 1,
+        background: theme.palette.background.paper,
       }}
     >
-      <AnimatedBars />
-      <Typography
-        variant="h6"
-        color="text.secondary"
-        textAlign="center"
-        marginTop={2}
-        sx={{ fontSize: { xs: "1rem", sm: "1.2rem", md: "1.5rem" } }}
-      >
-        Loading bets, please wait...
-      </Typography>
+      {display}
     </Box>
   );
+}
 
-  const isLoadingOverall = loading || historicalLoading || isFilterLoading;
+export default function StartPage() {
+  const theme = useTheme();
+  const participants = useMemo(
+    () => Array.from({ length: NB_PARTICIPANTS }, randomPublicId),
+    []
+  );
+  const ticketsByParticipant = useMemo(
+    () =>
+      participants.reduce((acc, id) => {
+        acc[id] = Math.floor(Math.random() * 5) + 1;
+        return acc;
+      }, {}),
+    [participants]
+  );
+  const [winner, setWinner] = useState(null);
+  const [nextTime, setnextTime] = useState(DRAW_INTERVAL);
+  const [pot, setPot] = useState(INITIAL_POT);
+  const [revealComplete, setRevealComplete] = useState(false);
 
-  const betsToDisplay = annotateBetsWithStatus();
+  useEffect(() => {
+    const newWinner =
+      participants[Math.floor(Math.random() * participants.length)];
+    setRevealComplete(false);
+    setWinner("");
+    setTimeout(() => setWinner(newWinner), 200);
 
-  const cardVariants = {
-    initial: {
-      scale: 0.7,
-      opacity: 0,
-    },
-    animate: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 12,
-        mass: 0.7,
-      },
-    },
-    exit: {
-      scale: 0.7,
-      opacity: 0,
-      transition: {
-        duration: 0.2,
-        ease: "easeInOut",
-      },
-    },
+    const timer = setInterval(() => {
+      const newWinner =
+        participants[Math.floor(Math.random() * participants.length)];
+      setWinner("");
+      setTimeout(() => setWinner(newWinner), 200);
+      setnextTime((prev) => prev + DRAW_INTERVAL);
+    }, DRAW_INTERVAL * 1000);
+
+    return () => clearInterval(timer);
+  }, [participants]);
+
+  const handleGetTicket = () => {
+    alert("😹");
   };
 
   return (
@@ -195,229 +139,305 @@ function StartPage() {
       sx={{
         minHeight: "100vh",
         background: theme.palette.background.default,
-        pt: { xs: 10, sm: 12, md: 16 },
-        pb: { xs: 6, sm: 8, md: 10 },
-        overflow: "hidden",
+        color: theme.palette.text.primary,
+        py: { xs: 6, md: 8 },
       }}
     >
-      <Container maxWidth="lg">
-        {/* Header Section */}
-        <Box
-          component="header"
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            mb: { xs: 4, sm: 5, md: 6 },
-            mt: { xs: -2, sm: -3, md: -5 },
-            textAlign: "center",
-          }}
-        >
+      <Container maxWidth='lg'>
+        {/* Header */}
+        <Box sx={{ textAlign: "center", mb: 8, mt: 8 }}>
           <Typography
-            variant="h2"
-            fontWeight="bold"
-            gutterBottom
-            component={motion.h2}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            color="text.primary"
+            variant='h4'
             sx={{
-              fontSize: {
-                xs: "2.7rem",
-                sm: "3rem",
-                md: "3.5rem",
-                lg: "3.5rem",
-              },
-              lineHeight: 1.2,
-              mt: 3,
+              fontWeight: 500,
+              fontSize: { xs: "1.8rem", sm: "2.0rem", md: "2.3rem" },
+              mb: 6,
             }}
           >
-            Bet Anything.{" "}
-            <Box
-              component="span"
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                color:
-                  theme.palette.mode === "dark"
-                    ? theme.palette.primary.contrastText
-                    : theme.palette.background.default,
-                px: { xs: 0.5, sm: 1 },
-                fontSize: "inherit",
+            Every Hour, One Shot. One Hash.{" "}
+            <span
+              style={{
+                fontWeight: 700,
+                color: theme.palette.primary.main,
               }}
-              fontWeight="bold"
             >
-              Anytime.
-            </Box>
+              One Winner.
+            </span>
           </Typography>
-          <Typography
-            color="text.secondary"
-            gutterBottom
-            fontWeight="bold"
-            component={motion.div}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
+          <Paper
+            elevation={0}
             sx={{
-              fontSize: {
-                xs: "0.9rem",
-                sm: "1.1rem",
-                md: "1.2rem",
-                lg: "1.3rem",
-              },
+              px: 4,
+              py: 2,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 2,
+              borderRadius: 99,
+              fontWeight: 800,
+              fontSize: { xs: "1.25rem", sm: "1.8rem", md: "2rem" },
+              letterSpacing: ".04em",
+              color: theme.palette.primary.main,
+              mb: 2,
               mx: "auto",
-              fontWeight: "500",
+              fontFamily: "monospace",
             }}
           >
-            <Typewriter
-              words={[
-                "Join the ultimate P2P betting revolution. Safe, Secure, and Exciting",
-              ]}
-              loop={1}
-              cursor
-              cursorStyle="_"
-              typeSpeed={33}
-              deleteSpeed={50}
-              delaySpeed={1000}
-            />
-          </Typography>
+            <Box
+              component='span'
+              sx={{
+                fontSize: "0.9em",
+                color: theme.palette.text.secondary,
+                fontWeight: 600,
+                mr: 2,
+                letterSpacing: ".08em",
+                textTransform: "uppercase",
+                opacity: 0.7,
+              }}
+            >
+              Prize Pool
+            </Box>
+            <Box
+              component='span'
+              sx={{
+                fontWeight: 900,
+                color: "#fff23eff",
+                fontFamily: "monospace",
+                fontSize: "1.2em",
+                letterSpacing: ".06em",
+              }}
+            >
+              {pot}
+            </Box>
+            <Box
+              component='span'
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 38,
+                height: 38,
+              }}
+            >
+              <img
+                src={logo}
+                alt='Qubic Draw Logo'
+                style={{
+                  width: 32,
+                  height: 32,
+                  marginLeft: -10,
+                  marginTop: 2,
+                }}
+              />
+            </Box>
+          </Paper>
+
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            alignItems='center'
+            justifyContent='center'
+            spacing={{ xs: 2, sm: 6 }}
+            sx={{ mb: 4, mt: 2 }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Typography
+                variant='body1'
+                sx={{
+                  fontFamily: "monospace",
+                  color: theme.palette.text.secondary,
+                  fontSize: "1.1rem",
+                }}
+              >
+                NEXT DRAW IN{" "}
+                <span
+                  style={{
+                    color: theme.palette.primary.main,
+                    fontWeight: 700,
+                  }}
+                >
+                  {nextTime} S
+                </span>
+              </Typography>
+            </Box>
+          </Stack>
+
           <Button
-            onClick={() => navigate("/create")}
-            startIcon={<GamepadIcon />}
-            variant="contained"
-            color={
-              theme.palette.mode === "dark"
-                ? "secondary"
-                : theme.palette.background.paper
-            }
-            component={motion.button}
+            variant='outlined'
+            startIcon={<RocketLaunchIcon />}
+            onClick={handleGetTicket}
             sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 10,
-              boxShadow: theme.shadows[1],
-              color: theme.palette.primary.contrastText,
-              "&:focus": {
-                backgroundColor: theme.palette.primary.main,
-              },
-              mt: { xs: 2, sm: 3 },
-              mb: { xs: 2, sm: 0 },
-              py: { xs: 0.5, sm: 1 },
-              px: { xs: 1.5, sm: 2 },
-              fontSize: { xs: "1rem", sm: "1rem" },
-              "&:hover": {
-                "& .MuiSvgIcon-root": {
-                  transform: "rotate(720deg)",
-                },
-                backgroundColor: theme.palette.primary.main,
-                color:
-                  theme.palette.mode === "dark"
-                    ? theme.palette.primary.contrastText
-                    : "white",
-              },
-              "& .MuiSvgIcon-root": {
-                transition: "transform 0.5s",
-              },
+              fontFamily: "monospace",
+              fontSize: "0.95rem",
+              fontWeight: 500,
+              px: 4,
+              py: 1.5,
+              borderRadius: 0,
+              borderColor: theme.palette.primary.main,
+              color: theme.palette.primary.main,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
-              fontWeight: "bold",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                borderColor: theme.palette.primary.main,
+                backgroundColor: alpha(theme.palette.primary.main, 0.05),
+              },
             }}
           >
-            Create Bet
+            Get Ticket
           </Button>
         </Box>
 
-        {/* Filter and Search Section */}
-        <Box sx={{ position: "relative", mb: { xs: 3, sm: 3 } }}>
-          <ModernSearchFilter
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            filterOptions={filterOptions}
-            currentFilterOption={currentFilterOption}
-            onFilterChange={(idx) => {
-              setCurrentFilterOption(idx);
-              setCurrentPage(1);
-              setBetsFilter(filterOptions[idx].value);
-              setSearchTerm("");
-            }}
-          />
-        </Box>
-
-        {/* Toggle View Mode Buttons - Desktop Only */}
-        {isDesktop && (
-          <Box
+        <Box
+          sx={{
+            mb: 8,
+            p: { xs: 3, sm: 4 },
+            border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+            borderRadius: 2,
+          }}
+        >
+          <Typography
+            variant='body2'
             sx={{
-              display: "flex",
-              justifyContent: "flex-end",
+              fontFamily: "monospace",
+              textTransform: "uppercase",
+              letterSpacing: "0.15em",
+              color: theme.palette.text.secondary,
               mb: 3,
+              textAlign: "center",
+              fontSize: "0.85rem",
             }}
           >
-            <ToggleButtonGroup
-              value={viewMode}
-              exclusive
-              onChange={(e, newVal) => {
-                if (newVal !== null) setViewMode(newVal);
-              }}
-              aria-label="view mode"
-              size="small"
-            >
-              <ToggleButton value="cards" aria-label="cards view">
-                <ViewModuleIcon />
-              </ToggleButton>
-              <ToggleButton value="table" aria-label="table view">
-                <TableChartIcon />
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-        )}
+            Last Winner ID
+          </Typography>
 
-        {/* Display either Cards or Table */}
-        {isLoadingOverall ? (
-          renderLoading()
-        ) : (
-          <Box sx={{ mb: { xs: 4, sm: 5, md: 6 } }}>
-            {viewMode === "table" && isDesktop ? (
-              <BetOverviewTable
-                bets={betsToDisplay}
-                onRowClick={(betId) => handleBetClick(betId)}
+          {winner ? (
+            <MatrixReveal
+              id={winner}
+              duration={6000}
+              onComplete={() => {
+                setRevealComplete(true);
+                setPot(0);
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                textAlign: "center",
+                py: 4,
+                color: theme.palette.text.disabled,
+                fontFamily: "monospace",
+              }}
+            >
+              Waiting for draw...
+            </Box>
+          )}
+        </Box>
+
+        {/* Participant List */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+        >
+          <Stack spacing={3}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <GroupIcon
+                sx={{
+                  color: theme.palette.text.secondary,
+                  fontSize: 20,
+                }}
               />
-            ) : (
-              <Grid
-                container
-                spacing={{ xs: 2, sm: 3, md: 4 }}
-                justifyContent="center"
+              <Typography
+                variant='h6'
+                sx={{
+                  fontFamily: "monospace",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: theme.palette.text.secondary,
+                  fontSize: "0.95rem",
+                }}
               >
-                <AnimatePresence>
-                  {betsToDisplay.map((bet, index) => (
-                    <Grid
-                      item
-                      xs={12}
-                      sm={6}
-                      md={4}
-                      key={bet.bet_id}
-                      component={motion.div}
-                      variants={cardVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                      transition={{ delay: index * 0.02 }}
+                Participants ({participants.length})
+              </Typography>
+            </Box>
+
+            <Paper
+              variant='outlined'
+              sx={{
+                overflow: "auto",
+                backgroundColor: "transparent",
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                borderRadius: 1,
+              }}
+            >
+              <List dense disablePadding>
+                {participants.map((addr, idx) => (
+                  <React.Fragment key={addr}>
+                    <ListItem
+                      sx={{
+                        py: 1,
+                        px: 2,
+                        fontFamily: "monospace",
+                        fontSize: "0.8rem",
+                        color:
+                          addr === winner
+                            ? theme.palette.primary.main
+                            : theme.palette.text.secondary,
+                        backgroundColor:
+                          addr === winner
+                            ? alpha(theme.palette.primary.main, 0.03)
+                            : "transparent",
+                        borderLeft:
+                          addr === winner
+                            ? `2px solid ${theme.palette.primary.main}`
+                            : "2px solid transparent",
+                        transition: "all 0.2s ease",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 2,
+                      }}
                     >
-                      <BetOverviewCard
-                        data={bet}
-                        onClick={() => handleBetClick(bet.bet_id)}
-                        status={bet.status}
+                      <span>{addr}</span>
+                      <Stack direction='row' alignItems='center' spacing={0.5}>
+                        <Typography
+                          sx={{
+                            fontFamily: "monospace",
+                            fontWeight: 700,
+                            fontSize: "0.95em",
+                            color:
+                              addr === winner
+                                ? theme.palette.primary.main
+                                : theme.palette.text.secondary,
+                          }}
+                        >
+                          {ticketsByParticipant[addr]}
+                        </Typography>
+                        <ConfirmationNumberOutlinedIcon
+                          sx={{
+                            fontSize: 18,
+                            color:
+                              addr === winner
+                                ? theme.palette.primary.main
+                                : theme.palette.text.secondary,
+                          }}
+                        />
+                      </Stack>
+                    </ListItem>
+
+                    {idx < participants.length - 1 && (
+                      <Divider
+                        sx={{
+                          borderColor: alpha(theme.palette.primary.main, 0.05),
+                        }}
                       />
-                    </Grid>
-                  ))}
-                </AnimatePresence>
-              </Grid>
-            )}
-          </Box>
-        )}
+                    )}
+                  </React.Fragment>
+                ))}
+              </List>
+            </Paper>
+          </Stack>
+        </motion.div>
       </Container>
     </Box>
   );
 }
-
-export default StartPage;

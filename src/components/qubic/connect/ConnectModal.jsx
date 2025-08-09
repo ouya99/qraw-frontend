@@ -21,7 +21,6 @@ import SecurityIcon from "@mui/icons-material/Security";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import LockIcon from "@mui/icons-material/Lock";
 import CloseIcon from "@mui/icons-material/Close";
-import CloudIcon from "@mui/icons-material/Cloud";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import PhonelinkIcon from "@mui/icons-material/Phonelink";
@@ -210,7 +209,7 @@ const ConnectModal = ({ open, onClose }) => {
       onClose={handleClose}
       fullScreen={isMobile}
       fullWidth
-      maxWidth="xs"
+      maxWidth='xs'
       BackdropProps={{
         sx: {
           backdropFilter: "blur(8px)",
@@ -245,13 +244,13 @@ const ConnectModal = ({ open, onClose }) => {
           mt: 1,
         }}
       >
-        <Box display="flex" alignItems="center" gap={1}>
+        <Box display='flex' alignItems='center' gap={1}>
           <PhonelinkIcon
-            fontSize="small"
+            fontSize='small'
             sx={{ color: theme.palette.text.primary }}
           />
           <Typography
-            variant="h6"
+            variant='h6'
             color={theme.palette.text.primary}
             sx={{ fontWeight: 600 }}
           >
@@ -260,7 +259,7 @@ const ConnectModal = ({ open, onClose }) => {
           </Typography>
         </Box>
 
-        <IconButton onClick={handleClose} size="small">
+        <IconButton onClick={handleClose} size='small'>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -274,28 +273,28 @@ const ConnectModal = ({ open, onClose }) => {
       >
         {/* --- Wallet Section --- */}
         {selectedWalletMode === "none" && (
-          <Box display="flex" flexDirection="column" gap={2}>
+          <Box display='flex' flexDirection='column' gap={2}>
             {connected ? (
               <>
                 {/* Display public ID */}
-                <Box textAlign="center" mt={2}>
+                <Box textAlign='center' mt={2}>
                   <AccountBalanceWalletIcon sx={{ fontSize: 48 }} />
                 </Box>
                 <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='center'
                   gap={1}
                 >
                   <Typography
-                    variant="body2"
+                    variant='body2'
                     sx={{ color: theme.palette.text.secondary }}
                   >
                     Public ID: {truncateMiddle(walletPublicIdentity, 40)}
                   </Typography>
                   <IconButton
                     onClick={copyToClipboard}
-                    size="small"
+                    size='small'
                     sx={{
                       color: copied
                         ? theme.palette.success.main
@@ -303,16 +302,16 @@ const ConnectModal = ({ open, onClose }) => {
                     }}
                   >
                     {copied ? (
-                      <CheckCircleIcon fontSize="small" />
+                      <CheckCircleIcon fontSize='small' />
                     ) : (
-                      <ContentCopyIcon fontSize="small" />
+                      <ContentCopyIcon fontSize='small' />
                     )}
                   </IconButton>
                 </Box>
 
                 <Typography
-                  variant="body1"
-                  textAlign="center"
+                  variant='body1'
+                  textAlign='center'
                   sx={{
                     color:
                       theme.palette.mode === "dark"
@@ -325,9 +324,9 @@ const ConnectModal = ({ open, onClose }) => {
                 </Typography>
 
                 <Button
-                  variant="outlined"
-                  color="primary"
-                  size="large"
+                  variant='outlined'
+                  color='primary'
+                  size='large'
                   sx={{
                     mt: 1,
                   }}
@@ -335,14 +334,14 @@ const ConnectModal = ({ open, onClose }) => {
                   onClick={disconnect}
                   fullWidth
                 >
-                  <Typography variant="button" fontWeight="bold">
+                  <Typography variant='button' fontWeight='bold'>
                     Lock Wallet
                   </Typography>
                 </Button>
                 <Button
-                  variant="outlined"
-                  color="tertiary"
-                  size="large"
+                  variant='outlined'
+                  color='tertiary'
+                  size='large'
                   sx={{
                     mt: 1,
                   }}
@@ -350,22 +349,22 @@ const ConnectModal = ({ open, onClose }) => {
                   onClick={handleBetClick}
                   fullWidth
                 >
-                  <Typography variant="button" fontWeight="bold">
+                  <Typography variant='button' fontWeight='bold'>
                     Bet History
                   </Typography>
                 </Button>
               </>
             ) : (
               <>
-                <Box textAlign="center" mb={2}>
-                  <Box textAlign="center" mb={2} mt={2}>
+                <Box textAlign='center' mb={2}>
+                  <Box textAlign='center' mb={2} mt={2}>
                     <AccountBalanceWalletIcon sx={{ fontSize: 48 }} />
                   </Box>
 
-                  <Typography variant="body1" color="text.secondary">
+                  <Typography variant='body1' color='text.secondary'>
                     Choose your preferred connection method
                     <Box
-                      component="span"
+                      component='span'
                       sx={{
                         display: "inline-block",
                         ml: "0.2rem",
@@ -381,30 +380,36 @@ const ConnectModal = ({ open, onClose }) => {
                   </Typography>
                 </Box>
                 <Button
-                  variant="outlined"
-                  color="primary"
-                  size="large"
+                  variant='outlined'
+                  color='primary'
+                  size='large'
                   startIcon={<VpnKeyIcon />}
                   onClick={() => setSelectedWalletMode("private-seed")}
                   fullWidth
+                  sx={{
+                    fontFamily: "monospace",
+                    letterSpacing: ".09em",
+                  }}
                 >
-                  <Typography variant="button" fontWeight="bold">
+                  <Typography variant='button' fontWeight='bold'>
                     Private Seed
                   </Typography>
                 </Button>
                 <Button
-                  variant="outlined"
-                  color="primary"
-                  size="large"
+                  variant='outlined'
+                  color='primary'
+                  size='large'
                   sx={{
                     mb: 2,
                     mt: 1,
+                    fontFamily: "monospace",
+                    letterSpacing: ".09em",
                   }}
                   startIcon={<SecurityIcon />}
                   onClick={() => setSelectedWalletMode("vault-file")}
                   fullWidth
                 >
-                  <Typography variant="button" fontWeight="bold">
+                  <Typography variant='button' fontWeight='bold'>
                     Vault File
                   </Typography>
                 </Button>
@@ -425,19 +430,19 @@ const ConnectModal = ({ open, onClose }) => {
             }}
           >
             {/* key icon */}
-            <Box display="flex" justifyContent="center" alignItems="center">
+            <Box display='flex' justifyContent='center' alignItems='center'>
               <VpnKeyIcon sx={{ fontSize: 48 }} />
             </Box>
 
             <Typography
-              variant="body1"
+              variant='body1'
               my={2}
-              textAlign="center"
-              color="text.secondary"
+              textAlign='center'
+              color='text.secondary'
             >
               Enter your 55-character private key (seed)
               <Box
-                component="span"
+                component='span'
                 sx={{
                   display: "inline-block",
                   ml: "0.2rem",
@@ -453,7 +458,7 @@ const ConnectModal = ({ open, onClose }) => {
             </Typography>
             <TextField
               fullWidth
-              label="Private Seed"
+              label='Private Seed'
               value={privateSeed}
               onChange={(e) => privateKeyValidate(e.target.value)}
               error={Boolean(errorMsgPrivateSeed)}
@@ -469,11 +474,11 @@ const ConnectModal = ({ open, onClose }) => {
                 },
               }}
             />
-            <Box display="flex" gap={2} mt={3} justifyContent={"center"}>
+            <Box display='flex' gap={2} mt={3} justifyContent={"center"}>
               <Button
-                variant="outlined"
-                color="tertiary"
-                size="large"
+                variant='outlined'
+                color='tertiary'
+                size='large'
                 onClick={() => setSelectedWalletMode("none")}
                 sx={{ fontWeight: 600 }}
               >
@@ -481,9 +486,9 @@ const ConnectModal = ({ open, onClose }) => {
               </Button>
 
               <Button
-                variant="outlined"
-                color="primary"
-                size="large"
+                variant='outlined'
+                color='primary'
+                size='large'
                 onClick={privateKeyConnect}
                 disabled={Boolean(errorMsgPrivateSeed) || !privateSeed}
                 sx={{ fontWeight: 600 }}
@@ -504,18 +509,18 @@ const ConnectModal = ({ open, onClose }) => {
               borderRadius: 2,
             }}
           >
-            <Box textAlign="center" mb={2} mt={2}>
+            <Box textAlign='center' mb={2} mt={2}>
               <SecurityIcon sx={{ fontSize: 48 }} />
             </Box>
             <Typography
-              variant="body1"
+              variant='body1'
               mb={2}
-              textAlign="center"
-              color="text.secondary"
+              textAlign='center'
+              color='text.secondary'
             >
               Load your Qubic vault file
               <Box
-                component="span"
+                component='span'
                 sx={{
                   display: "inline-block",
                   ml: "0.2rem",
@@ -530,20 +535,20 @@ const ConnectModal = ({ open, onClose }) => {
               </Box>
             </Typography>
             <Typography
-              variant="caption"
-              display="block"
+              variant='caption'
+              display='block'
               mb={2}
-              textAlign="center"
+              textAlign='center'
             >
               Your vault file contains your encrypted private keys.
             </Typography>
             <Button
               startIcon={<UploadFileIcon />}
               fullWidth
-              variant="outlined"
-              color="warning"
-              component="label"
-              size="large"
+              variant='outlined'
+              color='warning'
+              component='label'
+              size='large'
               sx={{
                 mb: 2,
                 fontWeight: 600,
@@ -551,35 +556,35 @@ const ConnectModal = ({ open, onClose }) => {
               }}
             >
               SELECT FILE
-              <input type="file" hidden onChange={handleFileChange} />
+              <input type='file' hidden onChange={handleFileChange} />
             </Button>
             {selectedFile && (
-              <Typography variant="caption" display="block" mb={2}>
+              <Typography variant='caption' display='block' mb={2}>
                 {selectedFile.name}
               </Typography>
             )}
             <TextField
               fullWidth
-              label="Password"
-              type="password"
+              label='Password'
+              type='password'
               value={password}
               onChange={handlePasswordChange}
-              autoComplete="new-password"
+              autoComplete='new-password'
             />
-            <Box display="flex" gap={2} mt={2} justifyContent={"center"}>
+            <Box display='flex' gap={2} mt={2} justifyContent={"center"}>
               <Button
-                variant="outlined"
-                color="tertiary"
-                size="large"
+                variant='outlined'
+                color='tertiary'
+                size='large'
                 onClick={() => setSelectedWalletMode("none")}
                 sx={{ fontWeight: 600 }}
               >
                 CANCEL
               </Button>
               <Button
-                variant="outlined"
-                color="primary"
-                size="large"
+                variant='outlined'
+                color='primary'
+                size='large'
                 onClick={vaultFileConnect}
                 sx={{ fontWeight: 600 }}
               >
@@ -598,15 +603,15 @@ const ConnectModal = ({ open, onClose }) => {
               backgroundColor: theme.palette.background.default,
             }}
           >
-            <Typography variant="body1" mb={2}>
+            <Typography variant='body1' mb={2}>
               Select an account:
             </Typography>
             <FormControl fullWidth>
-              <InputLabel id="account-select-label">Account</InputLabel>
+              <InputLabel id='account-select-label'>Account</InputLabel>
               <Select
-                labelId="account-select-label"
+                labelId='account-select-label'
                 value={selectedAccount}
-                label="Account"
+                label='Account'
                 onChange={(e) => setSelectedAccount(e.target.value)}
                 sx={{
                   backgroundColor: theme.palette.background.paper,
@@ -619,10 +624,10 @@ const ConnectModal = ({ open, onClose }) => {
                 ))}
               </Select>
             </FormControl>
-            <Box display="flex" gap={2} mt={2} justifyContent={"center"}>
+            <Box display='flex' gap={2} mt={2} justifyContent={"center"}>
               <Button
-                variant="outlined"
-                size="large"
+                variant='outlined'
+                size='large'
                 onClick={() => {
                   disconnect();
                   setSelectedWalletMode("none");
@@ -632,9 +637,9 @@ const ConnectModal = ({ open, onClose }) => {
                 LOCK WALLET
               </Button>
               <Button
-                variant="contained"
-                size="large"
-                color="primary"
+                variant='contained'
+                size='large'
+                color='primary'
                 onClick={selectAccount}
                 sx={{ fontWeight: 600 }}
               >
@@ -642,91 +647,6 @@ const ConnectModal = ({ open, onClose }) => {
               </Button>
             </Box>
           </Paper>
-        )}
-
-        <Divider
-          sx={{
-            mt: 1,
-          }}
-        />
-
-        {/* ------------- Server Connection Section ------------- */}
-        <Typography variant="h7" textAlign="center" mb={0} fontWeight={700}>
-          Server Connection :
-        </Typography>
-        {connectedToCustomServer ? (
-          <Button
-            variant="contained"
-            size="large"
-            color="primary"
-            fullWidth
-            onClick={handleServerDisconnect}
-          >
-            Disconnect from Server
-          </Button>
-        ) : (
-          <>
-            {selectedServerMode === "none" && (
-              <Button
-                variant="outlined"
-                color="tertiary"
-                size="large"
-                fullWidth
-                onClick={() => setSelectedServerMode("server-config")}
-                startIcon={<CloudIcon />}
-                sx={{ mb: 2 }}
-              >
-                <Typography variant="button" fontWeight="bold">
-                  Connect to Server
-                </Typography>
-              </Button>
-            )}
-
-            {selectedServerMode === "server-config" && (
-              <Box elevation={2}>
-                <TextField
-                  fullWidth
-                  label="HTTP Endpoint"
-                  placeholder="Enter HTTP Endpoint"
-                  value={httpEndpointInput}
-                  onChange={(e) => setHttpEndpointInput(e.target.value)}
-                />
-                <TextField
-                  fullWidth
-                  margin="normal"
-                  label="Backend URL"
-                  placeholder="Enter Backend URL"
-                  value={backendUrlInput}
-                  onChange={(e) => setBackendUrlInput(e.target.value)}
-                />
-                {errorMsg && (
-                  <Typography color="error" mt={1}>
-                    {errorMsg}
-                  </Typography>
-                )}
-                <Box display="flex" gap={2} mt={2} justifyContent={"center"}>
-                  <Button
-                    variant="outlined"
-                    color="tertiary"
-                    size="large"
-                    onClick={() => setSelectedServerMode("none")}
-                    sx={{ fontWeight: 600 }}
-                  >
-                    CANCEL
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    color="primary"
-                    onClick={handleServerConnect}
-                    sx={{ fontWeight: 600 }}
-                  >
-                    CONNECT
-                  </Button>
-                </Box>
-              </Box>
-            )}
-          </>
         )}
       </DialogContent>
     </Dialog>

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   AppBar,
   Toolbar,
@@ -8,15 +7,16 @@ import {
   useTheme,
   useScrollTrigger,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Brightness4, Brightness7 } from "@mui/icons-material";
 import ConnectLink from "../qubic/connect/ConnectLink";
 import { useThemeContext } from "../../contexts/ThemeContext";
 import logoLight from "../../assets/logo/logo-text-on-light.svg";
-import logoDark from "../../assets/logo/logo-text-on-dark.svg";
+import logoDark from "../../assets/logo/qubic_draw_logo_large_text.svg";
 
 const Header = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useThemeContext();
 
   const scrollTrigger = useScrollTrigger({
@@ -50,30 +50,29 @@ const Header = () => {
 
   return (
     <AppBar sx={appBarStyles}>
-      <Container maxWidth="xxl">
+      <Container maxWidth='xxl'>
         <Toolbar disableGutters sx={toolbarStyles}>
-          <Box display="flex" alignItems="center">
+          <Box display='flex' alignItems='center'>
             <IconButton
-              component={Link}
-              to="/"
-              edge="start"
-              color="inherit"
+              edge='start'
+              color='inherit'
               sx={{ p: 0 }}
+              onClick={() => navigate("/landing")}
             >
               <Box
-                component="img"
+                component='img'
                 src={isDarkMode ? logoDark : logoLight}
-                alt="logo"
+                alt='logo'
                 sx={logoStyles}
               />
             </IconButton>
           </Box>
 
-          <Box display="flex" alignItems="center" gap={2}>
+          <Box display='flex' alignItems='center' gap={2}>
             <ConnectLink />
-            <IconButton onClick={toggleTheme} color="inherit">
+            {/* <IconButton onClick={toggleTheme} color='inherit'>
               {isDarkMode ? <Brightness7 /> : <Brightness4 />}
-            </IconButton>
+            </IconButton> */}
           </Box>
         </Toolbar>
       </Container>

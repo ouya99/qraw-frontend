@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="250" height="38" viewBox="0 0 250 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Logo symbol -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M9.75 2.24152H18.1544V27.3811H9.75V2.24152ZM20.9609 2.24152H29.3069V35.7588H20.9609V2.24152Z" fill="white"/>
+
+  <!-- Larger text next to logo -->
+  <text x="40" y="26" font-family="Helvetica, Arial, sans-serif" font-size="30" alignment-baseline="middle">
+    <tspan fill="white">qubic </tspan><tspan fill="#1ADEF5">draw</tspan>
+  </text>
+</svg>
