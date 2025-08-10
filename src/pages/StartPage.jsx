@@ -18,6 +18,8 @@ import { motion } from 'framer-motion';
 import logo from '../assets/logo/logoWin.svg';
 import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
 import { queryContract } from '../components/qubic/util/contractApi';
+import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
+import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
 
 const DRAW_INTERVAL = 15;
 const NB_PARTICIPANTS = 24;
@@ -113,6 +115,16 @@ export default function StartPage() {
   const [pot, setPot] = useState(INITIAL_POT);
   const [revealComplete, setRevealComplete] = useState(false);
 
+  const {
+    wallet,
+    qHelper,
+    getTick,
+    signTransaction,
+    broadcastTx,
+    connected,
+    httpEndpoint,
+  } = useQubicConnect();
+
   useEffect(() => {
     const newWinner =
       participants[Math.floor(Math.random() * participants.length)];
@@ -132,17 +144,37 @@ export default function StartPage() {
   }, [participants]);
 
   const handleGetTicket = async () => {
-    alert('😹');
-    const result = await queryContract(
-      'http://67.222.157.63:8000',
-      15,
-      2, // get info
-      {},
+    // alert('😹');
+    const result = await executeTransactionWithWallet(
+      {
+        qubicConnect: {
+          wallet: wallet,
+          qHelper: qHelper,
+          getTick: getTick,
+          signTransaction: signTransaction,
+          broadcastTx: broadcastTx,
+          connected: connected,
+          httpEndpoint: 'http://67.222.157.63:8000',
+        },
+      },
+      15, // contractId
+      1, // procIndex // get info= 3, buy ticket = 1
+      { ticketCount: 1 },
       [],
       null,
       null,
       null
     );
+    // const result = await queryContract(
+    //   'http://67.222.157.63:8000',
+    //   15,
+    //   4, // get info
+    //   {},
+    //   [],
+    //   null,
+    //   null,
+    //   null
+    // );
     console.log('View function result:', result);
   };
 

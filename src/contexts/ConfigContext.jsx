@@ -16,7 +16,6 @@ export const ConfigProvider = ({ children }) => {
   const [connectedToCustomServer, setConnectedToCustomServer] = useState(false);
 
   useEffect(() => {
-    console.log('huch');
     const savedHttpEndpoint = localStorage.getItem('httpEndpoint');
     const savedBackendUrl = localStorage.getItem('backendUrl');
 
