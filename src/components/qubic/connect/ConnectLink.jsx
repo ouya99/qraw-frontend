@@ -26,7 +26,9 @@ const ConnectLink = () => {
   const isNotEnoughFund = parseInt(balance) <= MIN_BALANCE_THRESHOLD;
 
   const icon = connected ? (
-    <AccountBalanceWalletIcon
+    <AccountBalanceWalletIcon sx={{
+      color: theme.palette.secondary.main,
+    }}
     />
   ) : (
     <LockOpenIcon color='tertiary' />

@@ -17,7 +17,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import { motion } from 'framer-motion';
 import logo from '../assets/logo/logoWin.svg';
 import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
-import { queryContract } from '../components/qubic/util/contractApi';
+import BuyTicketsModal from '../components/BuyTicketsModal';
 import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
 
@@ -115,6 +115,9 @@ export default function StartPage() {
   const [pot, setPot] = useState(INITIAL_POT);
   const [revealComplete, setRevealComplete] = useState(false);
 
+  const [openBuy, setOpenBuy] = useState(false);
+  const balanceDemo = 7_500_000_000;
+
   const {
     wallet,
     qHelper,
@@ -143,8 +146,13 @@ export default function StartPage() {
     return () => clearInterval(timer);
   }, [participants]);
 
-  const handleGetTicket = async () => {
-    // alert('😹');
+  const handleGetTicket = () => {
+    setOpenBuy(true);
+  };
+
+  const handleConfirmBuy = async (qty) => {
+    console.log('Buy', qty, 'tickets');
+
     const result = await executeTransactionWithWallet(
       {
         qubicConnect: {
@@ -154,28 +162,18 @@ export default function StartPage() {
           signTransaction: signTransaction,
           broadcastTx: broadcastTx,
           connected: connected,
-          httpEndpoint: 'http://67.222.157.63:8000',
+          httpEndpoint: httpEndpoint,
         },
       },
       15, // contractId
       1, // procIndex // get info= 3, buy ticket = 1
-      { ticketCount: 1 },
+      { ticketCount: qty },
       [],
       null,
       null,
       null
     );
-    // const result = await queryContract(
-    //   'http://67.222.157.63:8000',
-    //   15,
-    //   4, // get info
-    //   {},
-    //   [],
-    //   null,
-    //   null,
-    //   null
-    // );
-    console.log('View function result:', result);
+    console.log(result);
   };
 
   return (
@@ -196,12 +194,14 @@ export default function StartPage() {
               fontWeight: 500,
               fontSize: { xs: '1.8rem', sm: '2.0rem', md: '2.3rem' },
               mb: 6,
+              fontFamily: 'monospace',
+              letterSpacing: '.03em',
             }}
           >
             Every Hour, One Shot. One Hash.{' '}
             <span
               style={{
-                fontWeight: 700,
+                fontWeight: 500,
                 color: theme.palette.primary.main,
               }}
             >
@@ -243,7 +243,7 @@ export default function StartPage() {
             <Box
               component='span'
               sx={{
-                fontWeight: 900,
+                fontWeight: 600,
                 color: '#fff23eff',
                 fontFamily: 'monospace',
                 fontSize: '1.2em',
@@ -307,7 +307,7 @@ export default function StartPage() {
           <Button
             variant='outlined'
             startIcon={<RocketLaunchIcon />}
-            onClick={async () => handleGetTicket()}
+            onClick={handleGetTicket}
             sx={{
               fontFamily: 'monospace',
               fontSize: '0.95rem',
@@ -482,6 +482,14 @@ export default function StartPage() {
           </Stack>
         </motion.div>
       </Container>
+
+      <BuyTicketsModal
+        open={openBuy}
+        onClose={() => setOpenBuy(false)}
+        balanceQubic={balanceDemo}
+        onConfirm={handleConfirmBuy}
+        isProcessing={false}
+      />
     </Box>
   );
 }
