@@ -12,13 +12,15 @@ import {
   useTheme,
   alpha,
 } from "@mui/material";
+import { useQubicConnect } from "../components/qubic/connect/QubicConnectContext";
+import { useQuotteryContext } from "../contexts/QuotteryContext";
+import { truncateMiddle, formatQubicAmount } from "../components/qubic/util";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import GroupIcon from "@mui/icons-material/Group";
 import { motion } from "framer-motion";
 import logo from "../assets/logo/logoWin.svg";
 import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumberOutlined";
 import BuyTicketsModal from "../components/BuyTicketsModal";
-
 
 const DRAW_INTERVAL = 15;
 const NB_PARTICIPANTS = 24;
@@ -97,6 +99,9 @@ function MatrixReveal({ id, duration = 8000, onComplete }) {
 
 export default function StartPage() {
   const theme = useTheme();
+  const { connected, toggleConnectModal } = useQubicConnect();
+  const { balance, fetchBalance } = useQuotteryContext();
+  console.log("Balance:", balance);
   const participants = useMemo(
     () => Array.from({ length: NB_PARTICIPANTS }, randomPublicId),
     []
@@ -115,7 +120,6 @@ export default function StartPage() {
   const [revealComplete, setRevealComplete] = useState(false);
 
   const [openBuy, setOpenBuy] = useState(false);
-  const balanceDemo = 7_500_000_000;
 
   useEffect(() => {
     const newWinner =
@@ -135,11 +139,19 @@ export default function StartPage() {
     return () => clearInterval(timer);
   }, [participants]);
 
+  useEffect(() => {
+    if (connected) fetchBalance();
+  }, [connected, fetchBalance]);
+
   const handleGetTicket = () => {
+    if (!connected) {
+      toggleConnectModal();
+      return;
+    }
     setOpenBuy(true);
   };
 
-   const handleConfirmBuy = (qty) => {
+  const handleConfirmBuy = (qty) => {
     console.log("Buy", qty, "tickets");
   };
 
@@ -449,11 +461,11 @@ export default function StartPage() {
           </Stack>
         </motion.div>
       </Container>
-      
+
       <BuyTicketsModal
         open={openBuy}
         onClose={() => setOpenBuy(false)}
-        balanceQubic={balanceDemo}
+        balanceQubic={balance}
         onConfirm={handleConfirmBuy}
         isProcessing={false}
       />

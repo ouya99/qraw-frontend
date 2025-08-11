@@ -1,9 +1,9 @@
+/* global BigInt */
 import React, { useEffect, useMemo, useRef, useState, forwardRef } from "react";
 import {
   AppBar,
   Box,
   Button,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -15,6 +15,7 @@ import {
   Typography,
   alpha,
   useMediaQuery,
+  Chip,
   useTheme,
 } from "@mui/material";
 import Slide from "@mui/material/Slide";
@@ -25,6 +26,7 @@ import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumb
 import CloseIcon from "@mui/icons-material/Close";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import PropTypes from "prop-types";
+import { formatQubicAmount } from "./qubic/util";
 
 const DEFAULTS = {
   MAX_TICKETS: 1023,
@@ -33,7 +35,6 @@ const DEFAULTS = {
   TITLE: "Buy Tickets",
 };
 
-const formatQubic = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
 const SlideUp = forwardRef(function SlideUp(props, ref) {
@@ -59,13 +60,40 @@ function BuyTicketsModal({
 
   const [qty, setQty] = useState(0);
 
-  const maxAffordable = useMemo(() => {
-    if (typeof balanceQubic !== "number") return maxTickets;
-    const byWallet = Math.floor(balanceQubic / pricePerTicket);
-    return clamp(byWallet, 0, maxTickets);
+  const affordableFromBalance = useMemo(() => {
+    if (balanceQubic == null) return maxTickets;
+    try {
+      if (typeof balanceQubic === "bigint") {
+        if (pricePerTicket <= 0) return maxTickets;
+        const res =
+          balanceQubic >= 0n ? balanceQubic / BigInt(pricePerTicket) : 0n;
+        return Number(res);
+      }
+      const num = Number(balanceQubic);
+      if (!Number.isFinite(num) || num < 0 || pricePerTicket <= 0)
+        return maxTickets;
+      return Math.floor(num / pricePerTicket);
+    } catch {
+      return maxTickets;
+    }
   }, [balanceQubic, pricePerTicket, maxTickets]);
 
+  const maxAffordable = clamp(affordableFromBalance, 0, maxTickets);
   const effectiveMax = maxAffordable;
+
+  const balanceNumForUi = useMemo(() => {
+    try {
+      if (typeof balanceQubic === "bigint") {
+        const cap = BigInt(Number.MAX_SAFE_INTEGER);
+        const safe = balanceQubic > cap ? cap : balanceQubic;
+        return Number(safe);
+      }
+      const num = Number(balanceQubic ?? 0);
+      return Number.isFinite(num) && num >= 0 ? num : 0;
+    } catch {
+      return 0;
+    }
+  }, [balanceQubic]);
 
   useEffect(() => {
     if (open) {
@@ -80,7 +108,7 @@ function BuyTicketsModal({
 
   const total = useMemo(() => qty * pricePerTicket, [qty, pricePerTicket]);
   const insufficient =
-    typeof balanceQubic === "number" ? total > balanceQubic : false;
+    typeof balanceNumForUi === "number" ? total > balanceNumForUi : false;
   const meetsMinimum = qty >= minTickets;
   const canBuy =
     !isProcessing &&
@@ -108,7 +136,6 @@ function BuyTicketsModal({
     onConfirm?.(qty);
     onClose?.();
   };
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -135,23 +162,21 @@ function BuyTicketsModal({
     </Stack>
   );
 
-  const balanceChip =
-    typeof balanceQubic === "number" ? (
-      <Chip
-        size='small'
-        label={`Balance: ${formatQubic(balanceQubic)} QUBIC`}
-        sx={{
-          fontFamily: "monospace",
-          fontWeight: 600,
-          borderRadius: 1,
-          bgcolor:
-            theme.palette.mode === "dark"
-              ? alpha(theme.palette.primary.main, 0.12)
-              : alpha(theme.palette.primary.main, 0.08),
-          color: theme.palette.primary.main,
-        }}
-      />
-    ) : null;
+  const balanceDisplay = (
+    <Chip
+      label={`Balance: ${formatQubicAmount(balanceNumForUi)} QUBIC`}
+      sx={{
+        fontFamily: "monospace",
+        fontWeight: 500,
+        borderRadius: 1,
+        bgcolor:
+          theme.palette.mode === "dark"
+            ? alpha(theme.palette.primary.main, 0.12)
+            : alpha(theme.palette.primary.main, 0.08),
+        color: theme.palette.primary.main,
+      }}
+    />
+  );
 
   const disabledAll = isProcessing || effectiveMax === 0;
 
@@ -172,8 +197,8 @@ function BuyTicketsModal({
           border: `1px solid ${alpha(theme.palette.primary.main, 0.18)}`,
           background:
             theme.palette.mode === "dark"
-              ? theme.palette.background.paper
-              : "#fff",
+              ? theme.palette.background.default
+              : theme.palette.background.default,
           height: { xs: "100dvh", sm: "auto" },
           m: 0,
         },
@@ -192,10 +217,16 @@ function BuyTicketsModal({
             )}`,
           }}
         >
-          <Toolbar sx={{ justifyContent: "space-between", gap: 1 }}>
+          <Toolbar
+            sx={{
+              justifyContent: "space-between",
+              gap: 1,
+              alignItems: "center",
+            }}
+          >
             {header}
             <Stack direction='row' spacing={1.25} alignItems='center'>
-              {balanceChip}
+              {balanceDisplay}
               <IconButton
                 onClick={onClose}
                 aria-label='Close'
@@ -228,7 +259,7 @@ function BuyTicketsModal({
         >
           {header}
           <Stack direction='row' spacing={1.25} alignItems='center'>
-            {balanceChip}
+            {balanceDisplay}
             <IconButton
               onClick={onClose}
               aria-label='Close'
@@ -435,7 +466,7 @@ function BuyTicketsModal({
                   Price / ticket
                 </Typography>
                 <Typography sx={{ fontFamily: "monospace", fontWeight: 500 }}>
-                  {formatQubic(pricePerTicket)} QUBIC
+                  {formatQubicAmount(pricePerTicket)} QUBIC
                 </Typography>
               </Stack>
 
@@ -457,7 +488,7 @@ function BuyTicketsModal({
                         : theme.palette.primary.main,
                     }}
                   >
-                    {formatQubic(total)} QUBIC
+                    {formatQubicAmount(total)} QUBIC
                   </Typography>
                 </Stack>
               )}
@@ -511,8 +542,8 @@ function BuyTicketsModal({
               sx={{ color: theme.palette.text.secondary }}
             >
               Min {minTickets} • Max {maxTickets}
-              {typeof balanceQubic === "number"
-                ? ` • Max affordable ${maxAffordable}`
+              {typeof effectiveMax === "number"
+                ? ` • Max affordable ${effectiveMax}`
                 : ""}
             </Typography>
           </Box>
@@ -558,7 +589,7 @@ function BuyTicketsModal({
                   : theme.palette.primary.main,
               }}
             >
-              {formatQubic(total)} QUBIC
+              {formatQubicAmount(total)} QUBIC
             </Typography>
             {!meetsMinimum && qty > 0 && (
               <Typography
@@ -605,7 +636,8 @@ BuyTicketsModal.propTypes = {
   onClose: PropTypes.func,
   onConfirm: PropTypes.func.isRequired,
   isProcessing: PropTypes.bool,
-  balanceQubic: PropTypes.number,
+  // accepte number | string; BigInt
+  balanceQubic: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   defaultQuantity: PropTypes.number,
   pricePerTicket: PropTypes.number,
   minTickets: PropTypes.number,
