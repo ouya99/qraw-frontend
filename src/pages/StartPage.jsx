@@ -164,12 +164,14 @@ export default function StartPage() {
               fontWeight: 500,
               fontSize: { xs: "1.8rem", sm: "2.0rem", md: "2.3rem" },
               mb: 6,
+              fontFamily: "monospace",
+              letterSpacing: ".03em",
             }}
           >
             Every Hour, One Shot. One Hash.{" "}
             <span
               style={{
-                fontWeight: 700,
+                fontWeight: 500,
                 color: theme.palette.primary.main,
               }}
             >
@@ -211,7 +213,7 @@ export default function StartPage() {
             <Box
               component='span'
               sx={{
-                fontWeight: 900,
+                fontWeight: 600,
                 color: "#fff23eff",
                 fontFamily: "monospace",
                 fontSize: "1.2em",
@@ -454,7 +456,7 @@ export default function StartPage() {
       <BuyTicketsModal
         open={openBuy}
         onClose={() => setOpenBuy(false)}
-        balanceQubic={balanceDemo}         // <-- remplace par ton solde réel si dispo
+        balanceQubic={balanceDemo}
         onConfirm={handleConfirmBuy}
         isProcessing={false}
       />
