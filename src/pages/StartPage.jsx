@@ -20,6 +20,7 @@ import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumb
 import BuyTicketsModal from '../components/BuyTicketsModal';
 import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
+import { queryContract } from '../components/qubic/util/contractApi';
 
 const DRAW_INTERVAL = 15;
 const NB_PARTICIPANTS = 24;
@@ -129,6 +130,7 @@ export default function StartPage() {
   } = useQubicConnect();
 
   useEffect(() => {
+    console.log('hi');
     const newWinner =
       participants[Math.floor(Math.random() * participants.length)];
     setRevealComplete(false);
@@ -142,6 +144,31 @@ export default function StartPage() {
       setTimeout(() => setWinner(newWinner), 200);
       setnextTime((prev) => prev + DRAW_INTERVAL);
     }, DRAW_INTERVAL * 1000);
+
+    const qdrawGetInfo = async () => {
+      try {
+        const result = await queryContract(
+          'http://67.222.157.63:8000',
+          15, // QDRAW
+          2, // getInfo
+          {},
+          [],
+          null,
+          null,
+          null
+        );
+        console.log('qdrawGetInfo result:', result);
+        console.log('Pot :', result.decodedFields.field1, ' qu');
+        console.log('Number of Participants: ', result.decodedFields.field2);
+        console.log('Last winner poT size :  ', result.decodedFields.field7);
+        setPot(result.decodedFields.field1);
+        // You may want to do setState here as well
+      } catch (error) {
+        // do something when you encounter errors
+      }
+    };
+
+    qdrawGetInfo();
 
     return () => clearInterval(timer);
   }, [participants]);
