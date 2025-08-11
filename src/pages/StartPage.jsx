@@ -176,7 +176,7 @@ export default function StartPage() {
   }, [participants]);
 
   useEffect(() => {
-    if (connected) fetchBalance();
+    if (connected) fetchBalance(wallet.publicKey);
   }, [connected, fetchBalance]);
 
   const handleGetTicket = () => {
@@ -394,7 +394,7 @@ export default function StartPage() {
               duration={6000}
               onComplete={() => {
                 setRevealComplete(true);
-                setPot(0);
+                // setPot(0); // TODO
               }}
             />
           ) : (
