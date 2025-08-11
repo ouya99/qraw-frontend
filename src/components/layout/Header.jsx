@@ -8,7 +8,6 @@ import {
   useScrollTrigger,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
 import ConnectLink from "../qubic/connect/ConnectLink";
 import { useThemeContext } from "../../contexts/ThemeContext";
 import logoLight from "../../assets/logo/logo-text-on-light.svg";

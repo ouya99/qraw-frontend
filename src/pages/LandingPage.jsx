@@ -90,7 +90,7 @@ export default function LandingPage() {
             sx={{
               width: { xs: "90%", sm: "60%", md: "44%" },
               maxWidth: 600,
-              mb: 20,
+              mb: 10,
               mx: "auto",
               display: "block",
               filter:
@@ -112,7 +112,7 @@ export default function LandingPage() {
               component='span'
               sx={{
                 color: "#fff23eff",
-                fontWeight: 800,
+                fontWeight: 700,
               }}
             >
               100% to the winner.

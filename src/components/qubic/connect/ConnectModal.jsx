@@ -33,6 +33,7 @@ import { useConfig } from "../../../contexts/ConfigContext";
 import { useMediaQuery } from "@mui/material";
 import { useQuotteryContext } from "../../../contexts/QuotteryContext";
 import { truncateMiddle, formatQubicAmount } from "../../qubic/util";
+import CloudIcon from "@mui/icons-material/Cloud";
 
 import { useSnackbar } from "../../../contexts/SnackbarContext";
 
@@ -647,6 +648,86 @@ const ConnectModal = ({ open, onClose }) => {
               </Button>
             </Box>
           </Paper>
+        )}
+        <Divider />
+
+        {/* ------------- Server Connection Section ------------- */}
+        <Typography variant="h7" textAlign="center" mb={0} fontWeight={500}>
+          Server Connection :
+        </Typography>
+        {connectedToCustomServer ? (
+          <Button
+            variant="contained"
+            size="large"
+            color="primary"
+            fullWidth
+            onClick={handleServerDisconnect}
+          >
+            Disconnect from Server
+          </Button>
+        ) : (
+          <>
+            {selectedServerMode === "none" && (
+              <Button
+                variant="outlined"
+                color="tertiary"
+                size="large"
+                fullWidth
+                onClick={() => setSelectedServerMode("server-config")}
+                startIcon={<CloudIcon />}
+                sx={{ mb: 1 }}
+              >
+                <Typography variant="button" fontWeight="bold">
+                  Connect to Server
+                </Typography>
+              </Button>
+            )}
+
+            {selectedServerMode === "server-config" && (
+              <Box elevation={2}>
+                <TextField
+                  fullWidth
+                  label="HTTP Endpoint"
+                  placeholder="Enter HTTP Endpoint"
+                  value={httpEndpointInput}
+                  onChange={(e) => setHttpEndpointInput(e.target.value)}
+                />
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Backend URL"
+                  placeholder="Enter Backend URL"
+                  value={backendUrlInput}
+                  onChange={(e) => setBackendUrlInput(e.target.value)}
+                />
+                {errorMsg && (
+                  <Typography color="error" mt={1}>
+                    {errorMsg}
+                  </Typography>
+                )}
+                <Box display="flex" gap={2} mt={2} justifyContent={"center"}>
+                  <Button
+                    variant="outlined"
+                    color="tertiary"
+                    size="large"
+                    onClick={() => setSelectedServerMode("none")}
+                    sx={{ fontWeight: 600 }}
+                  >
+                    CANCEL
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    color="primary"
+                    onClick={handleServerConnect}
+                    sx={{ fontWeight: 600 }}
+                  >
+                    CONNECT
+                  </Button>
+                </Box>
+              </Box>
+            )}
+          </>
         )}
       </DialogContent>
     </Dialog>

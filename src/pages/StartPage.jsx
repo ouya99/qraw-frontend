@@ -140,10 +140,7 @@ export default function StartPage() {
   };
 
    const handleConfirmBuy = (qty) => {
-    // Branche ici l'appel backend / smart contract
     console.log("Buy", qty, "tickets");
-    // tu peux aussi déclencher un snackbar si tu en as un
-    // enqueueSnackbar(`${qty} tickets achetés`, { variant: "success" });
   };
 
   return (
@@ -452,7 +449,7 @@ export default function StartPage() {
           </Stack>
         </motion.div>
       </Container>
-      {/* ---- MODALE ACHAT ---- */}
+      
       <BuyTicketsModal
         open={openBuy}
         onClose={() => setOpenBuy(false)}

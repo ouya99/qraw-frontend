@@ -20,7 +20,7 @@ const ElectricCircuit = () => {
       <svg
         width='100%'
         height='100%'
-        viewBox='0 0 1200 800'
+        viewBox='0 0 1200 900'
         style={{ position: "absolute", opacity: 0.7 }}
       >
         <defs>
