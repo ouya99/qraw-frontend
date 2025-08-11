@@ -190,6 +190,12 @@ function BuyTicketsModal({
       TransitionComponent={SlideUp}
       keepMounted
       aria-labelledby='buy-tickets-title'
+      BackdropProps={{
+        sx: {
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+        },
+      }}
       PaperProps={{
         sx: {
           borderRadius: { xs: 0, sm: 1 },
