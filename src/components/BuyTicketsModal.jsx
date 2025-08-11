@@ -1,5 +1,5 @@
 /* global BigInt */
-import React, { useEffect, useMemo, useRef, useState, forwardRef } from "react";
+import React, { useEffect, useMemo, useRef, useState, forwardRef } from 'react';
 import {
   AppBar,
   Box,
@@ -17,22 +17,22 @@ import {
   useMediaQuery,
   Chip,
   useTheme,
-} from "@mui/material";
-import Slide from "@mui/material/Slide";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
-import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumberOutlined";
-import CloseIcon from "@mui/icons-material/Close";
-import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
-import PropTypes from "prop-types";
-import { formatQubicAmount } from "./qubic/util";
+} from '@mui/material';
+import Slide from '@mui/material/Slide';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import PropTypes from 'prop-types';
+import { formatQubicAmount } from './qubic/util';
 
-const DEFAULTS = {
+export const DEFAULTS = {
   MAX_TICKETS: 1023,
   MIN_TICKETS: 1,
   PRICE_PER_TICKET: 1_000_000,
-  TITLE: "Buy Tickets",
+  TITLE: 'Buy Tickets',
 };
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
@@ -54,7 +54,7 @@ function BuyTicketsModal({
   maxTickets = DEFAULTS.MAX_TICKETS,
 }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const clampUI = (n, max) => clamp(n, 0, max);
   const inputRef = useRef(null);
 
@@ -63,7 +63,7 @@ function BuyTicketsModal({
   const affordableFromBalance = useMemo(() => {
     if (balanceQubic == null) return maxTickets;
     try {
-      if (typeof balanceQubic === "bigint") {
+      if (typeof balanceQubic === 'bigint') {
         if (pricePerTicket <= 0) return maxTickets;
         const res =
           balanceQubic >= 0n ? balanceQubic / BigInt(pricePerTicket) : 0n;
@@ -83,7 +83,7 @@ function BuyTicketsModal({
 
   const balanceNumForUi = useMemo(() => {
     try {
-      if (typeof balanceQubic === "bigint") {
+      if (typeof balanceQubic === 'bigint') {
         const cap = BigInt(Number.MAX_SAFE_INTEGER);
         const safe = balanceQubic > cap ? cap : balanceQubic;
         return Number(safe);
@@ -108,7 +108,7 @@ function BuyTicketsModal({
 
   const total = useMemo(() => qty * pricePerTicket, [qty, pricePerTicket]);
   const insufficient =
-    typeof balanceNumForUi === "number" ? total > balanceNumForUi : false;
+    typeof balanceNumForUi === 'number' ? total > balanceNumForUi : false;
   const meetsMinimum = qty >= minTickets;
   const canBuy =
     !isProcessing &&
@@ -118,8 +118,8 @@ function BuyTicketsModal({
     qty > 0;
 
   const handleInputChange = (e) => {
-    const raw = `${e.target.value}`.replace(/\D/g, "");
-    if (raw === "") {
+    const raw = `${e.target.value}`.replace(/\D/g, '');
+    if (raw === '') {
       setQty(0);
       return;
     }
@@ -137,7 +137,7 @@ function BuyTicketsModal({
     onClose?.();
   };
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       handleConfirm();
     }
@@ -149,11 +149,11 @@ function BuyTicketsModal({
       <Typography
         variant='h6'
         sx={{
-          fontFamily: "monospace",
+          fontFamily: 'monospace',
           fontWeight: 700,
-          letterSpacing: ".08em",
-          textTransform: "uppercase",
-          display: { xs: "none", sm: "block" },
+          letterSpacing: '.08em',
+          textTransform: 'uppercase',
+          display: { xs: 'none', sm: 'block' },
         }}
         id='buy-tickets-title'
       >
@@ -166,7 +166,7 @@ function BuyTicketsModal({
     <Chip
       label={`Balance: ${formatQubicAmount(balanceNumForUi)} QUBIC`}
       sx={{
-        fontFamily: "monospace",
+        fontFamily: 'monospace',
         fontWeight: 500,
         borderRadius: 1,
         bgcolor: alpha(theme.palette.primary.main, 0.12),
@@ -182,24 +182,24 @@ function BuyTicketsModal({
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth={isMobile ? "sm" : "md"}
+      maxWidth={isMobile ? 'sm' : 'md'}
       fullScreen={isMobile}
       TransitionComponent={SlideUp}
       keepMounted
       aria-labelledby='buy-tickets-title'
       BackdropProps={{
         sx: {
-          backdropFilter: "blur(8px)",
-          WebkitBackdropFilter: "blur(8px)",
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
         },
       }}
       PaperProps={{
         sx: {
           borderRadius: { xs: 0, sm: 1 },
-          overflow: "hidden",
+          overflow: 'hidden',
           border: `1px solid ${alpha(theme.palette.primary.main, 0.18)}`,
           background: theme.palette.background.default,
-          height: { xs: "100dvh", sm: "auto" },
+          height: { xs: '100dvh', sm: 'auto' },
           m: 0,
         },
       }}
@@ -210,7 +210,7 @@ function BuyTicketsModal({
           elevation={0}
           sx={{
             bgcolor: alpha(theme.palette.background.paper, 0.7),
-            backdropFilter: "saturate(180%) blur(10px)",
+            backdropFilter: 'saturate(180%) blur(10px)',
             borderBottom: `1px solid ${alpha(
               theme.palette.primary.main,
               0.12
@@ -219,9 +219,9 @@ function BuyTicketsModal({
         >
           <Toolbar
             sx={{
-              justifyContent: "space-between",
+              justifyContent: 'space-between',
               gap: 1,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             {header}
@@ -233,7 +233,7 @@ function BuyTicketsModal({
                 edge='end'
                 sx={{
                   color: theme.palette.text.secondary,
-                  "&:hover": {
+                  '&:hover': {
                     bgcolor: alpha(theme.palette.text.secondary, 0.08),
                   },
                 }}
@@ -248,9 +248,9 @@ function BuyTicketsModal({
           sx={{
             p: { xs: 2.5, sm: 3 },
             pr: { xs: 1, sm: 1 },
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
             borderBottom: `1px solid ${alpha(
               theme.palette.primary.main,
               0.12
@@ -265,7 +265,7 @@ function BuyTicketsModal({
               aria-label='Close'
               sx={{
                 color: theme.palette.text.secondary,
-                "&:hover": {
+                '&:hover': {
                   bgcolor: alpha(theme.palette.text.secondary, 0.08),
                 },
               }}
@@ -285,21 +285,21 @@ function BuyTicketsModal({
       >
         <Stack spacing={isMobile ? 2 : 2.5}>
           <Stack
-            direction={{ xs: "column", sm: "row" }}
-            alignItems={{ xs: "stretch", sm: "center" }}
+            direction={{ xs: 'column', sm: 'row' }}
+            alignItems={{ xs: 'stretch', sm: 'center' }}
             spacing={isMobile ? 1.25 : 1.5}
           >
             <Stack
               direction='row'
               alignItems='center'
               spacing={isMobile ? 1 : 1.5}
-              sx={{ width: "100%" }}
+              sx={{ width: '100%' }}
             >
               <IconButton
                 aria-label='remove one'
                 onClick={() => dec(1)}
                 disabled={qty <= 0 || disabledAll}
-                size={isMobile ? "medium" : "small"}
+                size={isMobile ? 'medium' : 'small'}
                 sx={
                   isMobile
                     ? {
@@ -323,26 +323,26 @@ function BuyTicketsModal({
                   setQty((q) => clampUI(Number.isNaN(q) ? 0 : q, effectiveMax))
                 }
                 inputProps={{
-                  inputMode: "numeric",
-                  pattern: "[0-9]*",
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*',
                   min: 0,
                   max: effectiveMax,
                   style: {
-                    textAlign: "center",
-                    fontFamily: "monospace",
+                    textAlign: 'center',
+                    fontFamily: 'monospace',
                     fontWeight: 500,
                   },
-                  "aria-label": "Quantity",
+                  'aria-label': 'Quantity',
                 }}
-                sx={{ width: { xs: "100%", sm: 160 } }}
+                sx={{ width: { xs: '100%', sm: 160 } }}
                 label='Quantity'
                 error={!disabledAll && qty > 0 && !meetsMinimum}
                 helperText={
                   effectiveMax === 0
-                    ? "No tickets available or insufficient balance."
+                    ? 'No tickets available or insufficient balance.'
                     : !meetsMinimum && qty > 0
                     ? `Minimum ${minTickets} tickets to buy`
-                    : " "
+                    : ' '
                 }
                 disabled={isProcessing}
               />
@@ -351,7 +351,7 @@ function BuyTicketsModal({
                 aria-label='add one'
                 onClick={() => inc(1)}
                 disabled={qty >= effectiveMax || disabledAll}
-                size={isMobile ? "medium" : "small"}
+                size={isMobile ? 'medium' : 'small'}
                 sx={
                   isMobile
                     ? {
@@ -370,32 +370,32 @@ function BuyTicketsModal({
             <Stack
               direction='row'
               spacing={1}
-              sx={{ width: { xs: "100%", sm: "auto" } }}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
               <Button
                 variant='outlined'
-                size={isMobile ? "medium" : "small"}
+                size={isMobile ? 'medium' : 'small'}
                 onClick={() => inc(10)}
                 disabled={disabledAll || qty >= effectiveMax}
-                sx={{ borderRadius: 0, flex: { xs: 1, sm: "unset" } }}
+                sx={{ borderRadius: 0, flex: { xs: 1, sm: 'unset' } }}
               >
                 +10
               </Button>
               <Button
                 variant='outlined'
-                size={isMobile ? "medium" : "small"}
+                size={isMobile ? 'medium' : 'small'}
                 onClick={() => inc(100)}
                 disabled={disabledAll || qty >= effectiveMax}
-                sx={{ borderRadius: 0, flex: { xs: 1, sm: "unset" } }}
+                sx={{ borderRadius: 0, flex: { xs: 1, sm: 'unset' } }}
               >
                 +100
               </Button>
               <Button
                 variant='outlined'
-                size={isMobile ? "medium" : "small"}
+                size={isMobile ? 'medium' : 'small'}
                 onClick={setMax}
                 disabled={disabledAll || qty === effectiveMax}
-                sx={{ borderRadius: 0, flex: { xs: 1, sm: "unset" } }}
+                sx={{ borderRadius: 0, flex: { xs: 1, sm: 'unset' } }}
               >
                 Max
               </Button>
@@ -410,14 +410,14 @@ function BuyTicketsModal({
             min={0}
             max={effectiveMax}
             step={1}
-            valueLabelDisplay={isMobile ? "off" : "auto"}
+            valueLabelDisplay={isMobile ? 'off' : 'auto'}
             disabled={disabledAll}
             aria-label='Quantity slider'
             marks={
               isMobile
                 ? false
                 : [
-                    { value: 0, label: "0" },
+                    { value: 0, label: '0' },
                     { value: effectiveMax, label: String(effectiveMax) },
                   ]
             }
@@ -426,14 +426,14 @@ function BuyTicketsModal({
 
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "1fr auto" },
-              alignItems: "center",
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: '1fr auto' },
+              alignItems: 'center',
               gap: 2,
               p: isMobile ? 1.5 : 2,
               borderRadius: 0,
               border: `1px dashed ${alpha(theme.palette.primary.main, 0.35)}`,
-              bgcolor: alpha(theme.palette.primary.main, 0.06)
+              bgcolor: alpha(theme.palette.primary.main, 0.06),
             }}
           >
             <Stack direction='row' spacing={3} alignItems='center'>
@@ -449,7 +449,7 @@ function BuyTicketsModal({
                   >
                     Tickets
                   </Typography>
-                  <Typography sx={{ fontFamily: "monospace", fontWeight: 500 }}>
+                  <Typography sx={{ fontFamily: 'monospace', fontWeight: 500 }}>
                     {qty}
                   </Typography>
                 </Box>
@@ -462,7 +462,7 @@ function BuyTicketsModal({
                 >
                   Price / ticket
                 </Typography>
-                <Typography sx={{ fontFamily: "monospace", fontWeight: 500 }}>
+                <Typography sx={{ fontFamily: 'monospace', fontWeight: 500 }}>
                   {formatQubicAmount(pricePerTicket)} QUBIC
                 </Typography>
               </Stack>
@@ -477,9 +477,9 @@ function BuyTicketsModal({
                   </Typography>
                   <Typography
                     sx={{
-                      fontFamily: "monospace",
+                      fontFamily: 'monospace',
                       fontWeight: 700,
-                      letterSpacing: ".04em",
+                      letterSpacing: '.04em',
                       color: insufficient
                         ? theme.palette.error.main
                         : theme.palette.primary.main,
@@ -495,8 +495,8 @@ function BuyTicketsModal({
               direction='row'
               spacing={1}
               alignItems='center'
-              justifyContent={{ xs: "flex-start", sm: "flex-end" }}
-              sx={{ display: { xs: "none", sm: "flex" } }}
+              justifyContent={{ xs: 'flex-start', sm: 'flex-end' }}
+              sx={{ display: { xs: 'none', sm: 'flex' } }}
             >
               {!meetsMinimum && qty > 0 && (
                 <Typography
@@ -521,27 +521,27 @@ function BuyTicketsModal({
                 disabled={!canBuy}
                 startIcon={<RocketLaunchIcon />}
                 sx={{
-                  fontFamily: "monospace",
+                  fontFamily: 'monospace',
                   fontWeight: 500,
-                  letterSpacing: ".08em",
+                  letterSpacing: '.08em',
                   borderRadius: 0,
                   px: 4,
                 }}
               >
-                {isProcessing ? "Processing..." : "Buy Tickets"}
+                {isProcessing ? 'Processing...' : 'Buy Tickets'}
               </Button>
             </Stack>
           </Box>
 
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 0.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
             <Typography
               variant='caption'
               sx={{ color: theme.palette.text.secondary }}
             >
               Min {minTickets} • Max {maxTickets}
-              {typeof effectiveMax === "number"
+              {typeof effectiveMax === 'number'
                 ? ` • Max affordable ${effectiveMax}`
-                : ""}
+                : ''}
             </Typography>
           </Box>
         </Stack>
@@ -549,22 +549,22 @@ function BuyTicketsModal({
 
       <DialogActions
         sx={{
-          position: { xs: "fixed", sm: "static" },
+          position: { xs: 'fixed', sm: 'static' },
           bottom: 0,
           left: 0,
           right: 0,
           p: { xs: 2, sm: 3 },
           borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
           bgcolor: alpha(theme.palette.background.paper, 0.9),
-          backdropFilter: "saturate(180%) blur(8px)",
-          display: { xs: "flex", sm: "none" },
+          backdropFilter: 'saturate(180%) blur(8px)',
+          display: { xs: 'flex', sm: 'none' },
         }}
       >
         <Stack
           direction='row'
           alignItems='center'
           justifyContent='space-between'
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
         >
           <Box>
             <Typography
@@ -575,9 +575,9 @@ function BuyTicketsModal({
             </Typography>
             <Typography
               sx={{
-                fontFamily: "monospace",
+                fontFamily: 'monospace',
                 fontWeight: 700,
-                letterSpacing: ".04em",
+                letterSpacing: '.04em',
                 color: insufficient
                   ? theme.palette.error.main
                   : theme.palette.primary.main,
@@ -588,7 +588,7 @@ function BuyTicketsModal({
             {!meetsMinimum && qty > 0 && (
               <Typography
                 variant='caption'
-                sx={{ color: theme.palette.warning.main, display: "block" }}
+                sx={{ color: theme.palette.warning.main, display: 'block' }}
               >
                 Need at least {minTickets}
               </Typography>
@@ -596,7 +596,7 @@ function BuyTicketsModal({
             {insufficient && (
               <Typography
                 variant='caption'
-                sx={{ color: theme.palette.error.main, display: "block" }}
+                sx={{ color: theme.palette.error.main, display: 'block' }}
               >
                 Insufficient balance
               </Typography>
@@ -613,10 +613,10 @@ function BuyTicketsModal({
               fontWeight: 700,
               minWidth: 160,
               borderRadius: 0,
-              letterSpacing: ".08em",
+              letterSpacing: '.08em',
             }}
           >
-            {isProcessing ? "Processing..." : "Buy"}
+            {isProcessing ? 'Processing...' : 'Buy'}
           </Button>
         </Stack>
       </DialogActions>
