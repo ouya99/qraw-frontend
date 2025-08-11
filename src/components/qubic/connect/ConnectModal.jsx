@@ -314,10 +314,7 @@ const ConnectModal = ({ open, onClose }) => {
                   variant='body1'
                   textAlign='center'
                   sx={{
-                    color:
-                      theme.palette.mode === "dark"
-                        ? theme.palette.text.primary
-                        : theme.palette.primary.contrastText,
+                    color: theme.palette.text.primary,
                     fontWeight: 600,
                   }}
                 >

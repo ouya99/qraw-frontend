@@ -19,7 +19,6 @@ import GroupIcon from "@mui/icons-material/Group";
 import GavelIcon from "@mui/icons-material/Gavel";
 import SecurityIcon from "@mui/icons-material/Security";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
-import logoLight from "../assets/logo/qubic_draw_logo_large_text.svg";
 import logoDark from "../assets/logo/qubic_draw_logo_large_text.svg";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -83,14 +82,10 @@ export default function LandingPage() {
         alignItems: "center",
         justifyContent: "center",
         position: "relative",
-        background:
-          theme.palette.mode === "dark"
-            ? `linear-gradient(135deg, ${
-                theme.palette.background.default
-              } 0%, ${alpha(theme.palette.primary.main, 0.08)} 100%)`
-            : `linear-gradient(135deg, ${
-                theme.palette.background.default
-              } 0%, ${alpha(theme.palette.primary.main, 0.02)} 100%)`,
+        background: `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${alpha(
+          theme.palette.primary.main,
+          0.08
+        )} 100%)`,
         overflow: "hidden",
       }}
     >
@@ -109,7 +104,7 @@ export default function LandingPage() {
         <Box sx={{ textAlign: "center", mb: 3 }}>
           <Box
             component='img'
-            src={theme.palette.mode === "dark" ? logoDark : logoLight}
+            src={logoDark}
             alt='Qubic Draw Logo'
             sx={{
               width: { xs: "90%", sm: "60%", md: "44%" },
@@ -117,8 +112,7 @@ export default function LandingPage() {
               mb: 10,
               mx: "auto",
               display: "block",
-              filter:
-                theme.palette.mode === "dark" ? "none" : "brightness(0.9)",
+              filter: "none",
             }}
           />
           <Typography
@@ -234,32 +228,17 @@ export default function LandingPage() {
                     borderRadius: 1,
                     overflow: "visible",
                     mt: 4,
-                    background:
-                      theme.palette.mode === "dark"
-                        ? `linear-gradient(120deg, ${alpha(
-                            "#272d38",
-                            0.94
-                          )}, ${alpha(theme.palette.primary.main, 0.08)})`
-                        : `linear-gradient(120deg, #fff, ${alpha(
-                            theme.palette.primary.main,
-                            0.04
-                          )})`,
-                    border: `1.5px solid ${alpha(
-                      theme.palette.primary.main,
-                      0.13
-                    )}`,
-                    // boxShadow:
-                    //   theme.palette.mode === "dark"
-                    //     ? `0 2px 24px 0 ${alpha(
+                    background: `linear-gradient(120deg, ${alpha(
+                      "#272d38",
+                      0.94
+                    )}, ${alpha(theme.palette.primary.main, 0.08)})`,
+                    border: `1.5px solid ${alpha(theme.palette.primary.main, 0.13)}`,
+                    // boxShadow: `0 2px 24px 0 ${alpha(
                     //         theme.palette.primary.main,
                     //         0.1
                     //       )}, 0 0 0 1px ${alpha(
                     //         theme.palette.primary.main,
                     //         0.05
-                    //       )}`
-                    //     : `0 2px 24px 0 ${alpha(
-                    //         theme.palette.primary.main,
-                    //         0.08
                     //       )}`,
                     // backdropFilter: "blur(8px)",
                     // WebkitBackdropFilter: "blur(8px)",

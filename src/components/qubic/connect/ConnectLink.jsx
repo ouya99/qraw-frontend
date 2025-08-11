@@ -75,10 +75,7 @@ const ConnectLink = () => {
                 "&:hover": {
                   backgroundColor: "transparent",
                 },
-                color:
-                  theme.palette.mode === "dark"
-                    ? theme.palette.primary.contrastText
-                    : theme.palette.text.primary,
+                color: theme.palette.primary.contrastText,
               }}
             >
               {icon}

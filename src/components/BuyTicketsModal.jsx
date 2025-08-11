@@ -169,10 +169,7 @@ function BuyTicketsModal({
         fontFamily: "monospace",
         fontWeight: 500,
         borderRadius: 1,
-        bgcolor:
-          theme.palette.mode === "dark"
-            ? alpha(theme.palette.primary.main, 0.12)
-            : alpha(theme.palette.primary.main, 0.08),
+        bgcolor: alpha(theme.palette.primary.main, 0.12),
         color: theme.palette.primary.main,
       }}
     />
@@ -201,10 +198,7 @@ function BuyTicketsModal({
           borderRadius: { xs: 0, sm: 1 },
           overflow: "hidden",
           border: `1px solid ${alpha(theme.palette.primary.main, 0.18)}`,
-          background:
-            theme.palette.mode === "dark"
-              ? theme.palette.background.default
-              : theme.palette.background.default,
+          background: theme.palette.background.default,
           height: { xs: "100dvh", sm: "auto" },
           m: 0,
         },
@@ -439,10 +433,7 @@ function BuyTicketsModal({
               p: isMobile ? 1.5 : 2,
               borderRadius: 0,
               border: `1px dashed ${alpha(theme.palette.primary.main, 0.35)}`,
-              bgcolor:
-                theme.palette.mode === "dark"
-                  ? alpha(theme.palette.primary.main, 0.06)
-                  : alpha(theme.palette.primary.main, 0.04),
+              bgcolor: alpha(theme.palette.primary.main, 0.06)
             }}
           >
             <Stack direction='row' spacing={3} alignItems='center'>
@@ -564,10 +555,7 @@ function BuyTicketsModal({
           right: 0,
           p: { xs: 2, sm: 3 },
           borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
-          bgcolor:
-            theme.palette.mode === "dark"
-              ? alpha(theme.palette.background.paper, 0.9)
-              : alpha("#fff", 0.9),
+          bgcolor: alpha(theme.palette.background.paper, 0.9),
           backdropFilter: "saturate(180%) blur(8px)",
           display: { xs: "flex", sm: "none" },
         }}
