@@ -1,3 +1,4 @@
+/* global BigInt */
 import { Buffer } from 'buffer';
 import base64 from 'base-64';
 import { QubicTransaction } from '@qubic-lib/qubic-ts-library/dist/qubic-types/QubicTransaction';
