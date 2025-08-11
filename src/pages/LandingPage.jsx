@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState} from "react";
 import {
   Box,
   Container,
@@ -12,6 +12,9 @@ import {
   Grid,
 } from "@mui/material";
 import ConnectLink from "../components/qubic/connect/ConnectLink";
+import BuyTicketsModal from "../components/BuyTicketsModal";
+import { useQubicConnect } from "../components/qubic/connect/QubicConnectContext";
+import { useQuotteryContext } from "../contexts/QuotteryContext";
 import GroupIcon from "@mui/icons-material/Group";
 import GavelIcon from "@mui/icons-material/Gavel";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -49,6 +52,27 @@ const features = [
 export default function LandingPage() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { connected, toggleConnectModal } = useQubicConnect();
+  const { balance, fetchBalance, walletPublicIdentity } = useQuotteryContext();
+  const [openBuy, setOpenBuy] = useState(false);
+
+  useEffect(() => {
+    if (connected && walletPublicIdentity) {
+      fetchBalance(walletPublicIdentity);
+    }
+  }, [connected, fetchBalance, walletPublicIdentity]);
+
+  const handleGetTicket = () => {
+    if (!connected) {
+      toggleConnectModal();
+      return;
+    }
+    setOpenBuy(true);
+  };
+
+  const handleConfirmBuy = (qty) => {
+    console.log("Buy", qty, "tickets");
+  };
 
   return (
     <Box
@@ -178,6 +202,7 @@ export default function LandingPage() {
                 letterSpacing: ".06em",
                 borderWidth: 2,
               }}
+              onClick={handleGetTicket}
             >
               Get ticket
             </Button>
@@ -302,6 +327,13 @@ export default function LandingPage() {
           ))}
         </Grid>
       </Container>
+      <BuyTicketsModal
+        open={openBuy}
+        onClose={() => setOpenBuy(false)}
+        balanceQubic={balance}
+        onConfirm={handleConfirmBuy}
+        isProcessing={false}
+      />
     </Box>
   );
 }
