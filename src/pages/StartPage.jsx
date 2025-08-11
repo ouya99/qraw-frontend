@@ -153,26 +153,29 @@ export default function StartPage() {
   const handleConfirmBuy = async (qty) => {
     console.log('Buy', qty, 'tickets');
 
-    const result = await executeTransactionWithWallet(
-      {
-        qubicConnect: {
-          wallet: wallet,
-          qHelper: qHelper,
-          getTick: getTick,
-          signTransaction: signTransaction,
-          broadcastTx: broadcastTx,
-          connected: connected,
-          httpEndpoint: httpEndpoint,
-        },
+    const txDetails = {
+      qubicConnect: {
+        wallet,
+        qHelper,
+        getTick,
+        signTransaction,
+        broadcastTx,
+        connected,
+        httpEndpoint,
       },
-      15, // contractId
-      1, // procIndex // get info= 3, buy ticket = 1
-      { ticketCount: qty },
-      [],
-      null,
-      null,
-      null
-    );
+      contractIndex: 15,
+      procedureIndex: 1,
+      params: { ticketCount: qty },
+      // inputFields: selectedFunction.inputs,
+      // amount: finalAmountInQus.toString(),
+      sourceId: wallet.publicKey,
+      // destinationId: 'Contract: ' + contractName,
+      // functionName: selectedFunction.name,
+      // functionParams: paramsData,
+      // contractIndexes,
+    };
+
+    const result = await executeTransactionWithWallet(txDetails);
     console.log(result);
   };
 
