@@ -17,7 +17,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import { motion } from 'framer-motion';
 import logo from '../assets/logo/logoWin.svg';
 import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
-import BuyTicketsModal from '../components/BuyTicketsModal';
+import BuyTicketsModal, { DEFAULTS } from '../components/BuyTicketsModal';
 import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
 import { queryContract } from '../components/qubic/util/contractApi';
@@ -194,7 +194,7 @@ export default function StartPage() {
       procedureIndex: 1,
       params: { ticketCount: qty },
       inputFields: [{ name: 'ticketCount', type: 'uint64' }],
-      amount: qty * 1000000,
+      amount: qty * DEFAULTS.PRICE_PER_TICKET,
       // sourceId: wallet.publicKey, // not used in function
       // destinationId: 'Contract: ' + contractName,  // not used in function
       functionName: 'buyTicket',
