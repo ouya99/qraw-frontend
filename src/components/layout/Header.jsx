@@ -9,14 +9,14 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ConnectLink from "../qubic/connect/ConnectLink";
-import { useThemeContext } from "../../contexts/ThemeContext";
-import logoLight from "../../assets/logo/logo-text-on-light.svg";
+// import { useThemeContext } from "../../contexts/ThemeContext";
+// import logoLight from "../../assets/logo/logo-text-on-light.svg";
 import logoDark from "../../assets/logo/qubic_draw_logo_large_text.svg";
 
 const Header = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { isDarkMode, toggleTheme } = useThemeContext();
+  // const { isDarkMode, toggleTheme } = useThemeContext();
 
   const scrollTrigger = useScrollTrigger({
     disableHysteresis: true,
@@ -58,20 +58,12 @@ const Header = () => {
               sx={{ p: 0 }}
               onClick={() => navigate("/landing")}
             >
-              <Box
-                component='img'
-                src={isDarkMode ? logoDark : logoLight}
-                alt='logo'
-                sx={logoStyles}
-              />
+              <Box component='img' src={logoDark} alt='logo' sx={logoStyles} />
             </IconButton>
           </Box>
 
           <Box display='flex' alignItems='center' gap={2}>
             <ConnectLink />
-            {/* <IconButton onClick={toggleTheme} color='inherit'>
-              {isDarkMode ? <Brightness7 /> : <Brightness4 />}
-            </IconButton> */}
           </Box>
         </Toolbar>
       </Container>

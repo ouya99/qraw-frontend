@@ -696,10 +696,7 @@ function BetCreatePage() {
                   onClick={addOption}
                   sx={{
                     mt: 1,
-                    color:
-                      theme.palette.mode === "dark"
-                        ? theme.palette.primary.main
-                        : theme.palette.text.primary,
+                    color: theme.palette.primary.main,
                   }}
                 >
                   Add Option
@@ -780,10 +777,7 @@ function BetCreatePage() {
                   onClick={addProvider}
                   sx={{
                     mt: 1,
-                    color:
-                      theme.palette.mode === "dark"
-                        ? theme.palette.primary.main
-                        : theme.palette.text.primary,
+                    color: theme.palette.primary.main,
                   }}
                 >
                   Add Provider
@@ -866,7 +860,6 @@ function BetCreatePage() {
                 justifyContent="flex-end"
               >
                 Bet creation fees:{" "}
-                {theme.palette.mode === "dark" ? (
                   <QubicSymbolWhite
                     style={{
                       fill: theme.palette.secondary.main,
@@ -876,17 +869,6 @@ function BetCreatePage() {
                       marginRight: "0.3rem",
                     }}
                   />
-                ) : (
-                  <QubicSymbol
-                    style={{
-                      fill: theme.palette.secondary.main,
-                      width: "0.8rem",
-                      height: "0.8rem",
-                      marginLeft: "0.3rem",
-                      marginRight: "0.3rem",
-                    }}
-                  />
-                )}
                 {betCreationFee !== null
                   ? `${formatQubicAmount(betCreationFee)} QUBIC`
                   : "Loading..."}

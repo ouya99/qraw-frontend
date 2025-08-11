@@ -4,7 +4,6 @@ import { createTheme } from "@mui/material/styles";
 const customColors = {
   // Qubic colors
   qubicBlue: "#1adef5",
-  qubicBlueLight: "#2C3E50",
   white: "#ffffff",
   black: "#000000",
   darkBackground: "#121212",
@@ -22,95 +21,8 @@ const customColors = {
   success: "#10b981",
   rosePeps: "#f43f5e",
 };
-
-// Light theme
-export const lightTheme = createTheme({
-  palette: {
-    mode: "light",
-    primary: {
-      main: customColors.qubicBlueLight,
-      contrastText: customColors.white,
-    },
-    secondary: {
-      main: customColors.gray200,
-      contrastText: customColors.black,
-    },
-    tertiary: {
-      main: customColors.gray500,
-    },
-    error: {
-      main: customColors.error,
-    },
-    warning: {
-      main: customColors.warning,
-    },
-    success: {
-      main: customColors.success,
-    },
-    background: {
-      default: customColors.white,
-      paper: customColors.gray100,
-      card: customColors.gray100,
-    },
-    text: {
-      primary: customColors.black,
-      secondary: customColors.gray500,
-    },
-    divider: customColors.gray300,
-  },
-  typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontWeight: 600,
-      fontSize: "2.5rem",
-    },
-    h2: {
-      fontWeight: 600,
-      fontSize: "2rem",
-    },
-    h3: {
-      fontWeight: 600,
-      fontSize: "1.75rem",
-    },
-    body1: {
-      fontSize: "1rem",
-      lineHeight: 1.5,
-    },
-    body2: {
-      fontSize: "0.875rem",
-      lineHeight: 1.5,
-    },
-  },
-  shape: {
-    borderRadius: 8,
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: "none",
-          fontWeight: 500,
-        },
-      },
-    },
-    MuiOutlinedInput: {
-      styleOverrides: {
-        root: {
-          backgroundColor: customColors.white,
-        },
-      },
-    },
-    MuiTextField: {
-      defaultProps: {
-        variant: "filled",
-      },
-    },
-  },
-});
-
 // Dark theme
 export const darkTheme = createTheme({
-  ...lightTheme,
   palette: {
     mode: "dark",
     primary: {
@@ -143,6 +55,32 @@ export const darkTheme = createTheme({
       secondary: customColors.gray400,
     },
     divider: customColors.gray200,
+  },
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontWeight: 600,
+      fontSize: "2.5rem",
+    },
+    h2: {
+      fontWeight: 600,
+      fontSize: "2rem",
+    },
+    h3: {
+      fontWeight: 600,
+      fontSize: "1.75rem",
+    },
+    body1: {
+      fontSize: "1rem",
+      lineHeight: 1.5,
+    },
+    body2: {
+      fontSize: "0.875rem",
+      lineHeight: 1.5,
+    },
+  },
+  shape: {
+    borderRadius: 8,
   },
   components: {
     MuiButton: {

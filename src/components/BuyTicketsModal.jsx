@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 import React, { useEffect, useMemo, useRef, useState, forwardRef } from 'react';
+=======
+/* global BigInt */
+import React, { useEffect, useMemo, useRef, useState, forwardRef } from "react";
+>>>>>>> jonesy_the_cat
 import {
   AppBar,
   Box,
   Button,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -15,7 +19,9 @@ import {
   Typography,
   alpha,
   useMediaQuery,
+  Chip,
   useTheme,
+<<<<<<< HEAD
 } from '@mui/material';
 import Slide from '@mui/material/Slide';
 import AddIcon from '@mui/icons-material/Add';
@@ -25,6 +31,18 @@ import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumb
 import CloseIcon from '@mui/icons-material/Close';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import PropTypes from 'prop-types';
+=======
+} from "@mui/material";
+import Slide from "@mui/material/Slide";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
+import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumberOutlined";
+import CloseIcon from "@mui/icons-material/Close";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
+import PropTypes from "prop-types";
+import { formatQubicAmount } from "./qubic/util";
+>>>>>>> jonesy_the_cat
 
 export const DEFAULTS = {
   MAX_TICKETS: 1023,
@@ -33,7 +51,10 @@ export const DEFAULTS = {
   TITLE: 'Buy Tickets',
 };
 
+<<<<<<< HEAD
 const formatQubic = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+=======
+>>>>>>> jonesy_the_cat
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
 const SlideUp = forwardRef(function SlideUp(props, ref) {
@@ -59,13 +80,47 @@ function BuyTicketsModal({
 
   const [qty, setQty] = useState(0);
 
+<<<<<<< HEAD
   const maxAffordable = useMemo(() => {
     if (typeof balanceQubic !== 'number') return maxTickets;
     const byWallet = Math.floor(balanceQubic / pricePerTicket);
     return clamp(byWallet, 0, maxTickets);
+=======
+  const affordableFromBalance = useMemo(() => {
+    if (balanceQubic == null) return maxTickets;
+    try {
+      if (typeof balanceQubic === "bigint") {
+        if (pricePerTicket <= 0) return maxTickets;
+        const res =
+          balanceQubic >= 0n ? balanceQubic / BigInt(pricePerTicket) : 0n;
+        return Number(res);
+      }
+      const num = Number(balanceQubic);
+      if (!Number.isFinite(num) || num < 0 || pricePerTicket <= 0)
+        return maxTickets;
+      return Math.floor(num / pricePerTicket);
+    } catch {
+      return maxTickets;
+    }
+>>>>>>> jonesy_the_cat
   }, [balanceQubic, pricePerTicket, maxTickets]);
 
+  const maxAffordable = clamp(affordableFromBalance, 0, maxTickets);
   const effectiveMax = maxAffordable;
+
+  const balanceNumForUi = useMemo(() => {
+    try {
+      if (typeof balanceQubic === "bigint") {
+        const cap = BigInt(Number.MAX_SAFE_INTEGER);
+        const safe = balanceQubic > cap ? cap : balanceQubic;
+        return Number(safe);
+      }
+      const num = Number(balanceQubic ?? 0);
+      return Number.isFinite(num) && num >= 0 ? num : 0;
+    } catch {
+      return 0;
+    }
+  }, [balanceQubic]);
 
   useEffect(() => {
     if (open) {
@@ -80,7 +135,11 @@ function BuyTicketsModal({
 
   const total = useMemo(() => qty * pricePerTicket, [qty, pricePerTicket]);
   const insufficient =
+<<<<<<< HEAD
     typeof balanceQubic === 'number' ? total > balanceQubic : false;
+=======
+    typeof balanceNumForUi === "number" ? total > balanceNumForUi : false;
+>>>>>>> jonesy_the_cat
   const meetsMinimum = qty >= minTickets;
   const canBuy =
     !isProcessing &&
@@ -108,7 +167,6 @@ function BuyTicketsModal({
     onConfirm?.(qty);
     onClose?.();
   };
-
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -135,6 +193,7 @@ function BuyTicketsModal({
     </Stack>
   );
 
+<<<<<<< HEAD
   const balanceChip =
     typeof balanceQubic === 'number' ? (
       <Chip
@@ -152,6 +211,20 @@ function BuyTicketsModal({
         }}
       />
     ) : null;
+=======
+  const balanceDisplay = (
+    <Chip
+      label={`Balance: ${formatQubicAmount(balanceNumForUi)} QUBIC`}
+      sx={{
+        fontFamily: "monospace",
+        fontWeight: 500,
+        borderRadius: 1,
+        bgcolor: alpha(theme.palette.primary.main, 0.12),
+        color: theme.palette.primary.main,
+      }}
+    />
+  );
+>>>>>>> jonesy_the_cat
 
   const disabledAll = isProcessing || effectiveMax === 0;
 
@@ -165,16 +238,27 @@ function BuyTicketsModal({
       TransitionComponent={SlideUp}
       keepMounted
       aria-labelledby='buy-tickets-title'
+      BackdropProps={{
+        sx: {
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+        },
+      }}
       PaperProps={{
         sx: {
           borderRadius: { xs: 0, sm: 1 },
           overflow: 'hidden',
           border: `1px solid ${alpha(theme.palette.primary.main, 0.18)}`,
+<<<<<<< HEAD
           background:
             theme.palette.mode === 'dark'
               ? theme.palette.background.paper
               : '#fff',
           height: { xs: '100dvh', sm: 'auto' },
+=======
+          background: theme.palette.background.default,
+          height: { xs: "100dvh", sm: "auto" },
+>>>>>>> jonesy_the_cat
           m: 0,
         },
       }}
@@ -192,10 +276,20 @@ function BuyTicketsModal({
             )}`,
           }}
         >
+<<<<<<< HEAD
           <Toolbar sx={{ justifyContent: 'space-between', gap: 1 }}>
+=======
+          <Toolbar
+            sx={{
+              justifyContent: "space-between",
+              gap: 1,
+              alignItems: "center",
+            }}
+          >
+>>>>>>> jonesy_the_cat
             {header}
             <Stack direction='row' spacing={1.25} alignItems='center'>
-              {balanceChip}
+              {balanceDisplay}
               <IconButton
                 onClick={onClose}
                 aria-label='Close'
@@ -228,7 +322,7 @@ function BuyTicketsModal({
         >
           {header}
           <Stack direction='row' spacing={1.25} alignItems='center'>
-            {balanceChip}
+            {balanceDisplay}
             <IconButton
               onClick={onClose}
               aria-label='Close'
@@ -402,10 +496,14 @@ function BuyTicketsModal({
               p: isMobile ? 1.5 : 2,
               borderRadius: 0,
               border: `1px dashed ${alpha(theme.palette.primary.main, 0.35)}`,
+<<<<<<< HEAD
               bgcolor:
                 theme.palette.mode === 'dark'
                   ? alpha(theme.palette.primary.main, 0.06)
                   : alpha(theme.palette.primary.main, 0.04),
+=======
+              bgcolor: alpha(theme.palette.primary.main, 0.06)
+>>>>>>> jonesy_the_cat
             }}
           >
             <Stack direction='row' spacing={3} alignItems='center'>
@@ -434,8 +532,13 @@ function BuyTicketsModal({
                 >
                   Price / ticket
                 </Typography>
+<<<<<<< HEAD
                 <Typography sx={{ fontFamily: 'monospace', fontWeight: 500 }}>
                   {formatQubic(pricePerTicket)} QUBIC
+=======
+                <Typography sx={{ fontFamily: "monospace", fontWeight: 500 }}>
+                  {formatQubicAmount(pricePerTicket)} QUBIC
+>>>>>>> jonesy_the_cat
                 </Typography>
               </Stack>
 
@@ -457,7 +560,7 @@ function BuyTicketsModal({
                         : theme.palette.primary.main,
                     }}
                   >
-                    {formatQubic(total)} QUBIC
+                    {formatQubicAmount(total)} QUBIC
                   </Typography>
                 </Stack>
               )}
@@ -511,9 +614,15 @@ function BuyTicketsModal({
               sx={{ color: theme.palette.text.secondary }}
             >
               Min {minTickets} • Max {maxTickets}
+<<<<<<< HEAD
               {typeof balanceQubic === 'number'
                 ? ` • Max affordable ${maxAffordable}`
                 : ''}
+=======
+              {typeof effectiveMax === "number"
+                ? ` • Max affordable ${effectiveMax}`
+                : ""}
+>>>>>>> jonesy_the_cat
             </Typography>
           </Box>
         </Stack>
@@ -527,12 +636,18 @@ function BuyTicketsModal({
           right: 0,
           p: { xs: 2, sm: 3 },
           borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+<<<<<<< HEAD
           bgcolor:
             theme.palette.mode === 'dark'
               ? alpha(theme.palette.background.paper, 0.9)
               : alpha('#fff', 0.9),
           backdropFilter: 'saturate(180%) blur(8px)',
           display: { xs: 'flex', sm: 'none' },
+=======
+          bgcolor: alpha(theme.palette.background.paper, 0.9),
+          backdropFilter: "saturate(180%) blur(8px)",
+          display: { xs: "flex", sm: "none" },
+>>>>>>> jonesy_the_cat
         }}
       >
         <Stack
@@ -558,7 +673,7 @@ function BuyTicketsModal({
                   : theme.palette.primary.main,
               }}
             >
-              {formatQubic(total)} QUBIC
+              {formatQubicAmount(total)} QUBIC
             </Typography>
             {!meetsMinimum && qty > 0 && (
               <Typography
@@ -605,7 +720,8 @@ BuyTicketsModal.propTypes = {
   onClose: PropTypes.func,
   onConfirm: PropTypes.func.isRequired,
   isProcessing: PropTypes.bool,
-  balanceQubic: PropTypes.number,
+  // accepte number | string; BigInt
+  balanceQubic: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   defaultQuantity: PropTypes.number,
   pricePerTicket: PropTypes.number,
   minTickets: PropTypes.number,

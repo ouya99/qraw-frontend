@@ -99,6 +99,9 @@ function MatrixReveal({ id, duration = 8000, onComplete }) {
 
 export default function StartPage() {
   const theme = useTheme();
+  const { connected, toggleConnectModal } = useQubicConnect();
+  const { balance, fetchBalance } = useQuotteryContext();
+  console.log('Balance:', balance);
   const participants = useMemo(
     () => Array.from({ length: NB_PARTICIPANTS }, randomPublicId),
     []
@@ -117,7 +120,6 @@ export default function StartPage() {
   const [revealComplete, setRevealComplete] = useState(false);
 
   const [openBuy, setOpenBuy] = useState(false);
-  const balanceDemo = 7_500_000_000;
 
   const {
     wallet,
@@ -173,7 +175,15 @@ export default function StartPage() {
     return () => clearInterval(timer);
   }, [participants]);
 
+  useEffect(() => {
+    if (connected) fetchBalance();
+  }, [connected, fetchBalance]);
+
   const handleGetTicket = () => {
+    if (!connected) {
+      toggleConnectModal();
+      return;
+    }
     setOpenBuy(true);
   };
 
@@ -259,7 +269,7 @@ export default function StartPage() {
             <Box
               component='span'
               sx={{
-                fontSize: '0.9em',
+                fontSize: { xs: '0.9rem', sm: '1.1rem', md: '1.3rem' },
                 color: theme.palette.text.secondary,
                 fontWeight: 600,
                 mr: 2,
@@ -276,7 +286,7 @@ export default function StartPage() {
                 fontWeight: 600,
                 color: '#fff23eff',
                 fontFamily: 'monospace',
-                fontSize: '1.2em',
+                fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.8rem' },
                 letterSpacing: '.06em',
               }}
             >
@@ -335,26 +345,21 @@ export default function StartPage() {
           </Stack>
 
           <Button
-            variant='outlined'
+            size='large'
+            variant='contained'
+            color='primary'
             startIcon={<RocketLaunchIcon />}
-            onClick={handleGetTicket}
             sx={{
+              fontWeight: 600,
               fontFamily: 'monospace',
-              fontSize: '0.95rem',
-              fontWeight: 500,
-              px: 4,
+              fontSize: '1rem',
+              px: 5,
               py: 1.5,
               borderRadius: 0,
-              borderColor: theme.palette.primary.main,
-              color: theme.palette.primary.main,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-                backgroundColor: alpha(theme.palette.primary.main, 0.05),
-              },
+              letterSpacing: '.06em',
+              borderWidth: 2,
             }}
+            onClick={handleGetTicket}
           >
             Get Ticket
           </Button>
@@ -451,7 +456,7 @@ export default function StartPage() {
                         py: 1,
                         px: 2,
                         fontFamily: 'monospace',
-                        fontSize: '0.8rem',
+                        fontSize: { xs: '0.6rem', sm: '0.8rem', md: '1rem' },
                         color:
                           addr === winner
                             ? theme.palette.primary.main
@@ -516,7 +521,7 @@ export default function StartPage() {
       <BuyTicketsModal
         open={openBuy}
         onClose={() => setOpenBuy(false)}
-        balanceQubic={balanceDemo}
+        balanceQubic={balance}
         onConfirm={handleConfirmBuy}
         isProcessing={false}
       />
