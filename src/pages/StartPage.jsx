@@ -17,6 +17,8 @@ import GroupIcon from "@mui/icons-material/Group";
 import { motion } from "framer-motion";
 import logo from "../assets/logo/logoWin.svg";
 import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumberOutlined";
+import BuyTicketsModal from "../components/BuyTicketsModal";
+
 
 const DRAW_INTERVAL = 15;
 const NB_PARTICIPANTS = 24;
@@ -112,6 +114,9 @@ export default function StartPage() {
   const [pot, setPot] = useState(INITIAL_POT);
   const [revealComplete, setRevealComplete] = useState(false);
 
+  const [openBuy, setOpenBuy] = useState(false);
+  const balanceDemo = 7_500_000_000;
+
   useEffect(() => {
     const newWinner =
       participants[Math.floor(Math.random() * participants.length)];
@@ -131,7 +136,14 @@ export default function StartPage() {
   }, [participants]);
 
   const handleGetTicket = () => {
-    alert("😹");
+    setOpenBuy(true);
+  };
+
+   const handleConfirmBuy = (qty) => {
+    // Branche ici l'appel backend / smart contract
+    console.log("Buy", qty, "tickets");
+    // tu peux aussi déclencher un snackbar si tu en as un
+    // enqueueSnackbar(`${qty} tickets achetés`, { variant: "success" });
   };
 
   return (
@@ -438,6 +450,14 @@ export default function StartPage() {
           </Stack>
         </motion.div>
       </Container>
+      {/* ---- MODALE ACHAT ---- */}
+      <BuyTicketsModal
+        open={openBuy}
+        onClose={() => setOpenBuy(false)}
+        balanceQubic={balanceDemo}         // <-- remplace par ton solde réel si dispo
+        onConfirm={handleConfirmBuy}
+        isProcessing={false}
+      />
     </Box>
   );
 }
