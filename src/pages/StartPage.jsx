@@ -21,6 +21,7 @@ import BuyTicketsModal, { DEFAULTS } from '../components/BuyTicketsModal';
 import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
 import { queryContract } from '../components/qubic/util/contractApi';
+import { useQuotteryContext } from '../contexts/QuotteryContext';
 
 const DRAW_INTERVAL = 15;
 const NB_PARTICIPANTS = 24;
@@ -99,7 +100,16 @@ function MatrixReveal({ id, duration = 8000, onComplete }) {
 
 export default function StartPage() {
   const theme = useTheme();
-  const { connected, toggleConnectModal } = useQubicConnect();
+  const {
+    wallet,
+    qHelper,
+    getTick,
+    signTransaction,
+    broadcastTx,
+    connected,
+    httpEndpoint,
+    toggleConnectModal,
+  } = useQubicConnect();
   const { balance, fetchBalance } = useQuotteryContext();
   console.log('Balance:', balance);
   const participants = useMemo(
@@ -120,16 +130,6 @@ export default function StartPage() {
   const [revealComplete, setRevealComplete] = useState(false);
 
   const [openBuy, setOpenBuy] = useState(false);
-
-  const {
-    wallet,
-    qHelper,
-    getTick,
-    signTransaction,
-    broadcastTx,
-    connected,
-    httpEndpoint,
-  } = useQubicConnect();
 
   useEffect(() => {
     console.log('hi');
