@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import { useQubicConnect } from "../components/qubic/connect/QubicConnectContext";
 import { useQuotteryContext } from "../contexts/QuotteryContext";
-import { truncateMiddle, formatQubicAmount } from "../components/qubic/util";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import GroupIcon from "@mui/icons-material/Group";
 import { motion } from "framer-motion";
