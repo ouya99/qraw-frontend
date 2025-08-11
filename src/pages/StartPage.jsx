@@ -284,26 +284,21 @@ export default function StartPage() {
           </Stack>
 
           <Button
-            variant='outlined'
-            startIcon={<RocketLaunchIcon />}
-            onClick={handleGetTicket}
-            sx={{
-              fontFamily: "monospace",
-              fontSize: "0.95rem",
-              fontWeight: 500,
-              px: 4,
-              py: 1.5,
-              borderRadius: 0,
-              borderColor: theme.palette.primary.main,
-              color: theme.palette.primary.main,
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              transition: "all 0.2s ease",
-              "&:hover": {
-                borderColor: theme.palette.primary.main,
-                backgroundColor: alpha(theme.palette.primary.main, 0.05),
-              },
-            }}
+            size='large'
+              variant='contained'
+              color='primary'
+              startIcon={<RocketLaunchIcon />}
+              sx={{
+                fontWeight: 600,
+                fontFamily: "monospace",
+                fontSize: "1rem",
+                px: 5,
+                py: 1.5,
+                borderRadius: 0,
+                letterSpacing: ".06em",
+                borderWidth: 2,
+              }}
+              onClick={handleGetTicket}
           >
             Get Ticket
           </Button>
