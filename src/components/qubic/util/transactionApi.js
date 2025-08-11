@@ -24,7 +24,6 @@ export async function executeTransactionWithWallet({
   destinationId,
   contractIndexes, // Add this parameter
 }) {
-  console.log('params', params);
   // Destructure needed functions/state from context
   const {
     wallet,
@@ -34,6 +33,8 @@ export async function executeTransactionWithWallet({
     broadcastTx,
     httpEndpoint,
   } = qubicConnect;
+
+  console.log('params', params, 'wallet', wallet);
 
   if (!wallet || !wallet.publicKey) {
     throw new Error('Wallet not connected or public key unavailable.');

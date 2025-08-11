@@ -163,15 +163,15 @@ export default function StartPage() {
         connected,
         httpEndpoint,
       },
-      contractIndex: 15,
+      // contractIndex: 'QDRAW',  // not used in function
       procedureIndex: 1,
       params: { ticketCount: qty },
-      // inputFields: selectedFunction.inputs,
-      // amount: finalAmountInQus.toString(),
-      sourceId: wallet.publicKey,
-      // destinationId: 'Contract: ' + contractName,
-      // functionName: selectedFunction.name,
-      // functionParams: paramsData,
+      inputFields: [{ name: 'ticketCount', type: 'uint64' }],
+      amount: qty * 1000000,
+      // sourceId: wallet.publicKey, // not used in function
+      // destinationId: 'Contract: ' + contractName,  // not used in function
+      functionName: 'buyTicket',
+      functionParams: { ticketCount: qty },
       // contractIndexes,
     };
 
