@@ -207,7 +207,7 @@ export default function StartPage() {
             <Box
               component='span'
               sx={{
-                fontSize: "0.9em",
+                fontSize: { xs: "0.9rem", sm: "1.1rem", md: "1.3rem" },
                 color: theme.palette.text.secondary,
                 fontWeight: 600,
                 mr: 2,
@@ -224,7 +224,7 @@ export default function StartPage() {
                 fontWeight: 600,
                 color: "#fff23eff",
                 fontFamily: "monospace",
-                fontSize: "1.2em",
+                fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.8rem" },
                 letterSpacing: ".06em",
               }}
             >
@@ -394,7 +394,7 @@ export default function StartPage() {
                         py: 1,
                         px: 2,
                         fontFamily: "monospace",
-                        fontSize: "0.8rem",
+                        fontSize: { xs: "0.6rem", sm: "0.8rem", md: "1rem" },
                         color:
                           addr === winner
                             ? theme.palette.primary.main
