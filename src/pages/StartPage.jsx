@@ -115,15 +115,18 @@ export default function StartPage() {
   } = useQubicConnect();
   const { balance, fetchBalance } = useQuotteryContext();
   console.log('Balance:', balance);
-  const participants = useMemo(() => Array.from({ length: NB_PARTICIPANTS }, randomPublicId), []);
-  const ticketsByParticipant = useMemo(
-    () =>
-      participants.reduce((acc, id) => {
-        acc[id] = Math.floor(Math.random() * 5) + 1;
-        return acc;
-      }, {}),
-    [participants],
-  );
+
+  // const participants = useMemo(() => Array.from({ length: NB_PARTICIPANTS }, randomPublicId), []);
+  // const ticketsByParticipant = useMemo(
+  //   () =>
+  //     participants.reduce((acc, id) => {
+  //       acc[id] = Math.floor(Math.random() * 5) + 1;
+  //       return acc;
+  //     }, {}),
+  //   [participants],
+  // );
+  const [participants, setParticipants] = useState([]);
+  const [ticketsByParticipant, setTicketsByParticipant] = useState([]);
   const [winner, setWinner] = useState(null);
   const [nextTime, setnextTime] = useState(DRAW_INTERVAL);
   const [pot, setPot] = useState(INITIAL_POT);
@@ -199,18 +202,27 @@ export default function StartPage() {
           null,
         );
         console.log('qdrawGetParticipants result:', result.rawResponse);
-        // let myBuffer = '';
-        // try {
-        //   myBuffer = Buffer.from(result.rawResponse.responseData, 'base64');
-        //   console.log(myBuffer);
-        // } catch (err) {
-        //   console.error('Failed to decode base64 data:', err);
-        // }
-        // const lastWinner = await qHelper.getIdentity(
-        //   new Uint8Array(myBuffer.slice(16, 48))
-        // ); // 32 bytes
-        // setWinner(lastWinner);
-        // console.log('lastDrawHour', myBuffer.slice(56, 57)[0]);
+        let myBuffer = '';
+        try {
+          myBuffer = Buffer.from(result.rawResponse.responseData, 'base64');
+          console.log(myBuffer);
+        } catch (err) {
+          console.error('Failed to decode base64 data:', err);
+        }
+        const participantCount = myBuffer.slice(0, 8)[0];
+        console.log('qdrawGetParticipants participantCount', participantCount);
+        const uniqueParticipantCount = myBuffer.slice(8, 16)[0];
+        console.log('qdrawGetParticipants uniqueParticipantCount', uniqueParticipantCount);
+
+        const activeParticipants = [];
+        for (let i = 0; i < participantCount; i++) {
+          const result = await qHelper.getIdentity(
+            new Uint8Array(myBuffer.slice(16, 16 + (i + 1) * 32)),
+          ); // 32 bytes
+          activeParticipants.push(result);
+        }
+        console.log('qdrawGetParticipants activeParticipants', activeParticipants);
+        setParticipants(activeParticipants);
 
         // You may want to do setState here as well
       } catch (error) {
