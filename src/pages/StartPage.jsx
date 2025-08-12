@@ -193,6 +193,54 @@ export default function StartPage() {
 
     qdrawGetInfo();
 
+    const qdrawGetParticipants = async () => {
+      try {
+        const result = await queryContract(
+          'http://67.222.157.63:8000',
+          15, // QDRAW
+          3, // getParticipants
+          {},
+          [],
+          null,
+          null,
+          null
+        );
+        console.log('qdrawGetParticipants result:', result.rawResponse);
+        // let myBuffer = '';
+        // try {
+        //   myBuffer = Buffer.from(result.rawResponse.responseData, 'base64');
+        //   console.log(myBuffer);
+        // } catch (err) {
+        //   console.error('Failed to decode base64 data:', err);
+        // }
+        // const lastWinner = await qHelper.getIdentity(
+        //   new Uint8Array(myBuffer.slice(16, 48))
+        // ); // 32 bytes
+        // setWinner(lastWinner);
+        // console.log('lastDrawHour', myBuffer.slice(56, 57)[0]);
+
+        // You may want to do setState here as well
+      } catch (error) {
+        // do something when you encounter errors
+      }
+    };
+
+    qdrawGetParticipants();
+
+    // const data = base64.decode(responseData.responseData);
+
+    // // Use Buffer to handle binary data
+    // const buffer = Buffer.from(data, "binary");
+
+    // // Read the count of active bets (first 4 bytes as UInt32)
+    // const count = buffer.readUInt32LE(0);
+
+    // // Extract active bet IDs from the rest of the buffer
+    // const activeBetIds = [];
+    // for (let i = 0; i < count; i++) {
+    //   activeBetIds.push(buffer.readUInt32LE(4 + i * 4));
+    // }
+
     return () => clearInterval(timer);
   }, [participants, qHelper]);
 
