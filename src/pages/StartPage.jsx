@@ -224,6 +224,15 @@ export default function StartPage() {
         console.log('qdrawGetParticipants activeParticipants', activeParticipants);
         setParticipants(activeParticipants);
 
+        const tickets = [];
+        for (let i = 0; i < participantCount; i++) {
+          const offset = 16 + 1024 * 32;
+          const result = myBuffer.slice(offset, offset + (i + 1) * 8)[0];
+          tickets.push(result);
+        }
+        console.log('qdrawGetParticipants tickets', tickets);
+
+        setTicketsByParticipant(tickets);
         // You may want to do setState here as well
       } catch (error) {
         // do something when you encounter errors
