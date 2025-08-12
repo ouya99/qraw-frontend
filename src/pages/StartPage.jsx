@@ -170,8 +170,14 @@ export default function StartPage() {
         } catch (err) {
           console.error('Failed to decode base64 data:', err);
         }
-        const lastWinner = new Uint8Array(myBuffer.slice(16, 48)); // 32 bytes
-        console.log('lastWinner', await qHelper.getIdentity(lastWinner));
+        const lastWinner = await qHelper.getIdentity(
+          new Uint8Array(myBuffer.slice(16, 48))
+        ); // 32 bytes
+        console.log('lastWinner', lastWinner);
+        setWinner(lastWinner);
+        console.log('lastDrawHour', myBuffer.slice(56, 57)[0]);
+        console.log('currentHour', myBuffer.slice(57, 58)[0]);
+        console.log('nextDrawHour', myBuffer.slice(58, 59)[0]);
 
         console.log('Pot :', result.decodedFields.field1, ' qu');
         console.log('Number of Participants: ', result.decodedFields.field2);
