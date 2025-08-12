@@ -937,7 +937,6 @@ export function QubicConnectProvider({ children }) {
               params: signingParams,
             },
           });
-
           console.log('Received result from WC signing:', wcResult);
 
           if (
