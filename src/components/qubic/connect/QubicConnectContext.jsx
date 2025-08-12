@@ -1,16 +1,16 @@
 // src/context/QubicConnectContext.js
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { QubicHelper } from '@qubic-lib/qubic-ts-library/dist/qubicHelper';
-import Crypto, {
-  SIGNATURE_LENGTH,
-} from '@qubic-lib/qubic-ts-library/dist/crypto';
-import base64 from 'base-64';
 import { Buffer } from 'buffer';
+
+import Crypto, { SIGNATURE_LENGTH } from '@qubic-lib/qubic-ts-library/dist/crypto';
+import { QubicHelper } from '@qubic-lib/qubic-ts-library/dist/qubicHelper';
 import { QubicVault } from '@qubic-lib/qubic-ts-vault-library';
 import SignClient from '@walletconnect/sign-client';
-import QRCode from 'qrcode';
-import { decodeUint8ArrayTx, base64ToUint8Array } from '../util/contractUtils';
+import base64 from 'base-64';
 import PropTypes from 'prop-types';
+import QRCode from 'qrcode';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+import { decodeUint8ArrayTx, base64ToUint8Array } from '../util/contractUtils';
 
 // Helper function to sign transactions
 async function localSignTx(qHelper, privateKey, tx) {
@@ -22,11 +22,7 @@ async function localSignTx(qHelper, privateKey, tx) {
 
   qCrypto.K12(toSign, digest, qHelper.DIGEST_LENGTH);
 
-  const signature = qCrypto.schnorrq.sign(
-    idPackage.privateKey,
-    idPackage.publicKey,
-    digest
-  );
+  const signature = qCrypto.schnorrq.sign(idPackage.privateKey, idPackage.publicKey, digest);
 
   tx.set(signature, tx.length - SIGNATURE_LENGTH);
   return tx;
@@ -139,10 +135,8 @@ export const RPC_CONFIGS = {
 const QubicConnectContext = createContext(null);
 
 // Constants for WalletConnect
-const WC_PROJECT_ID =
-  process.env.REACT_APP_WC_PROJECT_ID || 'b2ace378845f0e4806ef23d2732f77a4';
-const WC_RELAY_URL =
-  process.env.REACT_APP_WC_RELAY_URL || 'wss://relay.walletconnect.com';
+const WC_PROJECT_ID = process.env.REACT_APP_WC_PROJECT_ID || 'b2ace378845f0e4806ef23d2732f77a4';
+const WC_RELAY_URL = process.env.REACT_APP_WC_RELAY_URL || 'wss://relay.walletconnect.com';
 const WC_METADATA = {
   name: 'Dynamic Contract UI',
   description: 'Interact with Qubic Smart Contracts',
@@ -152,8 +146,7 @@ const WC_METADATA = {
 const WC_CHAIN_ID = 'qubic:mainnet';
 
 // Constants for MetaMask Snap
-const SNAP_ORIGIN =
-  process.env.REACT_APP_SNAP_ORIGIN || 'npm:@qubic-lib/qubic-mm-snap';
+const SNAP_ORIGIN = process.env.REACT_APP_SNAP_ORIGIN || 'npm:@qubic-lib/qubic-mm-snap';
 const SNAP_VERSION = process.env.REACT_APP_SNAP_VERSION;
 
 export function QubicConnectProvider({ children }) {
@@ -177,7 +170,7 @@ export function QubicConnectProvider({ children }) {
   const [mmError, setMmError] = useState(null);
 
   const [httpEndpoint, setHttpEndpoint] = useState(
-    process.env.REACT_APP_HTTP_ENDPOINT || 'https://rpc.qubic.org'
+    process.env.REACT_APP_HTTP_ENDPOINT || 'https://rpc.qubic.org',
   );
 
   // --- Add Balance State ---
@@ -192,13 +185,10 @@ export function QubicConnectProvider({ children }) {
 
   // --- Add Possessed Assets State ---
   const [possessedAssets, setPossessedAssets] = useState([]);
-  const [isPossessedAssetsLoading, setIsPossessedAssetsLoading] =
-    useState(false);
+  const [isPossessedAssetsLoading, setIsPossessedAssetsLoading] = useState(false);
   const [possessedAssetsError, setPossessedAssetsError] = useState(null);
 
-  const [contractIndexes, setContractIndexes] = useState(
-    DEFAULT_CONTRACT_INDEXES
-  );
+  const [contractIndexes, setContractIndexes] = useState(DEFAULT_CONTRACT_INDEXES);
 
   useEffect(() => {
     const initializeWcClient = async () => {
@@ -220,7 +210,7 @@ export function QubicConnectProvider({ children }) {
               publicKey: session.namespaces.qubic.accounts[0].split(':')[2],
               wcSession: session,
             },
-            true
+            true,
           );
         }
 
@@ -233,12 +223,8 @@ export function QubicConnectProvider({ children }) {
           const _session = client.session.get(topic);
           const updatedSession = { ..._session, namespaces };
           setWcSession(updatedSession);
-          const publicKey =
-            updatedSession.namespaces.qubic.accounts[0].split(':')[2];
-          if (
-            wallet?.connectType === 'walletconnect' &&
-            wallet.publicKey !== publicKey
-          ) {
+          const publicKey = updatedSession.namespaces.qubic.accounts[0].split(':')[2];
+          if (wallet?.connectType === 'walletconnect' && wallet.publicKey !== publicKey) {
             connect({
               connectType: 'walletconnect',
               publicKey,
@@ -269,11 +255,7 @@ export function QubicConnectProvider({ children }) {
           setConnected(true);
         }
       } catch (error) {
-        if (
-          typeof saved === 'string' &&
-          saved.length === 55 &&
-          saved.match(/^[a-z]+$/)
-        ) {
+        if (typeof saved === 'string' && saved.length === 55 && saved.match(/^[a-z]+$/)) {
           connect({
             connectType: 'privateKey',
             privateKey: saved,
@@ -324,7 +306,7 @@ export function QubicConnectProvider({ children }) {
       }
 
       console.log(
-        `Fetching balance for ${wallet.publicKey} from ${httpEndpoint} using /v1/balances`
+        `Fetching balance for ${wallet.publicKey} from ${httpEndpoint} using /v1/balances`,
       );
       setIsBalanceLoading(true);
       setBalanceError(null);
@@ -332,22 +314,15 @@ export function QubicConnectProvider({ children }) {
 
       try {
         // Use the correct endpoint: /v1/balances/{id}
-        const response = await fetch(
-          `${httpEndpoint}/v1/balances/${wallet.publicKey}`
-        );
+        const response = await fetch(`${httpEndpoint}/v1/balances/${wallet.publicKey}`);
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(
-            `HTTP error ${response.status}: ${errorText || response.statusText}`
-          );
+          throw new Error(`HTTP error ${response.status}: ${errorText || response.statusText}`);
         }
         const data = await response.json();
 
         // *** ADD LOGGING HERE ***
-        console.log(
-          '[QubicConnectContext] Raw balance API response:',
-          JSON.stringify(data)
-        );
+        console.log('[QubicConnectContext] Raw balance API response:', JSON.stringify(data));
 
         // Parse response according to the provided structure
         if (
@@ -357,16 +332,10 @@ export function QubicConnectProvider({ children }) {
           data.balance.balance !== null
         ) {
           const rawBalance = data.balance.balance.toString(); // Ensure it's a string
-          console.log(
-            '[QubicConnectContext] Parsed raw balance (QUs):',
-            rawBalance
-          ); // Log the value being set
+          console.log('[QubicConnectContext] Parsed raw balance (QUs):', rawBalance); // Log the value being set
           setBalance(rawBalance);
         } else {
-          console.warn(
-            'Balance field (data.balance.balance) not found in API response:',
-            data
-          );
+          console.warn('Balance field (data.balance.balance) not found in API response:', data);
           setBalance('0'); // Default to 0 if structure is unexpected
         }
       } catch (error) {
@@ -392,21 +361,17 @@ export function QubicConnectProvider({ children }) {
       }
 
       console.log(
-        `Fetching owned assets for ${wallet.publicKey} from ${httpEndpoint} using /v1/assets/${wallet.publicKey}/owned`
+        `Fetching owned assets for ${wallet.publicKey} from ${httpEndpoint} using /v1/assets/${wallet.publicKey}/owned`,
       );
       setIsAssetsLoading(true);
       setAssetsError(null);
       setOwnedAssets([]);
 
       try {
-        const response = await fetch(
-          `${httpEndpoint}/v1/assets/${wallet.publicKey}/owned`
-        );
+        const response = await fetch(`${httpEndpoint}/v1/assets/${wallet.publicKey}/owned`);
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(
-            `HTTP error ${response.status}: ${errorText || response.statusText}`
-          );
+          throw new Error(`HTTP error ${response.status}: ${errorText || response.statusText}`);
         }
         const data = await response.json();
 
@@ -417,7 +382,7 @@ export function QubicConnectProvider({ children }) {
         } else {
           console.warn(
             "Owned assets field ('ownedAssets') not found or not an array in API response:",
-            data
+            data,
           );
           setOwnedAssets([]); // Default to empty array if structure is unexpected
         }
@@ -444,21 +409,17 @@ export function QubicConnectProvider({ children }) {
       }
 
       console.log(
-        `Fetching possessed assets for ${wallet.publicKey} from ${httpEndpoint} using /v1/assets/${wallet.publicKey}/possessed`
+        `Fetching possessed assets for ${wallet.publicKey} from ${httpEndpoint} using /v1/assets/${wallet.publicKey}/possessed`,
       );
       setIsPossessedAssetsLoading(true);
       setPossessedAssetsError(null);
       setPossessedAssets([]);
 
       try {
-        const response = await fetch(
-          `${httpEndpoint}/v1/assets/${wallet.publicKey}/possessed`
-        );
+        const response = await fetch(`${httpEndpoint}/v1/assets/${wallet.publicKey}/possessed`);
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(
-            `HTTP error ${response.status}: ${errorText || response.statusText}`
-          );
+          throw new Error(`HTTP error ${response.status}: ${errorText || response.statusText}`);
         }
         const data = await response.json();
 
@@ -469,7 +430,7 @@ export function QubicConnectProvider({ children }) {
         } else {
           console.warn(
             "Possessed assets field ('possessedAssets') not found or not an array in API response:",
-            data
+            data,
           );
           setPossessedAssets([]); // Default to empty array
         }
@@ -516,9 +477,7 @@ export function QubicConnectProvider({ children }) {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(
-          `HTTP error! status: ${response.status} - ${errorText}`
-        );
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();
@@ -546,9 +505,7 @@ export function QubicConnectProvider({ children }) {
 
       if (!tickResult.ok) {
         const errorText = await tickResult.text();
-        console.error(
-          `[getTick] HTTP error ${tickResult.status}: ${errorText}`
-        );
+        console.error(`[getTick] HTTP error ${tickResult.status}: ${errorText}`);
         throw new Error(`Failed to fetch tick info: HTTP ${tickResult.status}`);
       }
 
@@ -557,15 +514,8 @@ export function QubicConnectProvider({ children }) {
 
       const currentTick = tickData?.tickInfo?.tick;
 
-      if (
-        typeof currentTick !== 'number' ||
-        !Number.isInteger(currentTick) ||
-        currentTick < 0
-      ) {
-        console.error(
-          '[getTick] Invalid or missing tick value in response:',
-          tickData
-        );
+      if (typeof currentTick !== 'number' || !Number.isInteger(currentTick) || currentTick < 0) {
+        console.error('[getTick] Invalid or missing tick value in response:', tickData);
         throw new Error('Invalid tick data received from API.');
       }
 
@@ -582,18 +532,14 @@ export function QubicConnectProvider({ children }) {
         throw error;
       } else {
         throw new Error(
-          'Could not retrieve current network tick. Check RPC endpoint and network connection.'
+          'Could not retrieve current network tick. Check RPC endpoint and network connection.',
         );
       }
     }
   };
 
   const connect = async (walletInfo, isRestoring = false) => {
-    if (
-      walletInfo.connectType === 'privateKey' &&
-      walletInfo.privateKey &&
-      !walletInfo.publicKey
-    ) {
+    if (walletInfo.connectType === 'privateKey' && walletInfo.privateKey && !walletInfo.publicKey) {
       try {
         const idPackage = await qHelper.createIdPackage(walletInfo.privateKey);
         walletInfo.publicKey = await qHelper.getIdentity(idPackage.publicKey);
@@ -647,10 +593,7 @@ export function QubicConnectProvider({ children }) {
       cleanEndpoint = cleanEndpoint.slice(0, -1);
     }
 
-    if (
-      !cleanEndpoint.startsWith('http://') &&
-      !cleanEndpoint.startsWith('https://')
-    ) {
+    if (!cleanEndpoint.startsWith('http://') && !cleanEndpoint.startsWith('https://')) {
       cleanEndpoint = 'https://' + cleanEndpoint;
     }
 
@@ -668,10 +611,7 @@ export function QubicConnectProvider({ children }) {
   };
 
   const toggleConnectModal = () => {
-    console.log(
-      '[Context] toggleConnectModal called. Current state:',
-      showConnectModal
-    );
+    console.log('[Context] toggleConnectModal called. Current state:', showConnectModal);
     setShowConnectModal((prev) => {
       console.log('[Context] Updating showConnectModal state to:', !prev);
       return !prev;
@@ -687,8 +627,7 @@ export function QubicConnectProvider({ children }) {
         method: 'wallet_getSnaps',
       });
       return Object.values(snaps).find(
-        (snap) =>
-          snap.id === SNAP_ORIGIN && (!version || snap.version === version)
+        (snap) => snap.id === SNAP_ORIGIN && (!version || snap.version === version),
       );
     } catch (e) {
       console.error('Failed to get snaps', e);
@@ -841,8 +780,7 @@ export function QubicConnectProvider({ children }) {
     switch (wallet.connectType) {
       case 'privateKey':
       case 'vaultFile':
-        if (!wallet.privateKey)
-          throw new Error('Private key not available for signing.');
+        if (!wallet.privateKey) throw new Error('Private key not available for signing.');
         return await localSignTx(qHelper, wallet.privateKey, processedTx);
 
       case 'mmSnap':
@@ -853,7 +791,7 @@ export function QubicConnectProvider({ children }) {
 
           console.log(
             `Requesting Snap signature for tx (Base64, offset ${offset}):`,
-            base64Tx.substring(0, 100) + '...'
+            base64Tx.substring(0, 100) + '...',
           );
 
           const signedResult = await invokeSnap('signTransaction', {
@@ -875,7 +813,7 @@ export function QubicConnectProvider({ children }) {
 
           if (signatureBytes.length !== SIGNATURE_LENGTH) {
             throw new Error(
-              `Snap returned signature of incorrect length: ${signatureBytes.length}`
+              `Snap returned signature of incorrect length: ${signatureBytes.length}`,
             );
           }
 
@@ -883,8 +821,7 @@ export function QubicConnectProvider({ children }) {
           return processedTx;
         } catch (error) {
           console.error('MetaMask Snap signing failed:', error);
-          const snapErrorMessage =
-            error?.data?.message || error?.message || error?.toString();
+          const snapErrorMessage = error?.data?.message || error?.message || error?.toString();
           const specificError = error?.code
             ? `{code: ${error.code}, message: \'${snapErrorMessage}\'}`
             : snapErrorMessage;
@@ -892,27 +829,20 @@ export function QubicConnectProvider({ children }) {
         }
 
       case 'walletconnect':
-        if (!wcSession || !wcClient)
-          throw new Error('WalletConnect session not active.');
+        if (!wcSession || !wcClient) throw new Error('WalletConnect session not active.');
         try {
           console.log('Decoding TX for WalletConnect structured signing...');
           const decodedTx = decodeUint8ArrayTx(processedTx);
 
           const fromAddress = wallet.publicKey;
           const toAddress = qHelper
-            ? await qHelper.getIdentity(
-                decodedTx.destinationPublicKey.getIdentity()
-              )
+            ? await qHelper.getIdentity(decodedTx.destinationPublicKey.getIdentity())
             : 'ID_CONVERSION_FAILED';
           const amount = decodedTx.amount.getNumber();
           const tick = decodedTx.tick;
           const inputType = decodedTx.inputType;
-          const payloadBytes = decodedTx.payload
-            ? decodedTx.payload.getPackageData()
-            : null;
-          const payloadBase64 = payloadBytes
-            ? uint8ArrayToBase64(payloadBytes)
-            : null;
+          const payloadBytes = decodedTx.payload ? decodedTx.payload.getPackageData() : null;
+          const payloadBase64 = payloadBytes ? uint8ArrayToBase64(payloadBytes) : null;
 
           const signingParams = {
             from: fromAddress,
@@ -924,10 +854,7 @@ export function QubicConnectProvider({ children }) {
             nonce: Date.now().toString(),
           };
 
-          console.log(
-            'Requesting WC signature with params object:',
-            signingParams
-          );
+          console.log('Requesting WC signature with params object:', signingParams);
 
           const wcResult = await wcClient.request({
             topic: wcSession.topic,
@@ -939,37 +866,24 @@ export function QubicConnectProvider({ children }) {
           });
           console.log('Received result from WC signing:', wcResult);
 
-          if (
-            typeof wcResult !== 'string' &&
-            typeof wcResult?.signedTransaction !== 'string'
-          ) {
-            console.error(
-              'Unexpected response format from WC signing:',
-              wcResult
-            );
-            throw new Error(
-              'WalletConnect did not return a valid signedTransaction string.'
-            );
+          if (typeof wcResult !== 'string' && typeof wcResult?.signedTransaction !== 'string') {
+            console.error('Unexpected response format from WC signing:', wcResult);
+            throw new Error('WalletConnect did not return a valid signedTransaction string.');
           }
           const signedTxBase64 =
-            typeof wcResult === 'string'
-              ? wcResult
-              : wcResult.signedTransaction;
+            typeof wcResult === 'string' ? wcResult : wcResult.signedTransaction;
           const signedTxBytes = base64ToUint8Array(signedTxBase64);
 
           console.log(
-            `Signed Tx Bytes Length: ${signedTxBytes.length} (Original: ${processedTx.length})`
+            `Signed Tx Bytes Length: ${signedTxBytes.length} (Original: ${processedTx.length})`,
           );
           if (signedTxBytes.length === SIGNATURE_LENGTH) {
             console.warn('WalletConnect returned only signature, inserting...');
-            processedTx.set(
-              signedTxBytes,
-              processedTx.length - SIGNATURE_LENGTH
-            );
+            processedTx.set(signedTxBytes, processedTx.length - SIGNATURE_LENGTH);
             return processedTx;
           } else if (signedTxBytes.length !== processedTx.length) {
             console.warn(
-              `WC signed transaction length mismatch. Expected: ${processedTx.length}, Received: ${signedTxBytes.length}. Returning received bytes.`
+              `WC signed transaction length mismatch. Expected: ${processedTx.length}, Received: ${signedTxBytes.length}. Returning received bytes.`,
             );
             return signedTxBytes;
           } else {
@@ -986,9 +900,7 @@ export function QubicConnectProvider({ children }) {
         break;
 
       default:
-        throw new Error(
-          `Unsupported wallet type for signing: ${wallet.connectType}`
-        );
+        throw new Error(`Unsupported wallet type for signing: ${wallet.connectType}`);
     }
   };
 

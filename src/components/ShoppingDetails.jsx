@@ -1,4 +1,11 @@
-import React from "react";
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import DescriptionIcon from '@mui/icons-material/Description';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import GroupWorkIcon from '@mui/icons-material/GroupWork';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import PeopleIcon from '@mui/icons-material/People';
 import {
   Paper,
   Typography,
@@ -11,16 +18,10 @@ import {
   ListItemText,
   useMediaQuery,
   Box,
-} from "@mui/material";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import ListAltIcon from "@mui/icons-material/ListAlt";
-import PeopleIcon from "@mui/icons-material/People";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import GroupWorkIcon from "@mui/icons-material/GroupWork";
-import DescriptionIcon from "@mui/icons-material/Description";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
-import { formatQubicAmount } from "./qubic/util";
+} from '@mui/material';
+import React from 'react';
+
+import { formatQubicAmount } from './qubic/util';
 
 const CreateBetDetails = ({
   title,
@@ -35,66 +36,53 @@ const CreateBetDetails = ({
   betCreationFee,
 }) => {
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const formatDateTime = (date, time) => `${date}, ${time} UTC`;
-  const truncateMiddle = (
-    title,
-    maxLengthDesktop,
-    maxLengthMobile,
-    isSmallScreen
-  ) =>
+  const truncateMiddle = (title, maxLengthDesktop, maxLengthMobile, isSmallScreen) =>
     title.length > (isSmallScreen ? maxLengthMobile : maxLengthDesktop)
       ? `${title.slice(
           0,
-          (isSmallScreen ? maxLengthMobile : maxLengthDesktop) / 2 - 1
-        )}...${title.slice(
-          -(isSmallScreen ? maxLengthMobile : maxLengthDesktop) / 2 + 2
-        )}`
+          (isSmallScreen ? maxLengthMobile : maxLengthDesktop) / 2 - 1,
+        )}...${title.slice(-(isSmallScreen ? maxLengthMobile : maxLengthDesktop) / 2 + 2)}`
       : title;
 
   const details = [
     {
       icon: <DescriptionIcon color="action" />,
-      label: "Bet description",
+      label: 'Bet description',
       value: truncateMiddle(title, 60, 36, isSmallScreen),
     },
     {
       icon: <CalendarTodayIcon color="action" />,
-      label: "Closing DateTime",
+      label: 'Closing DateTime',
       value: formatDateTime(closeDate, closeTime),
     },
     {
       icon: <EventAvailableIcon color="action" />,
-      label: "End DateTime",
+      label: 'End DateTime',
       value: formatDateTime(endDate, endTime),
     },
     {
       icon: <ListAltIcon color="action" />,
-      label: "Options",
-      value: options?.join(", "),
+      label: 'Options',
+      value: options?.join(', '),
     },
     {
       icon: <PeopleIcon color="action" />,
-      label: "Providers",
+      label: 'Providers',
       value: providers?.map((provider) => (
         <Box
           key={provider.publicId}
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '100%',
           }}
         >
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 500, color: theme.palette.text.primary }}
-          >
+          <Typography variant="body2" sx={{ fontWeight: 500, color: theme.palette.text.primary }}>
             {truncateMiddle(provider.publicId, 40, 24, isSmallScreen)}
           </Typography>
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 500, color: theme.palette.text.secondary }}
-          >
+          <Typography variant="body2" sx={{ fontWeight: 500, color: theme.palette.text.secondary }}>
             Fee: {provider.fee}%
           </Typography>
         </Box>
@@ -102,26 +90,26 @@ const CreateBetDetails = ({
     },
     {
       icon: <MonetizationOnIcon color="action" />,
-      label: "Amount per Slot",
+      label: 'Amount per Slot',
       value: `${formatQubicAmount(amountPerSlot)} QUBIC`,
     },
     {
       icon: <GroupWorkIcon color="action" />,
-      label: "Max Bet Slots",
+      label: 'Max Bet Slots',
       value: maxBetSlots,
     },
   ];
 
   return (
-    <Paper elevation={0} sx={{ mt: 1, backgroundColor: "inherit" }}>
+    <Paper elevation={0} sx={{ mt: 1, backgroundColor: 'inherit' }}>
       <Stack spacing={0}>
         <Typography
-          variant={isSmallScreen ? "body1" : "h7"}
+          variant={isSmallScreen ? 'body1' : 'h7'}
           sx={{
             fontWeight: 500,
             color: theme.palette.text.secondary,
-            textAlign: "start",
-            backgroundColor: "inherit",
+            textAlign: 'start',
+            backgroundColor: 'inherit',
           }}
         >
           Bet Details :

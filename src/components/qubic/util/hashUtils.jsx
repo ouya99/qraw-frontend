@@ -1,7 +1,8 @@
 /* global BigInt */
 import CryptoJS from "crypto-js";
-import { debuglog } from "./commons";
 import { v4 as uuidv4 } from "uuid";
+
+import { debuglog } from "./commons";
 
 export const base62Encode = (hexStr) => {
   const base62Chars =

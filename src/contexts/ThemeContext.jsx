@@ -1,5 +1,6 @@
-import React from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
+import React from 'react';
+
 import { darkTheme } from '../Theme';
 
 export const ThemeContextProvider = ({ children }) => (

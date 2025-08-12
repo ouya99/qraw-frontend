@@ -1,7 +1,9 @@
 /* global BigInt */
 
 import { Buffer } from 'buffer';
+
 import base64 from 'base-64';
+
 import { encodeParams, byteArrayToHexString } from './contractUtils';
 
 // Tick offset for future execution

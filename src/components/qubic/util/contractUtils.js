@@ -1,15 +1,16 @@
 /* global BigInt */
 import { Buffer } from 'buffer';
-import base64 from 'base-64';
-import { QubicTransaction } from '@qubic-lib/qubic-ts-library/dist/qubic-types/QubicTransaction';
-import { DynamicPayload } from '@qubic-lib/qubic-ts-library/dist/qubic-types/DynamicPayload';
-import { Signature } from '@qubic-lib/qubic-ts-library/dist/qubic-types/Signature';
-import { PublicKey } from '@qubic-lib/qubic-ts-library/dist/qubic-types/PublicKey';
-import { Long } from '@qubic-lib/qubic-ts-library/dist/qubic-types/Long';
+
 import {
   PUBLIC_KEY_LENGTH,
   SIGNATURE_LENGTH,
 } from '@qubic-lib/qubic-ts-library/dist/crypto';
+import { DynamicPayload } from '@qubic-lib/qubic-ts-library/dist/qubic-types/DynamicPayload';
+import { Long } from '@qubic-lib/qubic-ts-library/dist/qubic-types/Long';
+import { PublicKey } from '@qubic-lib/qubic-ts-library/dist/qubic-types/PublicKey';
+import { QubicTransaction } from '@qubic-lib/qubic-ts-library/dist/qubic-types/QubicTransaction';
+import { Signature } from '@qubic-lib/qubic-ts-library/dist/qubic-types/Signature';
+import base64 from 'base-64';
 
 // Helper function to encode a single value based on type
 function encodeValue(value, type, qHelper, size = 0) {

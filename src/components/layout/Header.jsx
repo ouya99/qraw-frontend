@@ -6,17 +6,15 @@ import {
   Container,
   useTheme,
   useScrollTrigger,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import ConnectLink from "../qubic/connect/ConnectLink";
-// import { useThemeContext } from "../../contexts/ThemeContext";
-// import logoLight from "../../assets/logo/logo-text-on-light.svg";
-import logoDark from "../../assets/logo/qubic_draw_logo_large_text.svg";
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+
+import logoDark from '../../assets/logo/qubic_draw_logo_large_text.svg';
+import ConnectLink from '../qubic/connect/ConnectLink';
 
 const Header = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  // const { isDarkMode, toggleTheme } = useThemeContext();
 
   const scrollTrigger = useScrollTrigger({
     disableHysteresis: true,
@@ -25,20 +23,20 @@ const Header = () => {
 
   const appBarStyles = {
     background: theme.palette.background.paper,
-    backdropFilter: "blur(12px)",
-    WebkitBackdropFilter: "blur(12px)",
-    boxShadow: scrollTrigger ? "0 8px 32px rgba(0, 0, 0, 0.12)" : "none",
-    position: "fixed",
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    boxShadow: scrollTrigger ? '0 8px 32px rgba(0, 0, 0, 0.12)' : 'none',
+    position: 'fixed',
     top: 0,
     left: 0,
-    width: "100%",
+    width: '100%',
     zIndex: theme.zIndex.appBar,
   };
 
   const toolbarStyles = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     minHeight: { xs: 64, sm: 72 },
     px: { xs: 2, sm: 3, md: 4 },
   };
@@ -49,20 +47,20 @@ const Header = () => {
 
   return (
     <AppBar sx={appBarStyles}>
-      <Container maxWidth='xxl'>
+      <Container maxWidth="xxl">
         <Toolbar disableGutters sx={toolbarStyles}>
-          <Box display='flex' alignItems='center'>
+          <Box display="flex" alignItems="center">
             <IconButton
-              edge='start'
-              color='inherit'
+              edge="start"
+              color="inherit"
               sx={{ p: 0 }}
-              onClick={() => navigate("/landing")}
+              onClick={() => navigate('/landing')}
             >
-              <Box component='img' src={logoDark} alt='logo' sx={logoStyles} />
+              <Box component="img" src={logoDark} alt="logo" sx={logoStyles} />
             </IconButton>
           </Box>
 
-          <Box display='flex' alignItems='center' gap={2}>
+          <Box display="flex" alignItems="center" gap={2}>
             <ConnectLink />
           </Box>
         </Toolbar>
