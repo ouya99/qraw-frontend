@@ -1,8 +1,9 @@
 // src/components/layout/MainLayout.js
-import React from "react";
-import Header from "./Header";
-import Footer from "./Footer";
-import { Box } from "@mui/material";
+import { Box } from '@mui/material';
+import React from 'react';
+
+import Footer from './Footer';
+import Header from './Header';
 
 export default function MainLayout({ children }) {
   return (

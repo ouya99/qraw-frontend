@@ -1,21 +1,17 @@
 /* global BigInt */
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useReducer,
-  useState,
-} from 'react';
-import { QubicHelper } from '@qubic-lib/qubic-ts-library/dist/qubicHelper';
 import Crypto from '@qubic-lib/qubic-ts-library/dist/crypto';
+import { QubicHelper } from '@qubic-lib/qubic-ts-library/dist/qubicHelper';
+import React, { createContext, useContext, useEffect, useReducer, useState } from 'react';
+
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
+import { excludedBetIds } from '../components/qubic/util/commons';
 import {
   fetchActiveBets,
   fetchBetDetail,
   fetchNodeInfo,
   fetchAndVerifyBetDescription,
 } from '../components/qubic/util/qdrawApi';
-import { excludedBetIds } from '../components/qubic/util/commons';
+
 import { useConfig } from './ConfigContext';
 
 const QuotteryContext = createContext();
@@ -73,36 +69,27 @@ export const QuotteryProvider = ({ children }) => {
       try {
         const activeBetIds = await fetchActiveBets(httpEndpoint);
 
-        const filteredBetIds = activeBetIds.filter(
-          (id) => !excludedBetIds.includes(id)
-        );
+        const filteredBetIds = activeBetIds.filter((id) => !excludedBetIds.includes(id));
         setCoreNodeBetIds(filteredBetIds);
 
         return Promise.all(
           filteredBetIds.map(async (betId) => {
-            const bet = await fetchBetDetail(
-              httpEndpoint,
-              backendUrl,
-              betId,
-              filteredBetIds
-            );
+            const bet = await fetchBetDetail(httpEndpoint, backendUrl, betId, filteredBetIds);
             bet.creator = await qHelper.getIdentity(bet.creator); // Update creator field with human-readable identity
 
             bet.oracle_public_keys = bet.oracle_id;
             bet.oracle_id = await Promise.all(
               bet.oracle_id.map(async (oracleId) => {
                 return await qHelper.getIdentity(oracleId);
-              })
+              }),
             );
 
-            const closeDate = new Date(
-              '20' + bet.close_date + 'T' + bet.close_time + 'Z'
-            );
+            const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z');
             const now = new Date();
             bet.is_active = now <= closeDate;
 
             return bet;
-          })
+          }),
         );
       } catch (error) {
         console.log('Error occurred while fetching bets with Qubic Http.');
@@ -111,7 +98,7 @@ export const QuotteryProvider = ({ children }) => {
           console.log('Retrying...');
         } else {
           console.log(
-            'Unable to fetch bets with Qubic Http API. Falling back to using backend API.'
+            'Unable to fetch bets with Qubic Http API. Falling back to using backend API.',
           );
           return null;
         }
@@ -134,8 +121,7 @@ export const QuotteryProvider = ({ children }) => {
     }
 
     const backendBetsUnique = backendBets.filter(
-      (backendBet) =>
-        !coreNodeBets.some((coreBet) => areBetsEqual(coreBet, backendBet))
+      (backendBet) => !coreNodeBets.some((coreBet) => areBetsEqual(coreBet, backendBet)),
     );
 
     dispatch({
@@ -147,7 +133,7 @@ export const QuotteryProvider = ({ children }) => {
 
   const fetchBackendApiBets = async (filter, page = 1, pageSize = 10) => {
     const response = await fetch(
-      `${backendUrl}/get_${filter}_bets?page_size=${pageSize}&page=${page}`
+      `${backendUrl}/get_${filter}_bets?page_size=${pageSize}&page=${page}`,
     );
     const data = await response.json();
 
@@ -170,9 +156,7 @@ export const QuotteryProvider = ({ children }) => {
         bet.amount_per_bet_slot = BigInt(bet.amount_per_bet_slot);
         bet.current_num_selection = JSON.parse(bet.current_num_selection);
         bet.oracle_vote = JSON.parse(bet.oracle_vote);
-        const closeDate = new Date(
-          '20' + bet.close_date + 'T' + bet.close_time + 'Z'
-        );
+        const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z');
         const now = new Date();
         bet.is_active = now <= closeDate;
 
@@ -213,10 +197,8 @@ export const QuotteryProvider = ({ children }) => {
       bet1.end_time === bet2.end_time &&
       bet1.amount_per_bet_slot === bet2.amount_per_bet_slot &&
       bet1.maxBetSlotPerOption === bet2.maxBetSlotPerOption &&
-      JSON.stringify(bet1.current_bet_state) ===
-        JSON.stringify(bet2.current_bet_state) &&
-      JSON.stringify(bet1.current_num_selection) ===
-        JSON.stringify(bet2.current_num_selection) &&
+      JSON.stringify(bet1.current_bet_state) === JSON.stringify(bet2.current_bet_state) &&
+      JSON.stringify(bet1.current_num_selection) === JSON.stringify(bet2.current_num_selection) &&
       // JSON.stringify(bet1.betResultWonOption) === JSON.stringify(bet2.betResultWonOption) &&
       // JSON.stringify(bet1.betResultOPId) === JSON.stringify(bet2.betResultOPId) &&
       Number(bet1.current_total_qus) === Number(bet2.current_total_qus) &&
@@ -247,12 +229,8 @@ export const QuotteryProvider = ({ children }) => {
       // Categorize bets from core node
       const now = new Date();
       for (const bet of qubicApiBets) {
-        const closeDate = new Date(
-          '20' + bet.close_date + 'T' + bet.close_time + 'Z'
-        );
-        const endDate = new Date(
-          '20' + bet.end_date + 'T' + bet.end_time + 'Z'
-        );
+        const closeDate = new Date('20' + bet.close_date + 'T' + bet.close_time + 'Z');
+        const endDate = new Date('20' + bet.end_date + 'T' + bet.end_time + 'Z');
 
         if (now < closeDate) {
           activeBets.push(bet);
@@ -278,9 +256,7 @@ export const QuotteryProvider = ({ children }) => {
         activeBets: filter === 'active' || filter === 'all' ? activeBets : [],
         lockedBets: filter === 'locked' || filter === 'all' ? lockedBets : [],
         waitingForResultsBets:
-          filter === 'inactive' || filter === 'all'
-            ? waitingForResultsBets
-            : [],
+          filter === 'inactive' || filter === 'all' ? waitingForResultsBets : [],
       },
     });
 
@@ -291,9 +267,7 @@ export const QuotteryProvider = ({ children }) => {
   const fetchNodeInfoAndUpdate = async () => {
     try {
       const nodeInfo = await fetchNodeInfo(httpEndpoint, backendUrl);
-      nodeInfo.game_operator = await qHelper.getIdentity(
-        nodeInfo.game_operator
-      );
+      nodeInfo.game_operator = await qHelper.getIdentity(nodeInfo.game_operator);
       dispatch({
         type: 'SET_NODE_INFO',
         payload: nodeInfo,
@@ -305,7 +279,6 @@ export const QuotteryProvider = ({ children }) => {
 
   useEffect(() => {
     fetchBets(betsFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [betsFilter]);
 
   const fetchBalance = async (publicId) => {
@@ -339,7 +312,6 @@ export const QuotteryProvider = ({ children }) => {
     getIdentityAndBalance();
 
     return () => {};
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
 
   // Refresh balance every 5 minutes
@@ -351,7 +323,6 @@ export const QuotteryProvider = ({ children }) => {
       }, 300000); // 5 minutes in milliseconds
     }
     return () => clearInterval(intervalId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletPublicIdentity]);
 
   // Helper function to write a fixed-size byte array or string
@@ -404,12 +375,7 @@ export const QuotteryProvider = ({ children }) => {
   const packQuotteryDate = (year, month, day, hour, minute, second) => {
     year = year - 2000;
     return (
-      ((year - 24) << 26) |
-      (month << 22) |
-      (day << 17) |
-      (hour << 12) |
-      (minute << 6) |
-      second
+      ((year - 24) << 26) | (month << 22) | (day << 17) | (hour << 12) | (minute << 6) | second
     );
   };
 
@@ -432,8 +398,8 @@ export const QuotteryProvider = ({ children }) => {
         parseInt(bet.endDateTime.date.split('-')[2]), // Day
         parseInt(bet.endDateTime.time.split(':')[0]), // Hour
         parseInt(bet.endDateTime.time.split(':')[1]), // Minute
-        0 // Second
-      )
+        0, // Second
+      ),
     );
 
     // Get the current date-time in UTC
@@ -445,8 +411,8 @@ export const QuotteryProvider = ({ children }) => {
         nowDateTime.getUTCDate(),
         nowDateTime.getUTCHours(),
         nowDateTime.getUTCMinutes(),
-        nowDateTime.getUTCSeconds()
-      )
+        nowDateTime.getUTCSeconds(),
+      ),
     );
 
     // Calculate the difference in milliseconds and convert to hours
@@ -516,11 +482,7 @@ export const QuotteryProvider = ({ children }) => {
     qCrypto.K12(toSign, digest, qHelper.DIGEST_LENGTH);
 
     // Sign transaction
-    const signedTx = qCrypto.schnorrq.sign(
-      sourcePrivateKey,
-      sourcePublicKey,
-      digest
-    );
+    const signedTx = qCrypto.schnorrq.sign(sourcePrivateKey, sourcePublicKey, digest);
     tx.set(signedTx, offset);
     offset += qHelper.SIGNATURE_LENGTH;
 
@@ -588,9 +550,7 @@ export const QuotteryProvider = ({ children }) => {
     writeFixedSizeStringArray(txView, offset, bet.options, 32);
     offset += 32 * 8;
     // Write oracleProviderId (32 bytes x 8)
-    const oracleProviderPublicKeys = bet.providers.map((p) =>
-      qHelper.getIdentityBytes(p.publicId)
-    );
+    const oracleProviderPublicKeys = bet.providers.map((p) => qHelper.getIdentityBytes(p.publicId));
     writeFixedSizeByteArray(txView, offset, oracleProviderPublicKeys, 32);
     offset += 32 * 8;
     // Write oracleFees (uint32 x 8)
@@ -604,11 +564,7 @@ export const QuotteryProvider = ({ children }) => {
       offset += 4;
     }
     // Write closeDate (uint32)
-    txView.setUint32(
-      offset,
-      packQuotteryDateFromObject(bet.closeDateTime),
-      true
-    );
+    txView.setUint32(offset, packQuotteryDateFromObject(bet.closeDateTime), true);
     offset += 4;
     // Write endDate (uint32)
     txView.setUint32(offset, packQuotteryDateFromObject(bet.endDateTime), true);
@@ -629,11 +585,7 @@ export const QuotteryProvider = ({ children }) => {
     // sign tx
     const toSign = tx.slice(0, offset);
     qCrypto.K12(toSign, digest, qHelper.DIGEST_LENGTH);
-    const signedtx = qCrypto.schnorrq.sign(
-      sourcePrivateKey,
-      sourcePublicKey,
-      digest
-    );
+    const signedtx = qCrypto.schnorrq.sign(sourcePrivateKey, sourcePublicKey, digest);
     tx.set(signedtx, offset);
     offset += qHelper.SIGNATURE_LENGTH;
 

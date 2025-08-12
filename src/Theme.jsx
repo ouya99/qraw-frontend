@@ -1,30 +1,30 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme } from '@mui/material/styles';
 
 // Main custom colors
 const customColors = {
   // Qubic colors
-  qubicBlue: "#1adef5",
-  white: "#ffffff",
-  black: "#000000",
-  darkBackground: "#121212",
-  darkSurface: "#232323",
-  
-  gray50: "#f9fafb",
-  gray100: "#f3f4f6",
-  gray200: "#e5e7eb",
-  gray300: "#d1d5db",
-  gray400: "#9ca3af",
-  gray500: "#6b7280",
-  
-  error: "#ef4444",
-  warning: "#f59e0b",
-  success: "#10b981",
-  rosePeps: "#f43f5e",
+  qubicBlue: '#1adef5',
+  white: '#ffffff',
+  black: '#000000',
+  darkBackground: '#121212',
+  darkSurface: '#232323',
+
+  gray50: '#f9fafb',
+  gray100: '#f3f4f6',
+  gray200: '#e5e7eb',
+  gray300: '#d1d5db',
+  gray400: '#9ca3af',
+  gray500: '#6b7280',
+
+  error: '#ef4444',
+  warning: '#f59e0b',
+  success: '#10b981',
+  rosePeps: '#f43f5e',
 };
 // Dark theme
 export const darkTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: 'dark',
     primary: {
       main: customColors.qubicBlue,
       contrastText: customColors.black,
@@ -60,22 +60,22 @@ export const darkTheme = createTheme({
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
       fontWeight: 600,
-      fontSize: "2.5rem",
+      fontSize: '2.5rem',
     },
     h2: {
       fontWeight: 600,
-      fontSize: "2rem",
+      fontSize: '2rem',
     },
     h3: {
       fontWeight: 600,
-      fontSize: "1.75rem",
+      fontSize: '1.75rem',
     },
     body1: {
-      fontSize: "1rem",
+      fontSize: '1rem',
       lineHeight: 1.5,
     },
     body2: {
-      fontSize: "0.875rem",
+      fontSize: '0.875rem',
       lineHeight: 1.5,
     },
   },
@@ -86,7 +86,7 @@ export const darkTheme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: "none",
+          textTransform: 'none',
           fontWeight: 500,
         },
       },
@@ -100,7 +100,7 @@ export const darkTheme = createTheme({
     },
     MuiTextField: {
       defaultProps: {
-        variant: "filled",
+        variant: 'filled',
       },
     },
   },

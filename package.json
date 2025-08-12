@@ -33,13 +33,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "version": "auto-changelog -p"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "version": "auto-changelog -p",
+    "lint": "eslint . --ext .js,.jsx",
+    "lint:fix": "eslint . --ext .js,.jsx --fix",
+    "format": "prettier --write .",
+    "check": "yarn lint && prettier -c ."
   },
   "browserslist": {
     "production": [
@@ -54,6 +52,15 @@
     ]
   },
   "devDependencies": {
-    "auto-changelog": "^2.4.0"
+    "@eslint/js": "^9.33.0",
+    "auto-changelog": "^2.4.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.3.0",
+    "prettier": "^3.6.2"
   }
 }

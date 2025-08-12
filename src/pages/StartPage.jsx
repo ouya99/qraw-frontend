@@ -1,5 +1,7 @@
 /* global BigInt */
-import React, { useEffect, useState, useMemo } from 'react';
+import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
+import GroupIcon from '@mui/icons-material/Group';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import {
   Box,
   Container,
@@ -13,15 +15,14 @@ import {
   useTheme,
   alpha,
 } from '@mui/material';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import GroupIcon from '@mui/icons-material/Group';
 import { motion } from 'framer-motion';
+import React, { useEffect, useState, useMemo } from 'react';
+
 import logo from '../assets/logo/logoWin.svg';
-import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
 import BuyTicketsModal, { DEFAULTS } from '../components/BuyTicketsModal';
-import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
 import { queryContract } from '../components/qubic/util/contractApi';
+import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
 import { useQuotteryContext } from '../contexts/QuotteryContext';
 
 const DRAW_INTERVAL = 15;
@@ -33,7 +34,7 @@ const INITIAL_POT = '700.000.000';
 const randomPublicId = () =>
   Array.from(
     { length: PUBLIC_ID_LENGTH },
-    () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]
+    () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)],
   ).join('');
 
 // Draw Animation
@@ -62,9 +63,7 @@ function MatrixReveal({ id, duration = 8000, onComplete }) {
       for (let k = toReveal; k < id.length; k++) {
         const idx = indices[k];
         next[idx] =
-          Math.random() > 0.6
-            ? ALPHABET[Math.floor(Math.random() * ALPHABET.length)]
-            : '█';
+          Math.random() > 0.6 ? ALPHABET[Math.floor(Math.random() * ALPHABET.length)] : '█';
       }
       setDisplay(next.join(''));
       if (progress < 1) {
@@ -113,17 +112,14 @@ export default function StartPage() {
   } = useQubicConnect();
   const { balance, fetchBalance } = useQuotteryContext();
   console.log('Balance:', balance);
-  const participants = useMemo(
-    () => Array.from({ length: NB_PARTICIPANTS }, randomPublicId),
-    []
-  );
+  const participants = useMemo(() => Array.from({ length: NB_PARTICIPANTS }, randomPublicId), []);
   const ticketsByParticipant = useMemo(
     () =>
       participants.reduce((acc, id) => {
         acc[id] = Math.floor(Math.random() * 5) + 1;
         return acc;
       }, {}),
-    [participants]
+    [participants],
   );
   const [winner, setWinner] = useState(null);
   const [nextTime, setnextTime] = useState(DRAW_INTERVAL);
@@ -134,15 +130,13 @@ export default function StartPage() {
 
   useEffect(() => {
     console.log('hi');
-    const newWinner =
-      participants[Math.floor(Math.random() * participants.length)];
+    const newWinner = participants[Math.floor(Math.random() * participants.length)];
     setRevealComplete(false);
     setWinner('');
     setTimeout(() => setWinner(newWinner), 200);
 
     const timer = setInterval(() => {
-      const newWinner =
-        participants[Math.floor(Math.random() * participants.length)];
+      const newWinner = participants[Math.floor(Math.random() * participants.length)];
       setWinner('');
       setTimeout(() => setWinner(newWinner), 200);
       setnextTime((prev) => prev + DRAW_INTERVAL);
@@ -158,7 +152,7 @@ export default function StartPage() {
           [],
           null,
           null,
-          null
+          null,
         );
         console.log('qdrawGetInfo result:', result);
         console.log('Pot :', result.decodedFields.field1, ' qu');
@@ -191,8 +185,8 @@ export default function StartPage() {
             result.decodedFields.field3,
             result.decodedFields.field4,
             result.decodedFields.field5,
-            result.decodedFields.field6
-          )
+            result.decodedFields.field6,
+          ),
         );
         console.log('ID: ', myId);
         // You may want to do setState here as well
@@ -256,11 +250,11 @@ export default function StartPage() {
         py: { xs: 6, md: 8 },
       }}
     >
-      <Container maxWidth='lg'>
+      <Container maxWidth="lg">
         {/* Header */}
         <Box sx={{ textAlign: 'center', mb: 8, mt: 8 }}>
           <Typography
-            variant='h4'
+            variant="h4"
             sx={{
               fontWeight: 500,
               fontSize: { xs: '1.8rem', sm: '2.0rem', md: '2.3rem' },
@@ -298,7 +292,7 @@ export default function StartPage() {
             }}
           >
             <Box
-              component='span'
+              component="span"
               sx={{
                 fontSize: { xs: '0.9rem', sm: '1.1rem', md: '1.3rem' },
                 color: theme.palette.text.secondary,
@@ -312,7 +306,7 @@ export default function StartPage() {
               Prize Pool
             </Box>
             <Box
-              component='span'
+              component="span"
               sx={{
                 fontWeight: 600,
                 color: '#fff23eff',
@@ -324,7 +318,7 @@ export default function StartPage() {
               {pot}
             </Box>
             <Box
-              component='span'
+              component="span"
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -335,7 +329,7 @@ export default function StartPage() {
             >
               <img
                 src={logo}
-                alt='Qubic Draw Logo'
+                alt="Qubic Draw Logo"
                 style={{
                   width: 32,
                   height: 32,
@@ -348,14 +342,14 @@ export default function StartPage() {
 
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
-            alignItems='center'
-            justifyContent='center'
+            alignItems="center"
+            justifyContent="center"
             spacing={{ xs: 2, sm: 6 }}
             sx={{ mb: 4, mt: 2 }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Typography
-                variant='body1'
+                variant="body1"
                 sx={{
                   fontFamily: 'monospace',
                   color: theme.palette.text.secondary,
@@ -376,9 +370,9 @@ export default function StartPage() {
           </Stack>
 
           <Button
-            size='large'
-            variant='contained'
-            color='primary'
+            size="large"
+            variant="contained"
+            color="primary"
             startIcon={<RocketLaunchIcon />}
             sx={{
               fontWeight: 600,
@@ -405,7 +399,7 @@ export default function StartPage() {
           }}
         >
           <Typography
-            variant='body2'
+            variant="body2"
             sx={{
               fontFamily: 'monospace',
               textTransform: 'uppercase',
@@ -457,7 +451,7 @@ export default function StartPage() {
                 }}
               />
               <Typography
-                variant='h6'
+                variant="h6"
                 sx={{
                   fontFamily: 'monospace',
                   textTransform: 'uppercase',
@@ -471,7 +465,7 @@ export default function StartPage() {
             </Box>
 
             <Paper
-              variant='outlined'
+              variant="outlined"
               sx={{
                 overflow: 'auto',
                 backgroundColor: 'transparent',
@@ -493,9 +487,7 @@ export default function StartPage() {
                             ? theme.palette.primary.main
                             : theme.palette.text.secondary,
                         backgroundColor:
-                          addr === winner
-                            ? alpha(theme.palette.primary.main, 0.03)
-                            : 'transparent',
+                          addr === winner ? alpha(theme.palette.primary.main, 0.03) : 'transparent',
                         borderLeft:
                           addr === winner
                             ? `2px solid ${theme.palette.primary.main}`
@@ -508,7 +500,7 @@ export default function StartPage() {
                       }}
                     >
                       <span>{addr}</span>
-                      <Stack direction='row' alignItems='center' spacing={0.5}>
+                      <Stack direction="row" alignItems="center" spacing={0.5}>
                         <Typography
                           sx={{
                             fontFamily: 'monospace',

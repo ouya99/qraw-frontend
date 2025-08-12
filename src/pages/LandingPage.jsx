@@ -1,4 +1,7 @@
-import React, { useEffect, useState} from "react";
+import GavelIcon from '@mui/icons-material/Gavel';
+import GroupIcon from '@mui/icons-material/Group';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import SecurityIcon from '@mui/icons-material/Security';
 import {
   Box,
   Container,
@@ -10,41 +13,36 @@ import {
   Button,
   useTheme,
   Grid,
-} from "@mui/material";
-import ConnectLink from "../components/qubic/connect/ConnectLink";
-import BuyTicketsModal from "../components/BuyTicketsModal";
-import { useQubicConnect } from "../components/qubic/connect/QubicConnectContext";
-import { useQuotteryContext } from "../contexts/QuotteryContext";
-import GroupIcon from "@mui/icons-material/Group";
-import GavelIcon from "@mui/icons-material/Gavel";
-import SecurityIcon from "@mui/icons-material/Security";
-import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
-import logoDark from "../assets/logo/qubic_draw_logo_large_text.svg";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import ElectricCircuit from "../components/layout/BackgroundCircuit";
+} from '@mui/material';
+import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import logoDark from '../assets/logo/qubic_draw_logo_large_text.svg';
+import BuyTicketsModal from '../components/BuyTicketsModal';
+import ElectricCircuit from '../components/layout/BackgroundCircuit';
+import ConnectLink from '../components/qubic/connect/ConnectLink';
+import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
+import { useQuotteryContext } from '../contexts/QuotteryContext';
 
 const features = [
   {
     icon: <SecurityIcon sx={{ fontSize: 48 }} />,
-    label: "Secure",
-    description:
-      "All bets are cryptographically secured with zero tampering risk.",
-    badge: "SECURE",
+    label: 'Secure',
+    description: 'All bets are cryptographically secured with zero tampering risk.',
+    badge: 'SECURE',
   },
   {
     icon: <GroupIcon sx={{ fontSize: 48 }} />,
-    label: "Auditable",
-    description:
-      "Complete transparency with on-chain verification for all participants.",
-    badge: "ON-CHAIN",
+    label: 'Auditable',
+    description: 'Complete transparency with on-chain verification for all participants.',
+    badge: 'ON-CHAIN',
   },
   {
     icon: <GavelIcon sx={{ fontSize: 48 }} />,
-    label: "Zero Fees",
-    description:
-      "No hidden costs. 100% of the prize pool goes directly to winners.",
-    badge: "ZERO FEES",
+    label: 'Zero Fees',
+    description: 'No hidden costs. 100% of the prize pool goes directly to winners.',
+    badge: 'ZERO FEES',
   },
 ];
 
@@ -70,28 +68,28 @@ export default function LandingPage() {
   };
 
   const handleConfirmBuy = (qty) => {
-    console.log("Buy", qty, "tickets");
+    console.log('Buy', qty, 'tickets');
   };
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: '100vh',
         bgcolor: theme.palette.background.default,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
         background: `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${alpha(
           theme.palette.primary.main,
-          0.08
+          0.08,
         )} 100%)`,
-        overflow: "hidden",
+        overflow: 'hidden',
       }}
     >
       <Box
         sx={{
-          position: "absolute",
+          position: 'absolute',
           top: 20,
           right: 30,
           zIndex: 10,
@@ -100,36 +98,36 @@ export default function LandingPage() {
         <ConnectLink />
       </Box>
       <ElectricCircuit />
-      <Container maxWidth='lg' sx={{ py: 8, position: "relative", zIndex: 1 }}>
-        <Box sx={{ textAlign: "center", mb: 3 }}>
+      <Container maxWidth="lg" sx={{ py: 8, position: 'relative', zIndex: 1 }}>
+        <Box sx={{ textAlign: 'center', mb: 3 }}>
           <Box
-            component='img'
+            component="img"
             src={logoDark}
-            alt='Qubic Draw Logo'
+            alt="Qubic Draw Logo"
             sx={{
-              width: { xs: "90%", sm: "60%", md: "44%" },
+              width: { xs: '90%', sm: '60%', md: '44%' },
               maxWidth: 600,
               mb: 10,
-              mx: "auto",
-              display: "block",
-              filter: "none",
+              mx: 'auto',
+              display: 'block',
+              filter: 'none',
             }}
           />
           <Typography
-            variant='h4'
-            component='h1'
+            variant="h4"
+            component="h1"
             sx={{
               mb: 3,
               fontWeight: 700,
               color: theme.palette.text.primary,
-              fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" },
+              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
             }}
           >
-            One draw every hour.{" "}
+            One draw every hour.{' '}
             <Box
-              component='span'
+              component="span"
               sx={{
-                color: "#fff23eff",
+                color: '#fff23eff',
                 fontWeight: 700,
               }}
             >
@@ -138,62 +136,62 @@ export default function LandingPage() {
           </Typography>
 
           <Typography
-            variant='h6'
+            variant="h6"
             sx={{
               color: theme.palette.text.secondary,
               maxWidth: 600,
-              mx: "auto",
-              fontSize: { xs: "1rem", sm: "1.7rem" },
+              mx: 'auto',
+              fontSize: { xs: '1rem', sm: '1.7rem' },
               lineHeight: 1.6,
             }}
           >
             Enter. Win. All on-chain, all verifiable.
           </Typography>
         </Box>
-        <Box sx={{ textAlign: "center" }}>
+        <Box sx={{ textAlign: 'center' }}>
           <Stack
-            direction={{ xs: "column", sm: "row" }}
+            direction={{ xs: 'column', sm: 'row' }}
             spacing={3}
-            justifyContent='center'
-            alignItems='center'
+            justifyContent="center"
+            alignItems="center"
             mt={6}
             mb={12}
           >
             <Button
-              size='large'
-              variant='outlined'
-              color='secondary'
+              size="large"
+              variant="outlined"
+              color="secondary"
               startIcon={<GroupIcon />}
               sx={{
                 fontWeight: 600,
-                fontFamily: "monospace",
-                fontSize: "1rem",
+                fontFamily: 'monospace',
+                fontSize: '1rem',
                 px: 5,
                 py: 1.5,
                 borderRadius: 0,
-                letterSpacing: ".06em",
+                letterSpacing: '.06em',
                 borderWidth: 2,
-                "&:hover": {
-                  transform: "translateY(-1px)",
+                '&:hover': {
+                  transform: 'translateY(-1px)',
                 },
               }}
-              onClick={() => navigate("/")}
+              onClick={() => navigate('/')}
             >
               Enter draw
             </Button>
             <Button
-              size='large'
-              variant='contained'
-              color='primary'
+              size="large"
+              variant="contained"
+              color="primary"
               startIcon={<RocketLaunchIcon />}
               sx={{
                 fontWeight: 600,
-                fontFamily: "monospace",
-                fontSize: "1rem",
+                fontFamily: 'monospace',
+                fontSize: '1rem',
                 px: 5,
                 py: 1.5,
                 borderRadius: 0,
-                letterSpacing: ".06em",
+                letterSpacing: '.06em',
                 borderWidth: 2,
               }}
               onClick={handleGetTicket}
@@ -202,12 +200,7 @@ export default function LandingPage() {
             </Button>
           </Stack>
         </Box>
-        <Grid
-          container
-          spacing={{ xs: 3, md: 4 }}
-          justifyContent='center'
-          sx={{ mb: 8 }}
-        >
+        <Grid container spacing={{ xs: 3, md: 4 }} justifyContent="center" sx={{ mb: 8 }}>
           {features.map((feature, index) => (
             <Grid item xs={12} sm={6} md={4} key={feature.label}>
               <motion.div
@@ -216,21 +209,21 @@ export default function LandingPage() {
                 transition={{
                   duration: 0.6,
                   delay: 0.08 * index,
-                  type: "spring",
+                  type: 'spring',
                 }}
                 viewport={{ once: true }}
-                style={{ height: "100%" }}
+                style={{ height: '100%' }}
               >
                 <Card
                   elevation={0}
                   sx={{
-                    height: "100%",
+                    height: '100%',
                     borderRadius: 1,
-                    overflow: "visible",
+                    overflow: 'visible',
                     mt: 4,
                     background: `linear-gradient(120deg, ${alpha(
-                      "#272d38",
-                      0.94
+                      '#272d38',
+                      0.94,
                     )}, ${alpha(theme.palette.primary.main, 0.08)})`,
                     border: `1.5px solid ${alpha(theme.palette.primary.main, 0.13)}`,
                     // boxShadow: `0 2px 24px 0 ${alpha(
@@ -242,59 +235,59 @@ export default function LandingPage() {
                     //       )}`,
                     // backdropFilter: "blur(8px)",
                     // WebkitBackdropFilter: "blur(8px)",
-                    position: "relative",
-                    transition: "all 0.34s cubic-bezier(.56,.02,.25,1)",
+                    position: 'relative',
+                    transition: 'all 0.34s cubic-bezier(.56,.02,.25,1)',
                   }}
                 >
                   <CardContent
                     sx={{
-                      textAlign: "center",
+                      textAlign: 'center',
                       p: { xs: 3, sm: 4 },
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
                     }}
                   >
                     <Box
                       sx={{
                         mb: 2.5,
                         color: theme.palette.primary.main,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         width: 100,
                         height: 100,
-                        borderRadius: "50%",
+                        borderRadius: '50%',
                         border: `2px solid ${theme.palette.primary.main}`,
                       }}
                     >
                       {feature.icon}
                     </Box>
                     <Typography
-                      variant='h6'
-                      component='h3'
+                      variant="h6"
+                      component="h3"
                       sx={{
                         fontWeight: 1000,
                         mb: 1.5,
-                        letterSpacing: ".015em",
-                        fontSize: "1.23rem",
+                        letterSpacing: '.015em',
+                        fontSize: '1.23rem',
                         color: theme.palette.text.primary,
-                        textTransform: "uppercase",
-                        fontFamily: "monospace",
+                        textTransform: 'uppercase',
+                        fontFamily: 'monospace',
                       }}
                     >
                       {feature.label}
                     </Typography>
                     <Typography
-                      variant='body2'
+                      variant="body2"
                       sx={{
                         color: theme.palette.text.secondary,
                         lineHeight: 1.7,
-                        fontSize: "1.07rem",
-                        textAlign: "center",
-                        minHeight: "60px",
-                        letterSpacing: ".005em",
+                        fontSize: '1.07rem',
+                        textAlign: 'center',
+                        minHeight: '60px',
+                        letterSpacing: '.005em',
                       }}
                     >
                       {feature.description}

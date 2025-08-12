@@ -1,5 +1,7 @@
 import { Buffer } from 'buffer';
+
 import base64 from 'base-64';
+
 import { encodeParams, decodeContractResponse } from './contractUtils';
 
 export const HEADERS = {
