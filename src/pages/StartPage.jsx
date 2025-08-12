@@ -23,6 +23,8 @@ import { executeTransactionWithWallet } from '../components/qubic/util/transacti
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
 import { queryContract } from '../components/qubic/util/contractApi';
 import { useQuotteryContext } from '../contexts/QuotteryContext';
+import base64 from 'base-64';
+import { Buffer } from 'buffer';
 
 const DRAW_INTERVAL = 15;
 const NB_PARTICIPANTS = 24;
@@ -160,41 +162,23 @@ export default function StartPage() {
           null,
           null
         );
-        console.log('qdrawGetInfo result:', result);
+        console.log('qdrawGetInfo result:', result.rawResponse);
+        let myBuffer = '';
+        try {
+          myBuffer = Buffer.from(result.rawResponse.responseData, 'base64');
+          console.log(myBuffer);
+        } catch (err) {
+          console.error('Failed to decode base64 data:', err);
+        }
+        const lastWinner = new Uint8Array(myBuffer.slice(16, 48)); // 32 bytes
+        console.log('lastWinner', await qHelper.getIdentity(lastWinner));
+
         console.log('Pot :', result.decodedFields.field1, ' qu');
         console.log('Number of Participants: ', result.decodedFields.field2);
 
         console.log('Last winner poT size :  ', result.decodedFields.field7);
 
         setPot(result.decodedFields.field1);
-
-        function createUint8ArrayFromU64s(val1, val2, val3, val4) {
-          // A 64-bit unsigned integer (u64) is 8 bytes.
-          // We need to store four of these, so the total size is 4 * 8 = 32 bytes.
-          const buffer = new ArrayBuffer(32);
-          const dataView = new DataView(buffer);
-
-          // We use DataView's setBigUint64 method to write 64-bit unsigned integers.
-          // The first argument is the byte offset, the second is the BigInt value,
-          // and the third (optional) is a boolean for little-endianness (default is false, i.e., big-endian).
-          dataView.setBigUint64(0, val1); // Write the first integer at byte offset 0
-          dataView.setBigUint64(8, val2); // Write the second integer at byte offset 8
-          dataView.setBigUint64(16, val3); // Write the third integer at byte offset 16
-          dataView.setBigUint64(24, val4); // Write the fourth integer at byte offset 24
-
-          // Return the underlying ArrayBuffer as a Uint8Array.
-          return new Uint8Array(buffer);
-        }
-
-        const myId = await qHelper.getIdentity(
-          createUint8ArrayFromU64s(
-            result.decodedFields.field3,
-            result.decodedFields.field4,
-            result.decodedFields.field5,
-            result.decodedFields.field6
-          )
-        );
-        console.log('ID: ', myId);
         // You may want to do setState here as well
       } catch (error) {
         // do something when you encounter errors
