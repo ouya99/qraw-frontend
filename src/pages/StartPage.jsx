@@ -17,28 +17,18 @@ import {
   useTheme,
   alpha,
 } from '@mui/material';
-import base64 from 'base-64';
 import { motion } from 'framer-motion';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import logo from '../assets/logo/logoWin.svg';
 import BuyTicketsModal, { DEFAULTS } from '../components/BuyTicketsModal';
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
 import { queryContract } from '../components/qubic/util/contractApi';
+import { parseGetInfo, parseParticipants } from '../components/qubic/util/contractUtils';
 import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
-import { useQuotteryContext } from '../contexts/QuotteryContext';
 
-const DRAW_INTERVAL = 15;
-const NB_PARTICIPANTS = 24;
-const PUBLIC_ID_LENGTH = 60;
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-const INITIAL_POT = '700.000.000';
-
-const randomPublicId = () =>
-  Array.from(
-    { length: PUBLIC_ID_LENGTH },
-    () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)],
-  ).join('');
+const INITIAL_POT = '0';
 
 // Draw Animation
 function MatrixReveal({ id, duration = 8000, onComplete }) {
@@ -116,39 +106,22 @@ export default function StartPage() {
   } = useQubicConnect();
   console.log('Balance:', balance);
 
-  // const participants = useMemo(() => Array.from({ length: NB_PARTICIPANTS }, randomPublicId), []);
-  // const ticketsByParticipant = useMemo(
-  //   () =>
-  //     participants.reduce((acc, id) => {
-  //       acc[id] = Math.floor(Math.random() * 5) + 1;
-  //       return acc;
-  //     }, {}),
-  //   [participants],
-  // );
   const [participants, setParticipants] = useState([]);
   const [ticketsByParticipant, setTicketsByParticipant] = useState({});
   const [winner, setWinner] = useState(null);
-  const [nextTime, setnextTime] = useState(DRAW_INTERVAL);
+  const [lastWinAmount, setLastWinAmount] = useState('0');
+  const [lastDrawHour, setLastDrawHour] = useState(null);
+  const [currentHour, setCurrentHour] = useState(null);
+  const [nextDrawHour, setNextDrawHour] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [pot, setPot] = useState(INITIAL_POT);
-  const [revealComplete, setRevealComplete] = useState(false);
 
   const [openBuy, setOpenBuy] = useState(false);
 
   useEffect(() => {
-    console.log('hi');
-    const newWinner = participants[Math.floor(Math.random() * participants.length)];
-    setRevealComplete(false);
-    setWinner('');
-    setTimeout(() => setWinner(newWinner), 200);
+    if (!qHelper) return;
 
-    const timer = setInterval(() => {
-      const newWinner = participants[Math.floor(Math.random() * participants.length)];
-      setWinner('');
-      setTimeout(() => setWinner(newWinner), 200);
-      setnextTime((prev) => prev + DRAW_INTERVAL);
-    }, DRAW_INTERVAL * 1000);
-
-    const qdrawGetInfo = async () => {
+    const fetchInfo = async () => {
       try {
         const result = await queryContract(
           'http://67.222.157.63:8000',
@@ -160,36 +133,44 @@ export default function StartPage() {
           null,
           null,
         );
-        console.log('qdrawGetInfo result:', result.rawResponse);
-        let myBuffer = '';
-        try {
-          myBuffer = Buffer.from(result.rawResponse.responseData, 'base64');
-          console.log(myBuffer);
-        } catch (err) {
-          console.error('Failed to decode base64 data:', err);
+        const buf = Buffer.from(result.rawResponse.responseData, 'base64');
+        const info = await parseGetInfo(buf, qHelper);
+        setPot(info.pot);
+        setCurrentHour(info.currentHour);
+        setNextDrawHour(info.nextDrawHour);
+        if (info.lastDrawHour !== lastDrawHour) {
+          setWinner(info.lastWinner);
+          setLastWinAmount(info.lastWinAmount);
+          setLastDrawHour(info.lastDrawHour);
         }
-        const lastWinner = await qHelper.getIdentity(new Uint8Array(myBuffer.slice(16, 48))); // 32 bytes
-        console.log('lastWinner', lastWinner);
-        setWinner(lastWinner);
-        console.log('lastDrawHour', myBuffer.slice(56, 57)[0]);
-        console.log('currentHour', myBuffer.slice(57, 58)[0]);
-        console.log('nextDrawHour', myBuffer.slice(58, 59)[0]);
-
-        console.log('Pot :', result.decodedFields.field1, ' qu');
-        console.log('Number of Participants: ', result.decodedFields.field2);
-
-        console.log('Last winner poT size :  ', result.decodedFields.field7);
-
-        setPot(result.decodedFields.field1);
-        // You may want to do setState here as well
-      } catch (error) {
-        // do something when you encounter errors
+      } catch (e) {
+        console.error(e);
       }
     };
 
-    qdrawGetInfo();
+    fetchInfo();
 
-    const qdrawGetParticipants = async () => {
+    const interval = setInterval(fetchInfo, 60 * 1000);
+    return () => clearInterval(interval);
+  }, [qHelper, httpEndpoint, lastDrawHour]);
+
+  useEffect(() => {
+    if (currentHour === null || nextDrawHour === null) return;
+    const update = () => {
+      const now = new Date();
+      const diffHours = (nextDrawHour - currentHour + 24) % 24;
+      const target = new Date(now);
+      target.setHours(now.getHours() + diffHours, 0, 0, 0);
+      setTimeLeft(Math.max(0, Math.floor((target - now) / 1000)));
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [currentHour, nextDrawHour]);
+
+  useEffect(() => {
+    if (!qHelper) return;
+    const fetchParticipants = async () => {
       try {
         const result = await queryContract(
           'http://67.222.157.63:8000',
@@ -201,59 +182,21 @@ export default function StartPage() {
           null,
           null,
         );
-        console.log('qdrawGetParticipants result:', result.rawResponse);
-        let myBuffer = '';
-        try {
-          myBuffer = Buffer.from(result.rawResponse.responseData, 'base64');
-          console.log(myBuffer);
-        } catch (err) {
-          console.error('Failed to decode base64 data:', err);
-        }
-        // const participantCount = myBuffer.slice(0, 8)[0];
-        const participantCountView = new DataView(myBuffer.buffer, myBuffer.byteOffset, 8);
-        const participantCount = Number(participantCountView.getBigUint64(0, true));
-        console.log('qdrawGetParticipants participantCount', participantCount);
-        // const uniqueParticipantCount = myBuffer.slice(8, 16)[0];
-        const uniqueParticipantCountView = new DataView(
-          myBuffer.buffer,
-          myBuffer.byteOffset + 8,
-          8,
-        );
-        const uniqueParticipantCount = Number(uniqueParticipantCountView.getBigUint64(0, true));
-        console.log('qdrawGetParticipants uniqueParticipantCount', uniqueParticipantCount);
-
-        const activeParticipants = [];
-        for (let i = 0; i < uniqueParticipantCount; i++) {
-          const fromOffset = 16 + i * 32;
-          const toOffset = fromOffset + 32;
-          const result = await qHelper.getIdentity(
-            new Uint8Array(myBuffer.slice(fromOffset, toOffset)),
-          ); // 32 bytes
-          activeParticipants.push(result);
-        }
-        console.log('qdrawGetParticipants activeParticipants', activeParticipants);
-        setParticipants(activeParticipants);
-
-        const ticketMap = {};
-        for (let i = 0; i < uniqueParticipantCount; i++) {
-          const fromOffset = 16 + 1024 * 32 + i * 8;
-          const view = new DataView(myBuffer.buffer, myBuffer.byteOffset + fromOffset, 8);
-          const ticketCount = Number(view.getBigUint64(0, true));
-          const id = activeParticipants[i];
-          ticketMap[id] = ticketCount;
-        }
-        console.log('qdrawGetParticipants tickets', ticketMap);
-
-        setTicketsByParticipant(ticketMap);
-      } catch (error) {
-        // do something when you encounter errors
+        const buf = Buffer.from(result.rawResponse.responseData, 'base64');
+        const parsed = await parseParticipants(buf, qHelper);
+        setParticipants(parsed.participants);
+        const map = {};
+        parsed.participants.forEach((id, idx) => {
+          map[id] = parsed.ticketCounts[idx];
+        });
+        setTicketsByParticipant(map);
+      } catch (e) {
+        console.error(e);
       }
     };
 
-    qdrawGetParticipants();
-
-    return () => clearInterval(timer);
-  }, [participants, qHelper]);
+    fetchParticipants();
+  }, [qHelper, httpEndpoint]);
 
   const handleGetTicket = () => {
     if (!connected) {
@@ -414,7 +357,7 @@ export default function StartPage() {
                     fontWeight: 700,
                   }}
                 >
-                  {nextTime} S
+                  {timeLeft} S
                 </span>
               </Typography>
             </Box>
@@ -465,14 +408,19 @@ export default function StartPage() {
           </Typography>
 
           {winner ? (
-            <MatrixReveal
-              id={winner}
-              duration={6000}
-              onComplete={() => {
-                setRevealComplete(true);
-                // setPot(0); // TODO
-              }}
-            />
+            <>
+              <MatrixReveal id={winner} duration={6000} />
+              <Typography
+                sx={{
+                  mt: 2,
+                  textAlign: 'center',
+                  fontFamily: 'monospace',
+                  color: theme.palette.text.secondary,
+                }}
+              >
+                Won {lastWinAmount}
+              </Typography>
+            </>
           ) : (
             <Box
               sx={{

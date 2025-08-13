@@ -17,12 +17,7 @@ export const HEADERS = {
  * @param {string} requestData - Base64 encoded input data
  * @returns {Object} Formatted request payload
  */
-export const makeJsonData = (
-  contractIndex,
-  functionIndex,
-  inputSize,
-  requestData
-) => ({
+export const makeJsonData = (contractIndex, functionIndex, inputSize, requestData) => ({
   contractIndex,
   inputType: functionIndex,
   inputSize,
@@ -49,11 +44,9 @@ export async function queryContract(
   inputFields = [],
   selectedFunction = null,
   customIndexes = null,
-  qHelper = null
+  qHelper = null,
 ) {
-  console.log(
-    `Query contract called with: ${contractIndex}, function: ${functionIndex}`
-  );
+  console.log(`Query contract called with: ${contractIndex}, function: ${functionIndex}`);
 
   let contractIdxNum = contractIndex;
 
@@ -62,15 +55,8 @@ export async function queryContract(
   }
 
   const encodedData = encodeParams(params, inputFields, qHelper);
-  const inputSize = encodedData
-    ? Buffer.from(base64.decode(encodedData), 'binary').length
-    : 0;
-  const queryData = makeJsonData(
-    contractIdxNum,
-    functionIndex,
-    inputSize,
-    encodedData
-  );
+  const inputSize = encodedData ? Buffer.from(base64.decode(encodedData), 'binary').length : 0;
+  const queryData = makeJsonData(contractIdxNum, functionIndex, inputSize, encodedData);
 
   try {
     let endpoint = httpEndpoint;
@@ -79,19 +65,13 @@ export async function queryContract(
     }
 
     let url = `${endpoint}/v1/querySmartContract`;
-    if (
-      process.env.NODE_ENV === 'development' &&
-      endpoint.includes('rpc.qubic.org')
-    ) {
+    if (process.env.NODE_ENV === 'development' && endpoint.includes('rpc.qubic.org')) {
       // Only use proxy for mainnet endpoint to avoid CORS
       url = `/api/proxy/v1/querySmartContract`;
     }
 
     console.log('[contractApi] Making request to URL:', url);
-    console.log(
-      '[contractApi] Request payload:',
-      JSON.stringify(queryData, null, 2)
-    );
+    console.log('[contractApi] Request payload:', JSON.stringify(queryData, null, 2));
 
     const response = await fetch(url, {
       method: 'POST',
@@ -107,33 +87,19 @@ export async function queryContract(
     }
 
     const json = await response.json();
-    console.log(
-      '[contractApi] Raw JSON response:',
-      JSON.stringify(json, null, 2)
-    );
+    console.log('[contractApi] Raw JSON response:', JSON.stringify(json, null, 2));
 
     // Check if responseData exists and log its details
     if (json.responseData) {
-      console.log(
-        '[contractApi] ResponseData exists, length:',
-        json.responseData.length
-      );
-      console.log(
-        '[contractApi] ResponseData preview:',
-        json.responseData.substring(0, 100)
-      );
+      console.log('[contractApi] ResponseData exists, length:', json.responseData.length);
+      console.log('[contractApi] ResponseData preview:', json.responseData.substring(0, 100));
     } else {
       console.log('[contractApi] ResponseData is missing or empty!');
       console.log('[contractApi] Full response keys:', Object.keys(json));
 
       // If proxy returns empty data, try direct call as fallback
-      if (
-        process.env.NODE_ENV === 'development' &&
-        endpoint.includes('rpc.qubic.org')
-      ) {
-        console.log(
-          '[contractApi] Proxy returned empty data, trying direct call...'
-        );
+      if (process.env.NODE_ENV === 'development' && endpoint.includes('rpc.qubic.org')) {
+        console.log('[contractApi] Proxy returned empty data, trying direct call...');
 
         const directUrl = `${endpoint}/v1/querySmartContract`;
         console.log('[contractApi] Trying direct URL:', directUrl);
@@ -147,36 +113,25 @@ export async function queryContract(
 
           if (directResponse.ok) {
             const directJson = await directResponse.json();
-            console.log(
-              '[contractApi] Direct call response:',
-              JSON.stringify(directJson, null, 2)
-            );
+            console.log('[contractApi] Direct call response:', JSON.stringify(directJson, null, 2));
 
             if (directJson.responseData) {
-              console.log(
-                '[contractApi] Direct call has responseData! Using it.'
-              );
+              console.log('[contractApi] Direct call has responseData! Using it.');
               return {
-                ...decodeContractResponse(
-                  directJson.responseData,
-                  selectedFunction?.outputs || []
-                ),
+                ...decodeContractResponse(directJson.responseData, selectedFunction?.outputs || []),
                 rawResponse: directJson,
               };
             }
           }
         } catch (directError) {
-          console.log(
-            '[contractApi] Direct call also failed:',
-            directError.message
-          );
+          console.log('[contractApi] Direct call also failed:', directError.message);
         }
       }
     }
 
     const decodedResponse = decodeContractResponse(
       json.responseData,
-      selectedFunction?.outputs || []
+      selectedFunction?.outputs || [],
     );
 
     console.log('[contractApi] Decoded response:', decodedResponse);
@@ -208,24 +163,12 @@ export async function queryContract(
  * @param {Object} params - Procedure parameters
  * @returns {Promise<Object>} Transaction result
  */
-export async function executeTransaction(
-  httpEndpoint,
-  contractIndex,
-  procedureIndex,
-  params = {}
-) {
+export async function executeTransaction(httpEndpoint, contractIndex, procedureIndex, params = {}) {
   // Convert params to appropriate binary format and encode as base64
   const encodedData = encodeParams(params);
-  const inputSize = encodedData
-    ? Buffer.from(base64.decode(encodedData), 'binary').length
-    : 0;
+  const inputSize = encodedData ? Buffer.from(base64.decode(encodedData), 'binary').length : 0;
 
-  const txData = makeJsonData(
-    contractIndex,
-    procedureIndex,
-    inputSize,
-    encodedData
-  );
+  const txData = makeJsonData(contractIndex, procedureIndex, inputSize, encodedData);
 
   try {
     console.log('Sending transaction data:', txData);
@@ -241,10 +184,7 @@ export async function executeTransaction(
     let corsOptions = {};
 
     // If we're in development, use the local proxy to avoid CORS issues
-    if (
-      process.env.NODE_ENV === 'development' &&
-      endpoint.includes('rpc.qubic.org')
-    ) {
+    if (process.env.NODE_ENV === 'development' && endpoint.includes('rpc.qubic.org')) {
       // Only use proxy for mainnet endpoint to avoid CORS
       url = `/api/proxy/v1/submitTransaction`;
     }
@@ -257,9 +197,7 @@ export async function executeTransaction(
     });
 
     if (!response.ok) {
-      throw new Error(
-        `HTTP error! status: ${response.status} - ${await response.text()}`
-      );
+      throw new Error(`HTTP error! status: ${response.status} - ${await response.text()}`);
     }
 
     const json = await response.json();

@@ -1,10 +1,7 @@
 /* global BigInt */
 import { Buffer } from 'buffer';
 
-import {
-  PUBLIC_KEY_LENGTH,
-  SIGNATURE_LENGTH,
-} from '@qubic-lib/qubic-ts-library/dist/crypto';
+import { PUBLIC_KEY_LENGTH, SIGNATURE_LENGTH } from '@qubic-lib/qubic-ts-library/dist/crypto';
 import { DynamicPayload } from '@qubic-lib/qubic-ts-library/dist/qubic-types/DynamicPayload';
 import { Long } from '@qubic-lib/qubic-ts-library/dist/qubic-types/Long';
 import { PublicKey } from '@qubic-lib/qubic-ts-library/dist/qubic-types/PublicKey';
@@ -50,9 +47,7 @@ function encodeValue(value, type, qHelper, size = 0) {
   } else if (type === 'id') {
     buffer = Buffer.alloc(PUBLIC_KEY_LENGTH); // 32 bytes
     if (!qHelper) {
-      console.error(
-        'qHelper instance not provided to encodeValue for ID type!'
-      );
+      console.error('qHelper instance not provided to encodeValue for ID type!');
       buffer.fill(0);
     } else {
       try {
@@ -60,9 +55,7 @@ function encodeValue(value, type, qHelper, size = 0) {
         if (idBytes && idBytes.length === PUBLIC_KEY_LENGTH) {
           Buffer.from(idBytes).copy(buffer); // Ensure it's copied correctly
         } else {
-          console.warn(
-            `Invalid ID format or length for value: ${value}. Using zero buffer.`
-          );
+          console.warn(`Invalid ID format or length for value: ${value}. Using zero buffer.`);
           buffer.fill(0);
         }
       } catch (error) {
@@ -81,9 +74,7 @@ function encodeValue(value, type, qHelper, size = 0) {
       buffer.fill(0, strBuffer.length);
     }
   } else {
-    console.warn(
-      `Unsupported type for encoding: ${type}. Returning empty buffer.`
-    );
+    console.warn(`Unsupported type for encoding: ${type}. Returning empty buffer.`);
     buffer = Buffer.alloc(0);
   }
   return buffer;
@@ -92,8 +83,7 @@ function encodeValue(value, type, qHelper, size = 0) {
 // Encode parameters for contract calls
 export function encodeParams(params, inputFields = [], qHelper) {
   try {
-    if (!params || Object.keys(params).length === 0 || inputFields.length === 0)
-      return '';
+    if (!params || Object.keys(params).length === 0 || inputFields.length === 0) return '';
 
     const buffers = [];
     let totalSize = 0;
@@ -130,7 +120,7 @@ export function encodeParams(params, inputFields = [], qHelper) {
         const arraySize = resolveSize(field.size);
         if (arraySize === 0) {
           console.warn(
-            `Could not resolve size for array ${field.name} (size: ${field.size}). Skipping field.`
+            `Could not resolve size for array ${field.name} (size: ${field.size}). Skipping field.`,
           );
           return; // Skip this field if size is unresolved
         }
@@ -142,14 +132,9 @@ export function encodeParams(params, inputFields = [], qHelper) {
           buffers.push(itemBuffer);
           totalSize += itemBuffer.length;
         }
-      } else if (
-        field.type === 'ProposalDataT' ||
-        field.type === 'ProposalDataYesNo'
-      ) {
+      } else if (field.type === 'ProposalDataT' || field.type === 'ProposalDataYesNo') {
         // Handle complex Proposal types (simplified placeholder)
-        console.warn(
-          `Complex type ${field.type} encoding not fully implemented here.`
-        );
+        console.warn(`Complex type ${field.type} encoding not fully implemented here.`);
         const complexBuffer = Buffer.alloc(0); // Or call a specific encoder
         buffers.push(complexBuffer);
         totalSize += complexBuffer.length;
@@ -185,11 +170,7 @@ function decodeValue(dv, offset, type, size = 0) {
     // Treat ID like uint64 for display, maybe add specific ID formatting later
     fieldSize = PUBLIC_KEY_LENGTH; // 32 bytes raw
     if (offset + fieldSize <= dv.byteLength) {
-      const idBytes = new Uint8Array(
-        dv.buffer,
-        dv.byteOffset + offset,
-        fieldSize
-      );
+      const idBytes = new Uint8Array(dv.buffer, dv.byteOffset + offset, fieldSize);
       // Placeholder: Return hex for now, needs ID conversion helper for readable format
       value = Buffer.from(idBytes).toString('hex');
       // Example: value = qubicHelper.getIdStringFromBytes(idBytes); // If helper available
@@ -197,16 +178,12 @@ function decodeValue(dv, offset, type, size = 0) {
   } else if (type.includes('uint32') || type.includes('sint32')) {
     fieldSize = 4;
     if (offset + fieldSize <= dv.byteLength) {
-      value = type.includes('uint')
-        ? dv.getUint32(offset, true)
-        : dv.getInt32(offset, true);
+      value = type.includes('uint') ? dv.getUint32(offset, true) : dv.getInt32(offset, true);
     }
   } else if (type.includes('uint16') || type.includes('sint16')) {
     fieldSize = 2;
     if (offset + fieldSize <= dv.byteLength) {
-      value = type.includes('uint')
-        ? dv.getUint16(offset, true)
-        : dv.getInt16(offset, true);
+      value = type.includes('uint') ? dv.getUint16(offset, true) : dv.getInt16(offset, true);
     }
   } else if (type.includes('uint8') || type.includes('sint8')) {
     fieldSize = 1;
@@ -222,17 +199,11 @@ function decodeValue(dv, offset, type, size = 0) {
     const sizeMatch = type.match(/\[(\d+)\]/);
     fieldSize = sizeMatch ? parseInt(sizeMatch[1], 10) : size || 64; // Use provided size or default
     if (offset + fieldSize <= dv.byteLength) {
-      const charBytes = new Uint8Array(
-        dv.buffer,
-        dv.byteOffset + offset,
-        fieldSize
-      );
+      const charBytes = new Uint8Array(dv.buffer, dv.byteOffset + offset, fieldSize);
       // Find the first null terminator
       const nullIndex = charBytes.indexOf(0);
       const effectiveLength = nullIndex !== -1 ? nullIndex : fieldSize;
-      value = Buffer.from(charBytes.slice(0, effectiveLength)).toString(
-        'utf-8'
-      );
+      value = Buffer.from(charBytes.slice(0, effectiveLength)).toString('utf-8');
     }
   } else {
     console.warn(`Unsupported type for decoding: ${type}. Skipping.`);
@@ -275,9 +246,7 @@ export function decodeContractResponse(responseData, outputFields) {
       };
       const resolved = knownConstants[sizeStr];
       if (resolved === undefined) {
-        console.warn(
-          `Could not resolve constant size "${sizeStr}" for output array.`
-        );
+        console.warn(`Could not resolve constant size "${sizeStr}" for output array.`);
       }
       return resolved || 0;
     };
@@ -310,14 +279,14 @@ export function decodeContractResponse(responseData, outputFields) {
             const { value: itemValue, readSize: itemSize } = decodeValue(
               dv,
               currentOffset,
-              field.elementType
+              field.elementType,
             );
             items.push(itemValue);
             currentOffset += itemSize;
             if (itemSize === 0) {
               // If decodeValue couldn't determine size, stop array processing
               console.warn(
-                `Could not determine size for element type ${field.elementType} in array ${name}. Stopping array decode.`
+                `Could not determine size for element type ${field.elementType} in array ${name}. Stopping array decode.`,
               );
               break;
             }
@@ -330,9 +299,7 @@ export function decodeContractResponse(responseData, outputFields) {
           offset += readSize;
           if (readSize === 0) {
             // Stop processing if size is unknown
-            console.warn(
-              `Could not determine size for type ${type} (${name}). Stopping decode.`
-            );
+            console.warn(`Could not determine size for type ${type} (${name}). Stopping decode.`);
             break;
           }
         }
@@ -413,14 +380,82 @@ export function base64ToUint8Array(base64) {
     }
     return bytes;
   } catch (e) {
-    console.error(
-      'Error decoding Base64 string:',
-      e,
-      'Input:',
-      base64.substring(0, 50) + '...'
-    );
+    console.error('Error decoding Base64 string:', e, 'Input:', base64.substring(0, 50) + '...');
     throw new Error('Invalid Base64 string provided.');
   }
+}
+
+export async function parseGetInfo(buffer, qHelper) {
+  if (!buffer) return {};
+  const dv = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  let offset = 0;
+  const pot = dv.getBigInt64(offset, true).toString();
+  offset += 8;
+  const participantCount = Number(dv.getBigUint64(offset, true));
+  offset += 8;
+  const idBytes = buffer.slice(offset, offset + PUBLIC_KEY_LENGTH);
+  offset += PUBLIC_KEY_LENGTH;
+  let lastWinner = '';
+  if (qHelper) {
+    try {
+      lastWinner = await qHelper.getIdentity(new Uint8Array(idBytes));
+    } catch {
+      lastWinner = '';
+    }
+  }
+  const lastWinAmount = dv.getBigInt64(offset, true).toString();
+  offset += 8;
+  const lastDrawHour = dv.getUint8(offset);
+  offset += 1;
+  const currentHour = dv.getUint8(offset);
+  offset += 1;
+  const nextDrawHour = dv.getUint8(offset);
+  return {
+    pot,
+    participantCount,
+    lastWinner,
+    lastWinAmount,
+    lastDrawHour,
+    currentHour,
+    nextDrawHour,
+  };
+}
+
+// Parse getParticipants contract response buffer
+export async function parseParticipants(buffer, qHelper) {
+  if (!buffer) return {};
+  const dv = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  let offset = 0;
+  const participantCount = Number(dv.getBigUint64(offset, true));
+  offset += 8;
+  const uniqueParticipantCount = Number(dv.getBigUint64(offset, true));
+  offset += 8;
+  const participants = [];
+  for (let i = 0; i < uniqueParticipantCount; i++) {
+    const start = offset + i * PUBLIC_KEY_LENGTH;
+    const idBytes = buffer.slice(start, start + PUBLIC_KEY_LENGTH);
+    let id = '';
+    if (qHelper) {
+      try {
+        id = await qHelper.getIdentity(new Uint8Array(idBytes));
+      } catch {
+        id = '';
+      }
+    }
+    participants.push(id);
+  }
+  const ticketCounts = [];
+  const ticketsOffset = 16 + 1024 * PUBLIC_KEY_LENGTH;
+  for (let i = 0; i < uniqueParticipantCount; i++) {
+    const view = new DataView(buffer.buffer, buffer.byteOffset + ticketsOffset + i * 8, 8);
+    ticketCounts.push(Number(view.getBigUint64(0, true)));
+  }
+  return {
+    participantCount,
+    uniqueParticipantCount,
+    participants,
+    ticketCounts,
+  };
 }
 
 export function decodeUint8ArrayTx(tx) {
@@ -440,15 +475,11 @@ export function decodeUint8ArrayTx(tx) {
 
   if (tx.length < INPUT_SIZE_END) {
     throw new Error(
-      `Transaction buffer too short for header fields. Need ${INPUT_SIZE_END}, got ${tx.length}`
+      `Transaction buffer too short for header fields. Need ${INPUT_SIZE_END}, got ${tx.length}`,
     );
   }
 
-  const inputSize = new DataView(
-    tx.buffer,
-    tx.byteOffset + INPUT_TYPE_END,
-    2
-  ).getUint16(0, true);
+  const inputSize = new DataView(tx.buffer, tx.byteOffset + INPUT_TYPE_END, 2).getUint16(0, true);
   const payloadStart = INPUT_SIZE_END;
   const payloadEnd = payloadStart + inputSize;
   const signatureStart = payloadEnd;
@@ -456,23 +487,17 @@ export function decodeUint8ArrayTx(tx) {
 
   if (tx.length < signatureEnd) {
     throw new Error(
-      `Transaction buffer too short for payload and signature. Need ${signatureEnd}, got ${tx.length}`
+      `Transaction buffer too short for payload and signature. Need ${signatureEnd}, got ${tx.length}`,
     );
   }
 
   // Use try-catch blocks for robustness during decoding
   try {
     newTx.setSourcePublicKey(new PublicKey(tx.slice(0, SRC_PUBKEY_END)));
-    newTx.setDestinationPublicKey(
-      new PublicKey(tx.slice(SRC_PUBKEY_END, DEST_PUBKEY_END))
-    );
+    newTx.setDestinationPublicKey(new PublicKey(tx.slice(SRC_PUBKEY_END, DEST_PUBKEY_END)));
     newTx.setAmount(new Long(tx.slice(DEST_PUBKEY_END, AMOUNT_END)));
-    newTx.setTick(
-      new DataView(tx.buffer, tx.byteOffset + AMOUNT_END, 4).getUint32(0, true)
-    );
-    newTx.setInputType(
-      new DataView(tx.buffer, tx.byteOffset + TICK_END, 2).getUint16(0, true)
-    );
+    newTx.setTick(new DataView(tx.buffer, tx.byteOffset + AMOUNT_END, 4).getUint32(0, true));
+    newTx.setInputType(new DataView(tx.buffer, tx.byteOffset + TICK_END, 2).getUint16(0, true));
     newTx.setInputSize(inputSize);
 
     if (inputSize > 0) {
