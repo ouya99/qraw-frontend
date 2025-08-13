@@ -23,7 +23,6 @@ import BuyTicketsModal from '../components/BuyTicketsModal';
 import ElectricCircuit from '../components/layout/BackgroundCircuit';
 import ConnectLink from '../components/qubic/connect/ConnectLink';
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
-import { useQuotteryContext } from '../contexts/QuotteryContext';
 
 const features = [
   {
@@ -49,15 +48,8 @@ const features = [
 export default function LandingPage() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { connected, toggleConnectModal } = useQubicConnect();
-  const { balance, fetchBalance, walletPublicIdentity } = useQuotteryContext();
+  const { balance, connected, toggleConnectModal } = useQubicConnect();
   const [openBuy, setOpenBuy] = useState(false);
-
-  useEffect(() => {
-    if (connected && walletPublicIdentity) {
-      fetchBalance(walletPublicIdentity);
-    }
-  }, [connected, fetchBalance, walletPublicIdentity]);
 
   const handleGetTicket = () => {
     if (!connected) {

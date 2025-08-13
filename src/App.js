@@ -4,7 +4,6 @@ import LandingLayout from './components/layout/LandingLayout';
 import MainLayout from './components/layout/MainLayout';
 import { QubicConnectProvider } from './components/qubic/connect/QubicConnectContext';
 import { ConfigProvider } from './contexts/ConfigContext';
-import { QuotteryProvider } from './contexts/QuotteryContext';
 import { SnackbarProvider } from './contexts/SnackbarContext';
 import { ThemeContextProvider } from './contexts/ThemeContext';
 import LandingPage from './pages/LandingPage';
@@ -15,34 +14,32 @@ function App() {
     <ThemeContextProvider>
       <ConfigProvider>
         <QubicConnectProvider>
-          <QuotteryProvider>
-            <SnackbarProvider>
-              <BrowserRouter>
-                <Routes>
-                  {/* Landing page */}
-                  <Route
-                    path="/landing"
-                    element={
-                      <LandingLayout>
-                        <LandingPage />
-                      </LandingLayout>
-                    }
-                  />
-                  {/* All other pages WITH header/footer */}
-                  <Route
-                    path="*"
-                    element={
-                      <MainLayout>
-                        <Routes>
-                          <Route path="/" element={<StartPage />} />
-                        </Routes>
-                      </MainLayout>
-                    }
-                  />
-                </Routes>
-              </BrowserRouter>
-            </SnackbarProvider>
-          </QuotteryProvider>
+          <SnackbarProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Landing page */}
+                <Route
+                  path="/landing"
+                  element={
+                    <LandingLayout>
+                      <LandingPage />
+                    </LandingLayout>
+                  }
+                />
+                {/* All other pages WITH header/footer */}
+                <Route
+                  path="*"
+                  element={
+                    <MainLayout>
+                      <Routes>
+                        <Route path="/" element={<StartPage />} />
+                      </Routes>
+                    </MainLayout>
+                  }
+                />
+              </Routes>
+            </BrowserRouter>
+          </SnackbarProvider>
         </QubicConnectProvider>
       </ConfigProvider>
     </ThemeContextProvider>

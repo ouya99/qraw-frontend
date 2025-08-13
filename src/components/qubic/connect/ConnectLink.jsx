@@ -5,25 +5,16 @@ import { useTheme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 
-import { useQuotteryContext } from '../../../contexts/QuotteryContext';
 import { MIN_BALANCE_THRESHOLD } from '../util/commons';
 
 import ConnectModal from './ConnectModal';
 import { useQubicConnect } from './QubicConnectContext';
 
 const ConnectLink = () => {
-  const { connected, showConnectModal, toggleConnectModal } = useQubicConnect();
-  const { balance, fetchBalance, walletPublicIdentity } = useQuotteryContext();
+  const { balance, connected, showConnectModal, toggleConnectModal } = useQubicConnect();
   const theme = useTheme();
   const lg = useMediaQuery(theme.breakpoints.up('lg'));
   const [isHovered, setIsHovered] = useState(false);
-
-  const handleBalanceClick = (e) => {
-    e.stopPropagation();
-    if (walletPublicIdentity) {
-      fetchBalance(walletPublicIdentity);
-    }
-  };
 
   const isNotEnoughFund = parseInt(balance) <= MIN_BALANCE_THRESHOLD;
 

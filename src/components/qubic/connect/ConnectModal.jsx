@@ -32,7 +32,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useConfig } from '../../../contexts/ConfigContext';
-import { useQuotteryContext } from '../../../contexts/QuotteryContext';
 import { useSnackbar } from '../../../contexts/SnackbarContext';
 import { truncateMiddle, formatQubicAmount } from '../../qubic/util';
 
@@ -44,7 +43,8 @@ const ConnectModal = ({ open, onClose }) => {
 
   const [selectedWalletMode, setSelectedWalletMode] = useState('none');
   const [selectedServerMode, setSelectedServerMode] = useState('none');
-  const { balance, fetchBalance, walletPublicIdentity } = useQuotteryContext();
+
+  const { wallet, balance } = useQubicConnect();
 
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [copied, setCopied] = useState(false);
@@ -71,8 +71,8 @@ const ConnectModal = ({ open, onClose }) => {
   const { showSnackbar } = useSnackbar();
 
   const copyToClipboard = () => {
-    if (walletPublicIdentity) {
-      navigator.clipboard.writeText(walletPublicIdentity).then(() => {
+    if (wallet && wallet.publicKey) {
+      navigator.clipboard.writeText(wallet.publicKey).then(() => {
         showSnackbar('Public ID copied!', 'success');
       });
     }
@@ -271,7 +271,7 @@ const ConnectModal = ({ open, onClose }) => {
                 </Box>
                 <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
                   <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                    Public ID: {truncateMiddle(walletPublicIdentity, 40)}
+                    Public ID: {truncateMiddle(wallet.publicKey, 40)}
                   </Typography>
                   <IconButton
                     onClick={copyToClipboard}
