@@ -216,8 +216,10 @@ export default function StartPage() {
 
         const activeParticipants = [];
         for (let i = 0; i < participantCount; i++) {
+          const fromOffset = 16 + i * 32;
+          const toOffset = fromOffset + 32;
           const result = await qHelper.getIdentity(
-            new Uint8Array(myBuffer.slice(16, 16 + (i + 1) * 32)),
+            new Uint8Array(myBuffer.slice(fromOffset, toOffset)),
           ); // 32 bytes
           activeParticipants.push(result);
         }
@@ -226,8 +228,9 @@ export default function StartPage() {
 
         const tickets = [];
         for (let i = 0; i < participantCount; i++) {
-          const offset = 16 + 1024 * 32;
-          const result = myBuffer.slice(offset, offset + (i + 1) * 8)[0];
+          const fromOffset = 16 + 1024 * 32 + i * 8;
+          const toOffset = fromOffset + 8;
+          const result = myBuffer.slice(fromOffset, toOffset)[0];
           tickets.push(result);
         }
         console.log('qdrawGetParticipants tickets', tickets);
