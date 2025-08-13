@@ -26,7 +26,7 @@ import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext
 import { queryContract } from '../components/qubic/util/contractApi';
 import { parseGetInfo, parseParticipants } from '../components/qubic/util/contractUtils';
 import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
-import {formatQubicAmount} from "../components/qubic/util";
+import { formatQubicAmount } from '../components/qubic/util';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const INITIAL_POT = '0';
@@ -35,6 +35,10 @@ const INITIAL_POT = '0';
 function MatrixReveal({ id, duration = 8000, onComplete }) {
   const theme = useTheme();
   const [display, setDisplay] = useState(() => id.replace(/./g, () => '█'));
+
+  useEffect(() => {
+    setDisplay(id.replace(/./g, () => '█'));
+  }, [id]);
 
   useEffect(() => {
     if (!id) return;
@@ -410,7 +414,7 @@ export default function StartPage() {
 
           {winner ? (
             <>
-              <MatrixReveal id={winner} duration={6000} />
+              <MatrixReveal key={winner} id={winner} duration={6000} />
               <Typography
                 sx={{
                   mt: 2,
