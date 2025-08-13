@@ -126,7 +126,7 @@ export default function StartPage() {
   //   [participants],
   // );
   const [participants, setParticipants] = useState([]);
-  const [ticketsByParticipant, setTicketsByParticipant] = useState([]);
+  const [ticketsByParticipant, setTicketsByParticipant] = useState({});
   const [winner, setWinner] = useState(null);
   const [nextTime, setnextTime] = useState(DRAW_INTERVAL);
   const [pot, setPot] = useState(INITIAL_POT);
@@ -209,9 +209,17 @@ export default function StartPage() {
         } catch (err) {
           console.error('Failed to decode base64 data:', err);
         }
-        const participantCount = myBuffer.slice(0, 8)[0];
+        // const participantCount = myBuffer.slice(0, 8)[0];
+        const participantCountView = new DataView(myBuffer.buffer, myBuffer.byteOffset, 8);
+        const participantCount = Number(participantCountView.getBigUint64(0, true));
         console.log('qdrawGetParticipants participantCount', participantCount);
-        const uniqueParticipantCount = myBuffer.slice(8, 16)[0];
+        // const uniqueParticipantCount = myBuffer.slice(8, 16)[0];
+        const uniqueParticipantCountView = new DataView(
+          myBuffer.buffer,
+          myBuffer.byteOffset + 8,
+          8,
+        );
+        const uniqueParticipantCount = Number(uniqueParticipantCountView.getBigUint64(0, true));
         console.log('qdrawGetParticipants uniqueParticipantCount', uniqueParticipantCount);
 
         const activeParticipants = [];
@@ -226,16 +234,17 @@ export default function StartPage() {
         console.log('qdrawGetParticipants activeParticipants', activeParticipants);
         setParticipants(activeParticipants);
 
-        const tickets = [];
+        const ticketMap = {};
         for (let i = 0; i < uniqueParticipantCount; i++) {
           const fromOffset = 16 + 1024 * 32 + i * 8;
-          const toOffset = fromOffset + 8;
-          const result = myBuffer.slice(fromOffset, toOffset)[0];
-          tickets.push(result);
+          const view = new DataView(myBuffer.buffer, myBuffer.byteOffset + fromOffset, 8);
+          const ticketCount = Number(view.getBigUint64(0, true));
+          const id = activeParticipants[i];
+          ticketMap[id] = ticketCount;
         }
-        console.log('qdrawGetParticipants tickets', tickets);
+        console.log('qdrawGetParticipants tickets', ticketMap);
 
-        setTicketsByParticipant(tickets);
+        setTicketsByParticipant(ticketMap);
       } catch (error) {
         // do something when you encounter errors
       }
