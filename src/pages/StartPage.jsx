@@ -26,6 +26,7 @@ import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext
 import { queryContract } from '../components/qubic/util/contractApi';
 import { parseGetInfo, parseParticipants } from '../components/qubic/util/contractUtils';
 import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
+import {formatQubicAmount} from "../components/qubic/util";
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const INITIAL_POT = '0';
@@ -309,7 +310,7 @@ export default function StartPage() {
                 letterSpacing: '.06em',
               }}
             >
-              {pot}
+              {formatQubicAmount(pot)}
             </Box>
             <Box
               component="span"
@@ -418,7 +419,7 @@ export default function StartPage() {
                   color: theme.palette.text.secondary,
                 }}
               >
-                Won {lastWinAmount}
+                Won {formatQubicAmount(lastWinAmount)}
               </Typography>
             </>
           ) : (
