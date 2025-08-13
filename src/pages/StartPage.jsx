@@ -215,7 +215,7 @@ export default function StartPage() {
         console.log('qdrawGetParticipants uniqueParticipantCount', uniqueParticipantCount);
 
         const activeParticipants = [];
-        for (let i = 0; i < participantCount; i++) {
+        for (let i = 0; i < uniqueParticipantCount; i++) {
           const fromOffset = 16 + i * 32;
           const toOffset = fromOffset + 32;
           const result = await qHelper.getIdentity(
@@ -227,7 +227,7 @@ export default function StartPage() {
         setParticipants(activeParticipants);
 
         const tickets = [];
-        for (let i = 0; i < participantCount; i++) {
+        for (let i = 0; i < uniqueParticipantCount; i++) {
           const fromOffset = 16 + 1024 * 32 + i * 8;
           const toOffset = fromOffset + 8;
           const result = myBuffer.slice(fromOffset, toOffset)[0];
