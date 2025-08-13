@@ -112,8 +112,8 @@ export default function StartPage() {
     connected,
     httpEndpoint,
     toggleConnectModal,
+    balance,
   } = useQubicConnect();
-  const { balance, fetchBalance } = useQuotteryContext();
   console.log('Balance:', balance);
 
   // const participants = useMemo(() => Array.from({ length: NB_PARTICIPANTS }, randomPublicId), []);
@@ -236,7 +236,6 @@ export default function StartPage() {
         console.log('qdrawGetParticipants tickets', tickets);
 
         setTicketsByParticipant(tickets);
-        // You may want to do setState here as well
       } catch (error) {
         // do something when you encounter errors
       }
@@ -244,26 +243,8 @@ export default function StartPage() {
 
     qdrawGetParticipants();
 
-    // const data = base64.decode(responseData.responseData);
-
-    // // Use Buffer to handle binary data
-    // const buffer = Buffer.from(data, "binary");
-
-    // // Read the count of active bets (first 4 bytes as UInt32)
-    // const count = buffer.readUInt32LE(0);
-
-    // // Extract active bet IDs from the rest of the buffer
-    // const activeBetIds = [];
-    // for (let i = 0; i < count; i++) {
-    //   activeBetIds.push(buffer.readUInt32LE(4 + i * 4));
-    // }
-
     return () => clearInterval(timer);
   }, [participants, qHelper]);
-
-  useEffect(() => {
-    if (connected) fetchBalance(wallet.publicKey);
-  }, [connected, fetchBalance]);
 
   const handleGetTicket = () => {
     if (!connected) {
