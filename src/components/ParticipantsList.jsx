@@ -2,21 +2,19 @@ import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumb
 import GroupIcon from '@mui/icons-material/Group';
 import {
   Box,
-  Container,
   Typography,
   List,
   ListItem,
   Paper,
   Divider,
   Stack,
-  Button,
   useTheme,
   alpha,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import React, { useEffect } from 'react';
+import React from 'react';
 
-const ParticipantsList = ({ participants, ticketsByParticipant, winner }) => {
+const ParticipantsList = ({ participants, ticketsByParticipant, publicID, totalTickets }) => {
   const theme = useTheme();
 
   return (
@@ -26,25 +24,54 @@ const ParticipantsList = ({ participants, ticketsByParticipant, winner }) => {
       transition={{ duration: 0.8, delay: 0.8 }}
     >
       <Stack spacing={3}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <GroupIcon
-            sx={{
-              color: theme.palette.text.secondary,
-              fontSize: 20,
-            }}
-          />
-          <Typography
-            variant="h6"
-            sx={{
-              fontFamily: 'monospace',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: theme.palette.text.secondary,
-              fontSize: '0.95rem',
-            }}
-          >
-            Participants ({participants.length})
-          </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <GroupIcon
+              sx={{
+                color: theme.palette.text.secondary,
+                fontSize: 20,
+              }}
+            />
+            <Typography
+              variant="h6"
+              sx={{
+                fontFamily: 'monospace',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: theme.palette.text.secondary,
+                fontSize: '0.95rem',
+              }}
+            >
+              Participants ({participants.length})
+            </Typography>
+          </Stack>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <ConfirmationNumberOutlinedIcon
+              sx={{
+                color: theme.palette.text.secondary,
+                fontSize: 20,
+              }}
+            />
+            <Typography
+              variant="h6"
+              sx={{
+                fontFamily: 'monospace',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: theme.palette.text.secondary,
+                fontSize: '0.95rem',
+              }}
+            >
+              Tickets ({totalTickets})
+            </Typography>
+          </Stack>
         </Box>
 
         <Paper
@@ -66,11 +93,11 @@ const ParticipantsList = ({ participants, ticketsByParticipant, winner }) => {
                     fontFamily: 'monospace',
                     fontSize: { xs: '0.6rem', sm: '0.8rem', md: '1rem' },
                     color:
-                      addr === winner ? theme.palette.primary.main : theme.palette.text.secondary,
+                      addr === publicID ? theme.palette.primary.main : theme.palette.text.secondary,
                     backgroundColor:
-                      addr === winner ? alpha(theme.palette.primary.main, 0.03) : 'transparent',
+                      addr === publicID ? alpha(theme.palette.primary.main, 0.03) : 'transparent',
                     borderLeft:
-                      addr === winner
+                      addr === publicID
                         ? `2px solid ${theme.palette.primary.main}`
                         : '2px solid transparent',
                     transition: 'all 0.2s ease',
@@ -88,7 +115,7 @@ const ParticipantsList = ({ participants, ticketsByParticipant, winner }) => {
                         fontWeight: 700,
                         fontSize: '0.95em',
                         color:
-                          addr === winner
+                          addr === publicID
                             ? theme.palette.primary.main
                             : theme.palette.text.secondary,
                       }}
@@ -99,7 +126,7 @@ const ParticipantsList = ({ participants, ticketsByParticipant, winner }) => {
                       sx={{
                         fontSize: 18,
                         color:
-                          addr === winner
+                          addr === publicID
                             ? theme.palette.primary.main
                             : theme.palette.text.secondary,
                       }}

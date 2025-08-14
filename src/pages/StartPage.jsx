@@ -119,6 +119,8 @@ export default function StartPage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [pot, setPot] = useState(INITIAL_POT);
   const [txStatus, setTxStatus] = useState(false);
+  const totalTickets = Object.values(ticketsByParticipant).reduce((sum, t) => sum + t, 0);
+  const publicID = wallet ? wallet.publicKey : 'Not connected';
 
   const [openBuy, setOpenBuy] = useState(false);
 
@@ -452,7 +454,8 @@ export default function StartPage() {
         <ParticipantsList
           participants={participants}
           ticketsByParticipant={ticketsByParticipant}
-          winner={winner}
+          publicID={publicID}
+          totalTickets={totalTickets}
         ></ParticipantsList>
       </Container>
 
