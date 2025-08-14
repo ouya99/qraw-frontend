@@ -154,7 +154,7 @@ export default function StartPage() {
 
     fetchInfo();
 
-    const interval = setInterval(fetchInfo, 60 * 1000);
+    const interval = setInterval(fetchInfo, 2 * 1000);
     return () => clearInterval(interval);
   }, [qHelper, httpEndpoint, lastDrawHour]);
 
@@ -200,8 +200,12 @@ export default function StartPage() {
     };
 
     fetchParticipants();
+    const id = setInterval(fetchParticipants, 2000);
     // if this was run and triggered change in participantsList all good, -> reset txStatus
     if (txStatus) setTxStatus(false);
+    return () => {
+      clearInterval(id);
+    };
   }, [qHelper, httpEndpoint, txStatus]);
 
   const handleGetTicket = () => {
@@ -416,7 +420,11 @@ export default function StartPage() {
 
           {winner ? (
             <>
-              <MatrixReveal key={winner} id={winner} duration={6000} />
+              <MatrixReveal
+                key={`${lastDrawHour}-${winner ?? ''}`}
+                id={winner ?? ''}
+                duration={6000}
+              />
               <Typography
                 sx={{
                   mt: 2,
