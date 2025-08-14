@@ -1,8 +1,6 @@
 /* global BigInt */
 import { Buffer } from 'buffer';
 
-import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
-import GroupIcon from '@mui/icons-material/Group';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import {
   Box,
@@ -17,16 +15,16 @@ import {
   useTheme,
   alpha,
 } from '@mui/material';
-import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 
 import logo from '../assets/logo/logoWin.svg';
 import BuyTicketsModal, { DEFAULTS } from '../components/BuyTicketsModal';
+import ParticipantsList from '../components/ParticipantsList';
 import { useQubicConnect } from '../components/qubic/connect/QubicConnectContext';
+import { formatQubicAmount } from '../components/qubic/util';
 import { queryContract } from '../components/qubic/util/contractApi';
 import { parseGetInfo, parseParticipants } from '../components/qubic/util/contractUtils';
 import { executeTransactionWithWallet } from '../components/qubic/util/transactionApi';
-import { formatQubicAmount } from '../components/qubic/util';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const INITIAL_POT = '0';
@@ -120,6 +118,7 @@ export default function StartPage() {
   const [nextDrawHour, setNextDrawHour] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [pot, setPot] = useState(INITIAL_POT);
+  const [txStatus, setTxStatus] = useState(false);
 
   const [openBuy, setOpenBuy] = useState(false);
 
@@ -238,6 +237,7 @@ export default function StartPage() {
 
     const result = await executeTransactionWithWallet(txDetails);
     console.log(result);
+    setTxStatus(result ? result.success : false);
   };
 
   return (
@@ -439,110 +439,12 @@ export default function StartPage() {
             </Box>
           )}
         </Box>
-
-        {/* Participant List */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-        >
-          <Stack spacing={3}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <GroupIcon
-                sx={{
-                  color: theme.palette.text.secondary,
-                  fontSize: 20,
-                }}
-              />
-              <Typography
-                variant="h6"
-                sx={{
-                  fontFamily: 'monospace',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: theme.palette.text.secondary,
-                  fontSize: '0.95rem',
-                }}
-              >
-                Participants ({participants.length})
-              </Typography>
-            </Box>
-
-            <Paper
-              variant="outlined"
-              sx={{
-                overflow: 'auto',
-                backgroundColor: 'transparent',
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                borderRadius: 1,
-              }}
-            >
-              <List dense disablePadding>
-                {participants.map((addr, idx) => (
-                  <React.Fragment key={addr}>
-                    <ListItem
-                      sx={{
-                        py: 1,
-                        px: 2,
-                        fontFamily: 'monospace',
-                        fontSize: { xs: '0.6rem', sm: '0.8rem', md: '1rem' },
-                        color:
-                          addr === winner
-                            ? theme.palette.primary.main
-                            : theme.palette.text.secondary,
-                        backgroundColor:
-                          addr === winner ? alpha(theme.palette.primary.main, 0.03) : 'transparent',
-                        borderLeft:
-                          addr === winner
-                            ? `2px solid ${theme.palette.primary.main}`
-                            : '2px solid transparent',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 2,
-                      }}
-                    >
-                      <span>{addr}</span>
-                      <Stack direction="row" alignItems="center" spacing={0.5}>
-                        <Typography
-                          sx={{
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            fontSize: '0.95em',
-                            color:
-                              addr === winner
-                                ? theme.palette.primary.main
-                                : theme.palette.text.secondary,
-                          }}
-                        >
-                          {ticketsByParticipant[addr]}
-                        </Typography>
-                        <ConfirmationNumberOutlinedIcon
-                          sx={{
-                            fontSize: 18,
-                            color:
-                              addr === winner
-                                ? theme.palette.primary.main
-                                : theme.palette.text.secondary,
-                          }}
-                        />
-                      </Stack>
-                    </ListItem>
-
-                    {idx < participants.length - 1 && (
-                      <Divider
-                        sx={{
-                          borderColor: alpha(theme.palette.primary.main, 0.05),
-                        }}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-              </List>
-            </Paper>
-          </Stack>
-        </motion.div>
+        <ParticipantsList
+          participants={participants}
+          ticketsByParticipant={ticketsByParticipant}
+          winner={winner}
+          txStatus={txStatus}
+        ></ParticipantsList>
       </Container>
 
       <BuyTicketsModal
