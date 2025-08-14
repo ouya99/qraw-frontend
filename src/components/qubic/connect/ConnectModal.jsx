@@ -314,7 +314,7 @@ const ConnectModal = ({ open, onClose }) => {
                     Lock Wallet
                   </Typography>
                 </Button>
-                <Button
+                {/* <Button
                   variant="outlined"
                   color="tertiary"
                   size="large"
@@ -328,7 +328,7 @@ const ConnectModal = ({ open, onClose }) => {
                   <Typography variant="button" fontWeight="bold">
                     Bet History
                   </Typography>
-                </Button>
+                </Button> */}
               </>
             ) : (
               <>
@@ -609,7 +609,7 @@ const ConnectModal = ({ open, onClose }) => {
             </Box>
           </Paper>
         )}
-        <Divider />
+        {/* <Divider /> */}
 
         {/* ------------- Server Connection Section ------------- */}
         <Typography variant="h7" textAlign="center" mb={0} fontWeight={500}>
