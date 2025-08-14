@@ -164,6 +164,7 @@ function BuyTicketsModal({
         borderRadius: 1,
         bgcolor: alpha(theme.palette.primary.main, 0.12),
         color: theme.palette.primary.main,
+        fontSize: '1rem',
       }}
     />
   );
@@ -466,17 +467,21 @@ function BuyTicketsModal({
                 </Typography>
               )}
               <Button
-                variant="outlined"
                 size="large"
+                variant="contained"
+                color="primary"
+                startIcon={<RocketLaunchIcon />}
                 onClick={handleConfirm}
                 disabled={!canBuy}
-                startIcon={<RocketLaunchIcon />}
                 sx={{
+                  fontWeight: 600,
                   fontFamily: 'monospace',
-                  fontWeight: 500,
-                  letterSpacing: '.08em',
+                  fontSize: '1rem',
+                  px: 5,
+                  py: 1.5,
                   borderRadius: 0,
-                  px: 4,
+                  letterSpacing: '.06em',
+                  borderWidth: 2,
                 }}
               >
                 {isProcessing ? 'Processing...' : 'Buy Tickets'}
@@ -545,16 +550,21 @@ function BuyTicketsModal({
           </Box>
 
           <Button
-            variant="outlined"
+            variant="contained"
+            color="primary"
             size="large"
             onClick={handleConfirm}
-            disabled={!canBuy}
             startIcon={<RocketLaunchIcon />}
+            disabled={!canBuy}
             sx={{
-              fontWeight: 700,
-              minWidth: 160,
+              fontWeight: 600,
+              fontFamily: 'monospace',
+              fontSize: '1rem',
+              px: 5,
+              py: 1.5,
               borderRadius: 0,
-              letterSpacing: '.08em',
+              letterSpacing: '.06em',
+              borderWidth: 2,
             }}
           >
             {isProcessing ? 'Processing...' : 'Buy'}
