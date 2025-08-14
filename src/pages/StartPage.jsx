@@ -210,6 +210,10 @@ export default function StartPage() {
     setOpenBuy(true);
   };
 
+  const handleParticipantsRefreshComplete = () => {
+    setTxStatus(false);
+  };
+
   const handleConfirmBuy = async (qty) => {
     console.log('Buy', qty, 'tickets');
 
@@ -444,6 +448,7 @@ export default function StartPage() {
           ticketsByParticipant={ticketsByParticipant}
           winner={winner}
           txStatus={txStatus}
+          onRefreshComplete={handleParticipantsRefreshComplete}
         ></ParticipantsList>
       </Container>
 

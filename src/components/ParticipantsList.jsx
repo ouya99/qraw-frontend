@@ -14,10 +14,24 @@ import {
   alpha,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useEffect } from 'react';
 
-const ParticipantsList = ({ participants, ticketsByParticipant, winner, txStatus }) => {
+const ParticipantsList = ({
+  participants,
+  ticketsByParticipant,
+  winner,
+  txStatus,
+  onRefreshComplete,
+}) => {
   const theme = useTheme();
+
+  useEffect(() => {
+    // This effect runs whenever txStatus changes.
+    // If txStatus is true, we call the parent function to reset it.
+    if (txStatus) {
+      onRefreshComplete();
+    }
+  }, [txStatus, onRefreshComplete]);
 
   return (
     <motion.div
