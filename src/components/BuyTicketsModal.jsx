@@ -164,7 +164,7 @@ function BuyTicketsModal({
         borderRadius: 1,
         bgcolor: alpha(theme.palette.primary.main, 0.12),
         color: theme.palette.primary.main,
-        fontSize: '1rem',
+        fontSize: isMobile ? '0.9rem' : '1.1rem',
       }}
     />
   );
@@ -181,11 +181,9 @@ function BuyTicketsModal({
       TransitionComponent={SlideUp}
       keepMounted
       aria-labelledby="buy-tickets-title"
-      BackdropProps={{
-        sx: {
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-        },
+      sx={{
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
       }}
       PaperProps={{
         sx: {
@@ -195,6 +193,7 @@ function BuyTicketsModal({
           background: theme.palette.background.default,
           height: { xs: '100dvh', sm: 'auto' },
           m: 0,
+          p: 1,
         },
       }}
     >
@@ -206,6 +205,7 @@ function BuyTicketsModal({
             bgcolor: alpha(theme.palette.background.paper, 0.7),
             backdropFilter: 'saturate(180%) blur(10px)',
             borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+            py: 1,
           }}
         >
           <Toolbar
@@ -267,37 +267,30 @@ function BuyTicketsModal({
       <DialogContent
         sx={{
           p: { xs: 2, sm: 3.5 },
-          pt: { xs: isMobile ? 10 : 3.5, sm: 3.5 },
-          pb: { xs: 12, sm: 3.5 },
+          pt: { xs: isMobile ? 12 : 3.5, sm: 3.5 },
         }}
       >
-        <Stack spacing={isMobile ? 2 : 2.5}>
+        <Stack spacing={isMobile ? 4 : 4}>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
             alignItems={{ xs: 'stretch', sm: 'center' }}
-            spacing={isMobile ? 1.25 : 1.5}
+            spacing={isMobile ? 4 : 1.5}
           >
             <Stack
               direction="row"
               alignItems="center"
-              spacing={isMobile ? 1 : 1.5}
+              spacing={isMobile ? 4 : 2}
               sx={{ width: '100%' }}
             >
-              <IconButton
+              <Button
+                variant="outlined"
+                size="large"
                 aria-label="remove one"
                 onClick={() => dec(1)}
                 disabled={qty <= 0 || disabledAll}
-                size={isMobile ? 'medium' : 'small'}
-                sx={
-                  isMobile
-                    ? {
-                        border: `1px solid ${alpha(theme.palette.divider, 0.6)}`,
-                      }
-                    : undefined
-                }
               >
-                <RemoveIcon />
-              </IconButton>
+                -
+              </Button>
 
               <TextField
                 value={qty}
@@ -330,24 +323,18 @@ function BuyTicketsModal({
                 disabled={isProcessing}
               />
 
-              <IconButton
+              <Button
+                variant="outlined"
+                size="large"
                 aria-label="add one"
                 onClick={() => inc(1)}
                 disabled={qty >= effectiveMax || disabledAll}
-                size={isMobile ? 'medium' : 'small'}
-                sx={
-                  isMobile
-                    ? {
-                        border: `1px solid ${alpha(theme.palette.divider, 0.6)}`,
-                      }
-                    : undefined
-                }
               >
-                <AddIcon />
-              </IconButton>
+                +
+              </Button>
             </Stack>
 
-            <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+            <Stack direction="row" spacing={2} sx={{ width: { xs: '100%', sm: 'auto' } }}>
               <Button
                 variant="outlined"
                 size={isMobile ? 'medium' : 'small'}
