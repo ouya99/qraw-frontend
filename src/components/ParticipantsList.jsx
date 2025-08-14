@@ -16,22 +16,8 @@ import {
 import { motion } from 'framer-motion';
 import React, { useEffect } from 'react';
 
-const ParticipantsList = ({
-  participants,
-  ticketsByParticipant,
-  winner,
-  txStatus,
-  onRefreshComplete,
-}) => {
+const ParticipantsList = ({ participants, ticketsByParticipant, winner }) => {
   const theme = useTheme();
-
-  useEffect(() => {
-    // This effect runs whenever txStatus changes.
-    // If txStatus is true, we call the parent function to reset it.
-    if (txStatus) {
-      onRefreshComplete();
-    }
-  }, [txStatus, onRefreshComplete]);
 
   return (
     <motion.div

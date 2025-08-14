@@ -200,7 +200,9 @@ export default function StartPage() {
     };
 
     fetchParticipants();
-  }, [qHelper, httpEndpoint]);
+    // if this was run and triggered change in participantsList all good, -> reset txStatus
+    if (txStatus) setTxStatus(false);
+  }, [qHelper, httpEndpoint, txStatus]);
 
   const handleGetTicket = () => {
     if (!connected) {
@@ -208,10 +210,6 @@ export default function StartPage() {
       return;
     }
     setOpenBuy(true);
-  };
-
-  const handleParticipantsRefreshComplete = () => {
-    setTxStatus(false);
   };
 
   const handleConfirmBuy = async (qty) => {
@@ -447,8 +445,6 @@ export default function StartPage() {
           participants={participants}
           ticketsByParticipant={ticketsByParticipant}
           winner={winner}
-          txStatus={txStatus}
-          onRefreshComplete={handleParticipantsRefreshComplete}
         ></ParticipantsList>
       </Container>
 
