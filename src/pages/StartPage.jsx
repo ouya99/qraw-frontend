@@ -2,8 +2,20 @@
 import { Buffer } from 'buffer';
 
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import { Box, Container, Typography, Paper, Stack, Button, useTheme, alpha } from '@mui/material';
-import React, { useEffect, useState, useMemo } from 'react';
+import {
+  Box,
+  Container,
+  Typography,
+  List,
+  ListItem,
+  Paper,
+  Divider,
+  Stack,
+  Button,
+  useTheme,
+  alpha,
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 
 import logo from '../assets/logo/logoWin.svg';
 import BuyTicketsModal, { DEFAULTS } from '../components/BuyTicketsModal';
@@ -110,16 +122,6 @@ export default function StartPage() {
 
   const [openBuy, setOpenBuy] = useState(false);
 
-  const pollingInterval = useMemo(() => {
-    if (timeLeft >= 120) return 60 * 1000;
-    if (timeLeft >= 10) return 10 * 1000;
-    if (timeLeft >= 0) return 1 * 1000;
-    const since = -timeLeft;
-    if (since < 10) return 1 * 1000;
-    if (since < 60) return 10 * 1000;
-    return 60 * 1000;
-  }, [timeLeft]);
-
   useEffect(() => {
     if (!qHelper) return;
 
@@ -152,9 +154,9 @@ export default function StartPage() {
 
     fetchInfo();
 
-    const interval = setInterval(fetchInfo, pollingInterval);
+    const interval = setInterval(fetchInfo, 60 * 1000);
     return () => clearInterval(interval);
-  }, [qHelper, httpEndpoint, lastDrawHour, pollingInterval]);
+  }, [qHelper, httpEndpoint, lastDrawHour]);
 
   useEffect(() => {
     if (currentHour === null || nextDrawHour === null) return;
@@ -163,7 +165,7 @@ export default function StartPage() {
       const diffHours = (nextDrawHour - currentHour + 24) % 24;
       const target = new Date(now);
       target.setHours(now.getHours() + diffHours, 0, 0, 0);
-      setTimeLeft(Math.floor((target - now) / 1000));
+      setTimeLeft(Math.max(0, Math.floor((target - now) / 1000)));
     };
     update();
     const interval = setInterval(update, 1000);
@@ -355,21 +357,15 @@ export default function StartPage() {
                   fontSize: '1.1rem',
                 }}
               >
-                {timeLeft > 0 ? (
-                  <>
-                    NEXT DRAW IN{' '}
-                    <span
-                      style={{
-                        color: theme.palette.primary.main,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {timeLeft} S
-                    </span>
-                  </>
-                ) : (
-                  'Draw in progress'
-                )}
+                NEXT DRAW IN{' '}
+                <span
+                  style={{
+                    color: theme.palette.primary.main,
+                    fontWeight: 700,
+                  }}
+                >
+                  {timeLeft} S
+                </span>
               </Typography>
             </Box>
           </Stack>
