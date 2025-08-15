@@ -1,6 +1,7 @@
 /* global BigInt */
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CircularProgress from '@mui/material/CircularProgress';
 import CloseIcon from '@mui/icons-material/Close';
 import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -203,7 +204,13 @@ function BuyTicketsModal({
       case BUTTON_STATES.PROCESSING:
         return {
           text: 'Processing...',
-          icon: <RocketLaunchIcon className="rotate-animation" />,
+          icon: (
+          <CircularProgress
+            size={20}                  // taille du spinner
+            thickness={5}              // épaisseur du trait
+            sx={{ color: theme.palette.common.white }} // couleur adaptée au bouton
+          />
+        ),
           color: 'primary',
           bgcolor: theme.palette.primary.main,
           textColor: theme.palette.primary.contrastText,

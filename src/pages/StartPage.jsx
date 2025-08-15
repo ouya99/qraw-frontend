@@ -257,8 +257,6 @@ export default function StartPage() {
               fontWeight: 500,
               fontSize: { xs: '1.8rem', sm: '2.0rem', md: '2.3rem' },
               mb: 6,
-              fontFamily: 'monospace',
-              letterSpacing: '.03em',
             }}
           >
             Every Hour, One Shot. One Hash.{' '}

@@ -17,7 +17,7 @@ const customColors = {
   gray500: '#6b7280',
 
   error: '#ef4444',
-  warning: '#f59e0b',
+  warning: '#fff23eff',
   success: '#10b981',
   rosePeps: '#f43f5e',
 };
