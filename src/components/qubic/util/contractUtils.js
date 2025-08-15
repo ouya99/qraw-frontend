@@ -422,18 +422,27 @@ export async function parseGetInfo(buffer, qHelper) {
 }
 
 // Parse getParticipants contract response buffer
+// parseParticipants.js (ou où tu l'as défini)
 export async function parseParticipants(buffer, qHelper) {
   if (!buffer) return {};
   const dv = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+
   let offset = 0;
   const participantCount = Number(dv.getBigUint64(offset, true));
   offset += 8;
   const uniqueParticipantCount = Number(dv.getBigUint64(offset, true));
   offset += 8;
+
+  const ARRAY_CAP = 1024;
+  const participantsBase = offset;
+  const ticketCountsBase = participantsBase + ARRAY_CAP * PUBLIC_KEY_LENGTH;
+
   const participants = [];
+  const ticketCounts = [];
+
   for (let i = 0; i < uniqueParticipantCount; i++) {
-    const start = offset + i * PUBLIC_KEY_LENGTH;
-    const idBytes = buffer.slice(start, start + PUBLIC_KEY_LENGTH);
+    const idStart = participantsBase + i * PUBLIC_KEY_LENGTH;
+    const idBytes = buffer.slice(idStart, idStart + PUBLIC_KEY_LENGTH);
     let id = '';
     if (qHelper) {
       try {
@@ -443,11 +452,16 @@ export async function parseParticipants(buffer, qHelper) {
       }
     }
     participants.push(id);
+
+    const cnt = Number(dv.getBigUint64(ticketCountsBase + i * 8, true));
+    ticketCounts.push(cnt);
   }
+
   return {
     participantCount,
     uniqueParticipantCount,
     participants,
+    ticketCounts,
   };
 }
 

@@ -191,9 +191,12 @@ export default function StartPage() {
         const buf = Buffer.from(result.rawResponse.responseData, 'base64');
         const parsed = await parseParticipants(buf, qHelper);
         setParticipants(parsed.participants);
+
         const map = {};
-        for (const id of parsed.participants) {
-          map[id] = (map[id] || 0) + 1;
+        for (let i = 0; i < parsed.uniqueParticipantCount; i++) {
+          const id = parsed.participants[i];
+          const cnt = Number(parsed.ticketCounts[i] || 0);
+          if (id) map[id] = cnt;
         }
         setTicketsByParticipant(map);
       } catch (e) {
