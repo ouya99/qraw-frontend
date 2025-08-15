@@ -1,18 +1,12 @@
 export const HEADERS = {
-  accept: "application/json",
-  "Content-Type": "application/json",
+  accept: 'application/json',
+  'Content-Type': 'application/json',
 };
 
 export const MIN_BALANCE_THRESHOLD = 100;
 export const QTRY_CONTRACT_INDEX = 2;
 export const LOG_DEBUG = false;
-export const excludedBetIds = [31, 34, 58, 76];
-export const makeJsonData = (
-  contractIndex,
-  inputType,
-  inputSize,
-  requestData
-) => {
+export const makeJsonData = (contractIndex, inputType, inputSize, requestData) => {
   return {
     contractIndex: contractIndex,
     inputType: inputType,
@@ -31,36 +25,36 @@ export const bytesEqual = (a, b) => {
 };
 
 export function formatDate(dateStr) {
-  let [year, month, day] = dateStr.split("-");
+  let [year, month, day] = dateStr.split('-');
 
-  day = day.startsWith("0") ? day.slice(1) : day;
+  day = day.startsWith('0') ? day.slice(1) : day;
 
   const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   const getDaySuffix = (day) => {
-    if (day > 3 && day < 21) return "th"; // 11th, 12th, 13th
+    if (day > 3 && day < 21) return 'th'; // 11th, 12th, 13th
     switch (day % 10) {
       case 1:
-        return "st";
+        return 'st';
       case 2:
-        return "nd";
+        return 'nd';
       case 3:
-        return "rd";
+        return 'rd';
       default:
-        return "th";
+        return 'th';
     }
   };
 
@@ -74,4 +68,4 @@ export const debuglog = (...message) => {
 };
 
 // export const externalJsonAssetUrl = 'https://91.210.226.146'
-export const externalJsonAssetUrl = "https://api.quottery.org";
+export const externalJsonAssetUrl = 'https://api.quottery.org';

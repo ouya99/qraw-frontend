@@ -46,7 +46,7 @@ const ParticipantsList = ({ participants, ticketsByParticipant, publicID, totalT
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 color: theme.palette.text.secondary,
-                fontSize: '0.95rem',
+                fontSize: { xs: '0.6rem', sm: '0.8rem', md: '1rem' },
               }}
             >
               Participants ({participants.length})
@@ -66,7 +66,7 @@ const ParticipantsList = ({ participants, ticketsByParticipant, publicID, totalT
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 color: theme.palette.text.secondary,
-                fontSize: '0.95rem',
+                fontSize: { xs: '0.6rem', sm: '0.8rem', md: '1rem' },
               }}
             >
               Tickets ({totalTickets})

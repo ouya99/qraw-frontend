@@ -15,7 +15,7 @@ import {
   Grid,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import logoDark from '../assets/logo/qubic_draw_logo_large_text.svg';
@@ -28,7 +28,7 @@ const features = [
   {
     icon: <SecurityIcon sx={{ fontSize: 48 }} />,
     label: 'Secure',
-    description: 'All bets are cryptographically secured with zero tampering risk.',
+    description: 'All entries are cryptographically secured with zero tampering risk.',
     badge: 'SECURE',
   },
   {

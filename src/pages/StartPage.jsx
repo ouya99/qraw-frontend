@@ -2,19 +2,7 @@
 import { Buffer } from 'buffer';
 
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import {
-  Box,
-  Container,
-  Typography,
-  List,
-  ListItem,
-  Paper,
-  Divider,
-  Stack,
-  Button,
-  useTheme,
-  alpha,
-} from '@mui/material';
+import { Box, Container, Typography, Paper, Stack, Button, useTheme, alpha } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 import logo from '../assets/logo/logoWin.svg';

@@ -7,7 +7,7 @@ import base64 from 'base-64';
 import { encodeParams, byteArrayToHexString } from './contractUtils';
 
 // Tick offset for future execution
-const TICK_OFFSET = 10;
+const TICK_OFFSET = 7;
 
 /**
  * Execute a transaction (procedure) on a contract using wallet integration.
@@ -27,14 +27,7 @@ export async function executeTransactionWithWallet({
   contractIndexes, // Add this parameter
 }) {
   // Destructure needed functions/state from context
-  const {
-    wallet,
-    qHelper,
-    getTick,
-    signTransaction,
-    broadcastTx,
-    httpEndpoint,
-  } = qubicConnect;
+  const { wallet, qHelper, getTick, signTransaction, broadcastTx, httpEndpoint } = qubicConnect;
 
   console.log('params', params, 'wallet', wallet);
 
@@ -42,9 +35,7 @@ export async function executeTransactionWithWallet({
     throw new Error('Wallet not connected or public key unavailable.');
   }
   if (!qHelper) {
-    throw new Error(
-      'QubicHelper instance (qHelper) is not available in the context.'
-    );
+    throw new Error('QubicHelper instance (qHelper) is not available in the context.');
   }
 
   // Note: No `try...catch` here, errors will be caught by the calling function in App.js
@@ -68,14 +59,9 @@ export async function executeTransactionWithWallet({
     sourcePublicKeyBytes = qHelper.getIdentityBytes(wallet.publicKey);
   } catch (error) {
     console.error('Error getting source public key bytes:', error);
-    throw new Error(
-      `Failed to convert source public key ${wallet.publicKey} to bytes.`
-    );
+    throw new Error(`Failed to convert source public key ${wallet.publicKey} to bytes.`);
   }
-  if (
-    !sourcePublicKeyBytes ||
-    sourcePublicKeyBytes.length !== qHelper.PUBLIC_KEY_LENGTH
-  ) {
+  if (!sourcePublicKeyBytes || sourcePublicKeyBytes.length !== qHelper.PUBLIC_KEY_LENGTH) {
     throw new Error('Failed to get valid source public key bytes.');
   }
 
@@ -137,13 +123,8 @@ export async function executeTransactionWithWallet({
   // The remaining bytes (offset to TX_SIZE) are reserved for the signature
   // and are already initialized to 0.
 
-  console.log(
-    'Unsigned Tx built (Hex):',
-    byteArrayToHexString(tx.slice(0, offset))
-  );
-  console.log(
-    `Expected Signature Offset: ${offset}, Expected TX Size: ${TX_SIZE}`
-  );
+  console.log('Unsigned Tx built (Hex):', byteArrayToHexString(tx.slice(0, offset)));
+  console.log(`Expected Signature Offset: ${offset}, Expected TX Size: ${TX_SIZE}`);
 
   // --- 3. Sign Transaction ---
   // The signTransaction function is provided by the context and handles different wallet types.
@@ -168,8 +149,7 @@ export async function executeTransactionWithWallet({
   const txHash = broadcastResult.txHash || broadcastResult.transactionId; // Check both possible fields
 
   // Determine Explorer URL based on RPC endpoint
-  const isTestnet =
-    httpEndpoint && httpEndpoint.toLowerCase().includes('testnet');
+  const isTestnet = httpEndpoint && httpEndpoint.toLowerCase().includes('testnet');
   const baseExplorerUrl = isTestnet
     ? 'https://testnet.explorer.qubic.org'
     : 'https://explorer.qubic.org';
@@ -186,8 +166,7 @@ export async function executeTransactionWithWallet({
     success: true, // Assume success if broadcast didn't throw
     txHash: txHash || 'N/A', // Provide hash or indicate absence
     message:
-      'Transaction broadcast successfully.' +
-      (!txHash ? ' (Hash pending confirmation)' : ''),
+      'Transaction broadcast successfully.' + (!txHash ? ' (Hash pending confirmation)' : ''),
     explorerLink,
     ...broadcastResult, // Include any other fields from the broadcast response
   };

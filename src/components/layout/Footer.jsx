@@ -1,16 +1,10 @@
 import { Box, Typography, Link, useTheme, Divider } from '@mui/material';
-import { useLocation } from 'react-router-dom';
 
 import pkg from '../../../package.json';
 import logoShort from '../../assets/logo/logo-text-short.svg';
 
 const Footer = () => {
-  const { pathname } = useLocation();
   const theme = useTheme();
-
-  if (pathname.includes('/bet/')) {
-    return null;
-  }
 
   return (
     <Box

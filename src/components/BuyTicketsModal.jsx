@@ -1,9 +1,7 @@
 /* global BigInt */
-import AddIcon from '@mui/icons-material/Add';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import CloseIcon from '@mui/icons-material/Close';
 import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
-import RemoveIcon from '@mui/icons-material/Remove';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import {
   AppBar,

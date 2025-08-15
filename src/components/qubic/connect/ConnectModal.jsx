@@ -3,7 +3,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudIcon from '@mui/icons-material/Cloud';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import HistoryIcon from '@mui/icons-material/History';
 import LockIcon from '@mui/icons-material/Lock';
 import PhonelinkIcon from '@mui/icons-material/Phonelink';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -195,11 +194,6 @@ const ConnectModal = ({ open, onClose }) => {
     onClose();
   };
 
-  const handleBetClick = () => {
-    navigate('/user-bets');
-    onClose();
-  };
-
   return (
     <Dialog
       open={open}
@@ -314,21 +308,6 @@ const ConnectModal = ({ open, onClose }) => {
                     Lock Wallet
                   </Typography>
                 </Button>
-                {/* <Button
-                  variant="outlined"
-                  color="tertiary"
-                  size="large"
-                  sx={{
-                    mt: 1,
-                  }}
-                  startIcon={<HistoryIcon />}
-                  onClick={handleBetClick}
-                  fullWidth
-                >
-                  <Typography variant="button" fontWeight="bold">
-                    Bet History
-                  </Typography>
-                </Button> */}
               </>
             ) : (
               <>
