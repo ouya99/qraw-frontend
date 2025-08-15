@@ -192,9 +192,9 @@ export default function StartPage() {
         const parsed = await parseParticipants(buf, qHelper);
         setParticipants(parsed.participants);
         const map = {};
-        parsed.participants.forEach((id, idx) => {
-          map[id] = parsed.ticketCounts[idx];
-        });
+        for (const id of parsed.participants) {
+          map[id] = (map[id] || 0) + 1;
+        }
         setTicketsByParticipant(map);
       } catch (e) {
         console.error(e);

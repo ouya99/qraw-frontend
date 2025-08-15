@@ -444,17 +444,10 @@ export async function parseParticipants(buffer, qHelper) {
     }
     participants.push(id);
   }
-  const ticketCounts = [];
-  const ticketsOffset = 16 + 1024 * PUBLIC_KEY_LENGTH;
-  for (let i = 0; i < uniqueParticipantCount; i++) {
-    const view = new DataView(buffer.buffer, buffer.byteOffset + ticketsOffset + i * 8, 8);
-    ticketCounts.push(Number(view.getBigUint64(0, true)));
-  }
   return {
     participantCount,
     uniqueParticipantCount,
     participants,
-    ticketCounts,
   };
 }
 
