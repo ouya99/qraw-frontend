@@ -1,7 +1,9 @@
 /* global BigInt */
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import {
   AppBar,
@@ -40,6 +42,13 @@ const SlideUp = forwardRef(function SlideUp(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+const BUTTON_STATES = {
+  INITIAL: 'initial',
+  CONFIRMING: 'confirming',
+  PROCESSING: 'processing',
+  SUCCESS: 'success',
+};
+
 function BuyTicketsModal({
   title = DEFAULTS.TITLE,
   open = false,
@@ -58,6 +67,8 @@ function BuyTicketsModal({
   const inputRef = useRef(null);
 
   const [qty, setQty] = useState(0);
+  const [buttonState, setButtonState] = useState(BUTTON_STATES.INITIAL);
+  const [confirmationTimer, setConfirmationTimer] = useState(null);
 
   const affordableFromBalance = useMemo(() => {
     if (balanceQubic == null) return maxTickets;
@@ -95,6 +106,11 @@ function BuyTicketsModal({
   useEffect(() => {
     if (open) {
       setQty(clampUI(defaultQuantity, effectiveMax));
+      setButtonState(BUTTON_STATES.INITIAL);
+      if (confirmationTimer) {
+        clearTimeout(confirmationTimer);
+        setConfirmationTimer(null);
+      }
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [open, defaultQuantity, effectiveMax]);
@@ -102,6 +118,14 @@ function BuyTicketsModal({
   useEffect(() => {
     setQty((q) => clampUI(q, effectiveMax));
   }, [effectiveMax]);
+
+  useEffect(() => {
+    return () => {
+      if (confirmationTimer) {
+        clearTimeout(confirmationTimer);
+      }
+    };
+  }, [confirmationTimer]);
 
   const total = useMemo(() => qty * pricePerTicket, [qty, pricePerTicket]);
   const insufficient = typeof balanceNumForUi === 'number' ? total > balanceNumForUi : false;
@@ -122,17 +146,92 @@ function BuyTicketsModal({
   const dec = (step = 1) => setQty((q) => clampUI(q - step, effectiveMax));
   const setMax = () => setQty(effectiveMax);
 
+  const resetButtonState = () => {
+    setButtonState(BUTTON_STATES.INITIAL);
+    if (confirmationTimer) {
+      clearTimeout(confirmationTimer);
+      setConfirmationTimer(null);
+    }
+  };
+
   const handleConfirm = () => {
     if (!canBuy) return;
-    onConfirm?.(qty);
-    onClose?.();
+
+    if (buttonState === BUTTON_STATES.INITIAL) {
+      setButtonState(BUTTON_STATES.CONFIRMING);
+      const timer = setTimeout(() => {
+        resetButtonState();
+      }, 3000);
+      setConfirmationTimer(timer);
+    } else if (buttonState === BUTTON_STATES.CONFIRMING) {
+      if (confirmationTimer) {
+        clearTimeout(confirmationTimer);
+        setConfirmationTimer(null);
+      }
+
+      setButtonState(BUTTON_STATES.PROCESSING);
+
+      setTimeout(() => {
+        setButtonState(BUTTON_STATES.SUCCESS);
+        onConfirm?.(qty);
+
+        setTimeout(() => {
+          onClose?.();
+          resetButtonState();
+        }, 2000);
+      }, 500);
+    }
   };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleConfirm();
     }
   };
+
+  const getButtonConfig = () => {
+    switch (buttonState) {
+      case BUTTON_STATES.CONFIRMING:
+        return {
+          text: isMobile ? 'Sure?' : 'Sure?',
+          icon: <HelpOutlineIcon />,
+          color: 'warning',
+          bgcolor: theme.palette.warning.main,
+          textColor: theme.palette.common.black,
+        };
+      case BUTTON_STATES.PROCESSING:
+        return {
+          text: 'Processing...',
+          icon: <RocketLaunchIcon className="rotate-animation" />,
+          color: 'primary',
+          bgcolor: theme.palette.primary.main,
+          textColor: theme.palette.primary.contrastText,
+        };
+      case BUTTON_STATES.SUCCESS:
+        return {
+          text: 'Success!',
+          icon: <CheckCircleIcon />,
+          color: 'success',
+          bgcolor: theme.palette.success.main,
+          textColor: theme.palette.common.white,
+        };
+      default:
+        return {
+          text: isProcessing ? 'Processing...' : isMobile ? 'Buy' : 'Buy Tickets',
+          icon: <RocketLaunchIcon />,
+          color: 'primary',
+          bgcolor: theme.palette.primary.main,
+          textColor: theme.palette.primary.contrastText,
+        };
+    }
+  };
+
+  const buttonConfig = getButtonConfig();
+  const isButtonDisabled =
+    buttonState === BUTTON_STATES.PROCESSING ||
+    buttonState === BUTTON_STATES.SUCCESS ||
+    (buttonState === BUTTON_STATES.INITIAL && !canBuy);
 
   const header = (
     <Stack direction="row" alignItems="center" spacing={1.5}>
@@ -170,393 +269,468 @@ function BuyTicketsModal({
   const disabledAll = isProcessing || effectiveMax === 0;
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth={isMobile ? 'sm' : 'md'}
-      fullScreen={isMobile}
-      TransitionComponent={SlideUp}
-      keepMounted
-      aria-labelledby="buy-tickets-title"
-      sx={{
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-      }}
-      PaperProps={{
-        sx: {
-          borderRadius: { xs: 0, sm: 1 },
-          overflow: 'hidden',
-          border: `1px solid ${alpha(theme.palette.primary.main, 0.18)}`,
-          background: theme.palette.background.default,
-          height: { xs: '100dvh', sm: 'auto' },
-          m: 0,
-          p: 1,
-        },
-      }}
-    >
-      {isMobile ? (
-        <AppBar
-          position="fixed"
-          elevation={0}
-          sx={{
-            bgcolor: alpha(theme.palette.background.paper, 0.7),
-            backdropFilter: 'saturate(180%) blur(10px)',
-            borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
-            py: 1,
-          }}
-        >
-          <Toolbar
+    <>
+      <style jsx>{`
+        @keyframes rotate {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .rotate-animation {
+          animation: rotate 1s linear infinite;
+        }
+      `}</style>
+
+      <Dialog
+        open={open}
+        onClose={
+          buttonState === BUTTON_STATES.PROCESSING || buttonState === BUTTON_STATES.SUCCESS
+            ? undefined
+            : onClose
+        }
+        disableScrollLock
+        fullWidth
+        maxWidth={isMobile ? 'sm' : 'md'}
+        fullScreen={isMobile}
+        TransitionComponent={SlideUp}
+        keepMounted
+        aria-labelledby="buy-tickets-title"
+        PaperProps={{
+          sx: {
+            borderRadius: { xs: 0, sm: 1 },
+            overflow: 'hidden',
+            background: theme.palette.background.default,
+            height: { xs: '100dvh', sm: 'auto' },
+            m: 0,
+            p: 1,
+          },
+        }}
+      >
+        {isMobile ? (
+          <AppBar
+            position="fixed"
+            elevation={0}
             sx={{
-              justifyContent: 'space-between',
-              gap: 1,
+              bgcolor: alpha(theme.palette.background.paper, 0.7),
+              backdropFilter: 'saturate(180%) blur(10px)',
+              borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+              py: 1,
+            }}
+          >
+            <Toolbar
+              sx={{
+                justifyContent: 'space-between',
+                gap: 1,
+                alignItems: 'center',
+              }}
+            >
+              {header}
+              <Stack direction="row" spacing={1.25} alignItems="center">
+                {balanceDisplay}
+                {buttonState !== BUTTON_STATES.PROCESSING &&
+                  buttonState !== BUTTON_STATES.SUCCESS && (
+                    <IconButton
+                      onClick={onClose}
+                      aria-label="Close"
+                      edge="end"
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        '&:hover': {
+                          bgcolor: alpha(theme.palette.text.secondary, 0.08),
+                        },
+                      }}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  )}
+              </Stack>
+            </Toolbar>
+          </AppBar>
+        ) : (
+          <Box
+            sx={{
+              p: { xs: 2.5, sm: 3 },
+              pr: { xs: 1, sm: 1 },
+              display: 'flex',
               alignItems: 'center',
+              justifyContent: 'space-between',
+              borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
             }}
           >
             {header}
             <Stack direction="row" spacing={1.25} alignItems="center">
               {balanceDisplay}
-              <IconButton
-                onClick={onClose}
-                aria-label="Close"
-                edge="end"
-                sx={{
-                  color: theme.palette.text.secondary,
-                  '&:hover': {
-                    bgcolor: alpha(theme.palette.text.secondary, 0.08),
-                  },
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </Stack>
-          </Toolbar>
-        </AppBar>
-      ) : (
-        <Box
-          sx={{
-            p: { xs: 2.5, sm: 3 },
-            pr: { xs: 1, sm: 1 },
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
-          }}
-        >
-          {header}
-          <Stack direction="row" spacing={1.25} alignItems="center">
-            {balanceDisplay}
-            <IconButton
-              onClick={onClose}
-              aria-label="Close"
-              sx={{
-                color: theme.palette.text.secondary,
-                '&:hover': {
-                  bgcolor: alpha(theme.palette.text.secondary, 0.08),
-                },
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Stack>
-        </Box>
-      )}
-
-      <DialogContent
-        sx={{
-          p: { xs: 2, sm: 3.5 },
-          pt: { xs: isMobile ? 12 : 3.5, sm: 3.5 },
-        }}
-      >
-        <Stack spacing={isMobile ? 4 : 4}>
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            alignItems={{ xs: 'stretch', sm: 'center' }}
-            spacing={isMobile ? 4 : 1.5}
-          >
-            <Stack
-              direction="row"
-              alignItems="center"
-              spacing={isMobile ? 4 : 2}
-              sx={{ width: '100%' }}
-            >
-              <Button
-                variant="outlined"
-                size="large"
-                aria-label="remove one"
-                onClick={() => dec(1)}
-                disabled={qty <= 0 || disabledAll}
-              >
-                -
-              </Button>
-
-              <TextField
-                value={qty}
-                inputRef={inputRef}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onBlur={() => setQty((q) => clampUI(Number.isNaN(q) ? 0 : q, effectiveMax))}
-                inputProps={{
-                  inputMode: 'numeric',
-                  pattern: '[0-9]*',
-                  min: 0,
-                  max: effectiveMax,
-                  style: {
-                    textAlign: 'center',
-                    fontFamily: 'monospace',
-                    fontWeight: 500,
-                  },
-                  'aria-label': 'Quantity',
-                }}
-                sx={{ width: { xs: '100%', sm: 160 } }}
-                label="Quantity"
-                error={!disabledAll && qty > 0 && !meetsMinimum}
-                helperText={
-                  effectiveMax === 0
-                    ? 'No tickets available or insufficient balance.'
-                    : !meetsMinimum && qty > 0
-                      ? `Minimum ${minTickets} tickets to buy`
-                      : ' '
-                }
-                disabled={isProcessing}
-              />
-
-              <Button
-                variant="outlined"
-                size="large"
-                aria-label="add one"
-                onClick={() => inc(1)}
-                disabled={qty >= effectiveMax || disabledAll}
-              >
-                +
-              </Button>
-            </Stack>
-
-            <Stack direction="row" spacing={2} sx={{ width: { xs: '100%', sm: 'auto' } }}>
-              <Button
-                variant="outlined"
-                size={isMobile ? 'medium' : 'small'}
-                onClick={() => inc(10)}
-                disabled={disabledAll || qty >= effectiveMax}
-                sx={{ borderRadius: 0, flex: { xs: 1, sm: 'unset' } }}
-              >
-                +10
-              </Button>
-              <Button
-                variant="outlined"
-                size={isMobile ? 'medium' : 'small'}
-                onClick={() => inc(100)}
-                disabled={disabledAll || qty >= effectiveMax}
-                sx={{ borderRadius: 0, flex: { xs: 1, sm: 'unset' } }}
-              >
-                +100
-              </Button>
-              <Button
-                variant="outlined"
-                size={isMobile ? 'medium' : 'small'}
-                onClick={setMax}
-                disabled={disabledAll || qty === effectiveMax}
-                sx={{ borderRadius: 0, flex: { xs: 1, sm: 'unset' } }}
-              >
-                Max
-              </Button>
-            </Stack>
-          </Stack>
-
-          <Slider
-            value={qty}
-            onChange={(_, v) => setQty(clampUI(Array.isArray(v) ? v[0] : v, effectiveMax))}
-            min={0}
-            max={effectiveMax}
-            step={1}
-            valueLabelDisplay={isMobile ? 'off' : 'auto'}
-            disabled={disabledAll}
-            aria-label="Quantity slider"
-            marks={
-              isMobile
-                ? false
-                : [
-                    { value: 0, label: '0' },
-                    { value: effectiveMax, label: String(effectiveMax) },
-                  ]
-            }
-            style={{ marginBottom: isMobile ? 0.5 : 20 }}
-          />
-
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: '1fr auto' },
-              alignItems: 'center',
-              gap: 2,
-              p: isMobile ? 1.5 : 2,
-              borderRadius: 0,
-              border: `1px dashed ${alpha(theme.palette.primary.main, 0.35)}`,
-              bgcolor: alpha(theme.palette.primary.main, 0.06),
-            }}
-          >
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Stack direction="row" spacing={1} alignItems="center">
-                <ConfirmationNumberOutlinedIcon fontSize="small" color="primary" />
-                <Box>
-                  <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                    Tickets
-                  </Typography>
-                  <Typography sx={{ fontFamily: 'monospace', fontWeight: 500 }}>{qty}</Typography>
-                </Box>
-              </Stack>
-
-              <Stack>
-                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                  Price / ticket
-                </Typography>
-                <Typography sx={{ fontFamily: 'monospace', fontWeight: 500 }}>
-                  {formatQubicAmount(pricePerTicket)} QUBIC
-                </Typography>
-              </Stack>
-
-              {!isMobile && (
-                <Stack>
-                  <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                    Total
-                  </Typography>
-                  <Typography
+              {buttonState !== BUTTON_STATES.PROCESSING &&
+                buttonState !== BUTTON_STATES.SUCCESS && (
+                  <IconButton
+                    onClick={onClose}
+                    aria-label="Close"
                     sx={{
-                      fontFamily: 'monospace',
-                      fontWeight: 700,
-                      letterSpacing: '.04em',
-                      color: insufficient ? theme.palette.error.main : theme.palette.primary.main,
+                      color: theme.palette.text.secondary,
+                      '&:hover': {
+                        bgcolor: alpha(theme.palette.text.secondary, 0.08),
+                      },
                     }}
                   >
-                    {formatQubicAmount(total)} QUBIC
-                  </Typography>
-                </Stack>
-              )}
+                    <CloseIcon />
+                  </IconButton>
+                )}
+            </Stack>
+          </Box>
+        )}
+
+        <DialogContent
+          sx={{
+            p: { xs: 2, sm: 3.5 },
+            pt: { xs: isMobile ? 12 : 3.5, sm: 3.5 },
+          }}
+        >
+          <Stack spacing={isMobile ? 4 : 4}>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              alignItems={{ xs: 'stretch', sm: 'center' }}
+              spacing={isMobile ? 4 : 1.5}
+            >
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={isMobile ? 4 : 2}
+                sx={{ width: '100%' }}
+              >
+                <Button
+                  variant="outlined"
+                  size="large"
+                  aria-label="remove one"
+                  onClick={() => dec(1)}
+                  disabled={
+                    qty <= 0 ||
+                    disabledAll ||
+                    buttonState === BUTTON_STATES.PROCESSING ||
+                    buttonState === BUTTON_STATES.SUCCESS
+                  }
+                >
+                  -
+                </Button>
+
+                <TextField
+                  value={qty}
+                  inputRef={inputRef}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  onBlur={() => setQty((q) => clampUI(Number.isNaN(q) ? 0 : q, effectiveMax))}
+                  inputProps={{
+                    inputMode: 'numeric',
+                    pattern: '[0-9]*',
+                    min: 0,
+                    max: effectiveMax,
+                    style: {
+                      textAlign: 'center',
+                      fontFamily: 'monospace',
+                      fontWeight: 500,
+                    },
+                    'aria-label': 'Quantity',
+                  }}
+                  sx={{ width: { xs: '100%', sm: 160 } }}
+                  label="Quantity"
+                  error={!disabledAll && qty > 0 && !meetsMinimum}
+                  helperText={
+                    effectiveMax === 0
+                      ? 'No tickets available or insufficient balance.'
+                      : !meetsMinimum && qty > 0
+                        ? `Minimum ${minTickets} tickets to buy`
+                        : ' '
+                  }
+                  disabled={
+                    isProcessing ||
+                    buttonState === BUTTON_STATES.PROCESSING ||
+                    buttonState === BUTTON_STATES.SUCCESS
+                  }
+                />
+
+                <Button
+                  variant="outlined"
+                  size="large"
+                  aria-label="add one"
+                  onClick={() => inc(1)}
+                  disabled={
+                    qty >= effectiveMax ||
+                    disabledAll ||
+                    buttonState === BUTTON_STATES.PROCESSING ||
+                    buttonState === BUTTON_STATES.SUCCESS
+                  }
+                >
+                  +
+                </Button>
+              </Stack>
+
+              <Stack direction="row" spacing={2} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+                <Button
+                  variant="outlined"
+                  size={isMobile ? 'medium' : 'small'}
+                  onClick={() => inc(10)}
+                  disabled={
+                    disabledAll ||
+                    qty >= effectiveMax ||
+                    buttonState === BUTTON_STATES.PROCESSING ||
+                    buttonState === BUTTON_STATES.SUCCESS
+                  }
+                  sx={{ borderRadius: 0, flex: { xs: 1, sm: 'unset' } }}
+                >
+                  +10
+                </Button>
+                <Button
+                  variant="outlined"
+                  size={isMobile ? 'medium' : 'small'}
+                  onClick={() => inc(100)}
+                  disabled={
+                    disabledAll ||
+                    qty >= effectiveMax ||
+                    buttonState === BUTTON_STATES.PROCESSING ||
+                    buttonState === BUTTON_STATES.SUCCESS
+                  }
+                  sx={{ borderRadius: 0, flex: { xs: 1, sm: 'unset' } }}
+                >
+                  +100
+                </Button>
+                <Button
+                  variant="outlined"
+                  size={isMobile ? 'medium' : 'small'}
+                  onClick={setMax}
+                  disabled={
+                    disabledAll ||
+                    qty === effectiveMax ||
+                    buttonState === BUTTON_STATES.PROCESSING ||
+                    buttonState === BUTTON_STATES.SUCCESS
+                  }
+                  sx={{ borderRadius: 0, flex: { xs: 1, sm: 'unset' } }}
+                >
+                  Max
+                </Button>
+              </Stack>
             </Stack>
 
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              justifyContent={{ xs: 'flex-start', sm: 'flex-end' }}
-              sx={{ display: { xs: 'none', sm: 'flex' } }}
+            <Slider
+              value={qty}
+              onChange={(_, v) => setQty(clampUI(Array.isArray(v) ? v[0] : v, effectiveMax))}
+              min={0}
+              max={effectiveMax}
+              step={1}
+              valueLabelDisplay={isMobile ? 'off' : 'auto'}
+              disabled={
+                disabledAll ||
+                buttonState === BUTTON_STATES.PROCESSING ||
+                buttonState === BUTTON_STATES.SUCCESS
+              }
+              aria-label="Quantity slider"
+              marks={
+                isMobile
+                  ? false
+                  : [
+                      { value: 0, label: '0' },
+                      { value: effectiveMax, label: String(effectiveMax) },
+                    ]
+              }
+              style={{ marginBottom: isMobile ? 0.5 : 20 }}
+            />
+
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: '1fr auto' },
+                alignItems: 'center',
+                gap: 2,
+                p: isMobile ? 1.5 : 2,
+                borderRadius: 0,
+                border: `1px dashed ${alpha(theme.palette.primary.main, 0.35)}`,
+                bgcolor: alpha(theme.palette.primary.main, 0.06),
+              }}
             >
-              {!meetsMinimum && qty > 0 && (
-                <Typography variant="caption" sx={{ color: theme.palette.warning.main, mr: 1 }}>
+              <Stack direction="row" spacing={3} alignItems="center">
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <ConfirmationNumberOutlinedIcon fontSize="small" color="primary" />
+                  <Box>
+                    <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                      Tickets
+                    </Typography>
+                    <Typography sx={{ fontFamily: 'monospace', fontWeight: 500 }}>{qty}</Typography>
+                  </Box>
+                </Stack>
+
+                <Stack>
+                  <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                    Price / ticket
+                  </Typography>
+                  <Typography sx={{ fontFamily: 'monospace', fontWeight: 500 }}>
+                    {formatQubicAmount(pricePerTicket)} QUBIC
+                  </Typography>
+                </Stack>
+
+                {!isMobile && (
+                  <Stack>
+                    <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                      Total
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'monospace',
+                        fontWeight: 700,
+                        letterSpacing: '.04em',
+                        color: insufficient ? theme.palette.error.main : theme.palette.primary.main,
+                      }}
+                    >
+                      {formatQubicAmount(total)} QUBIC
+                    </Typography>
+                  </Stack>
+                )}
+              </Stack>
+
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                justifyContent={{ xs: 'flex-start', sm: 'flex-end' }}
+                sx={{ display: { xs: 'none', sm: 'flex' } }}
+              >
+                {!meetsMinimum && qty > 0 && buttonState === BUTTON_STATES.INITIAL && (
+                  <Typography variant="caption" sx={{ color: theme.palette.warning.main, mr: 1 }}>
+                    Need at least {minTickets}
+                  </Typography>
+                )}
+                {insufficient && buttonState === BUTTON_STATES.INITIAL && (
+                  <Typography variant="caption" sx={{ color: theme.palette.error.main, mr: 1 }}>
+                    Insufficient balance
+                  </Typography>
+                )}
+                <Button
+                  size="large"
+                  variant="contained"
+                  startIcon={buttonConfig.icon}
+                  onClick={handleConfirm}
+                  disabled={isButtonDisabled}
+                  sx={{
+                    fontWeight: 600,
+                    fontFamily: 'monospace',
+                    fontSize: '1rem',
+                    px: 5,
+                    py: 1.5,
+                    borderRadius: 0,
+                    letterSpacing: '.06em',
+                    borderWidth: 2,
+                    minWidth: 218,
+                    bgcolor: buttonConfig.bgcolor,
+                    color: buttonConfig.textColor,
+                    '&:hover': {
+                      bgcolor: alpha(buttonConfig.bgcolor, 0.9),
+                    },
+                    '&.Mui-disabled': {
+                      bgcolor: alpha(buttonConfig.bgcolor, 0.5),
+                      color: alpha(buttonConfig.textColor, 0.7),
+                    },
+                    transition: 'all 0.3s ease-in-out',
+                  }}
+                >
+                  {buttonConfig.text}
+                </Button>
+              </Stack>
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
+              <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                Min {minTickets} • Max {maxTickets}
+                {typeof effectiveMax === 'number' ? ` • Max affordable ${effectiveMax}` : ''}
+              </Typography>
+            </Box>
+          </Stack>
+        </DialogContent>
+
+        <DialogActions
+          sx={{
+            position: { xs: 'fixed', sm: 'static' },
+            bottom: 0,
+            left: 0,
+            right: 0,
+            p: { xs: 2, sm: 3 },
+            borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+            bgcolor: alpha(theme.palette.background.paper, 0.9),
+            backdropFilter: 'saturate(180%) blur(8px)',
+            display: { xs: 'flex', sm: 'none' },
+          }}
+        >
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ width: '100%' }}
+          >
+            <Box>
+              <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                Total
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  letterSpacing: '.04em',
+                  color: insufficient ? theme.palette.error.main : theme.palette.primary.main,
+                }}
+              >
+                {formatQubicAmount(total)} QUBIC
+              </Typography>
+              {!meetsMinimum && qty > 0 && buttonState === BUTTON_STATES.INITIAL && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: theme.palette.warning.main, display: 'block' }}
+                >
                   Need at least {minTickets}
                 </Typography>
               )}
-              {insufficient && (
-                <Typography variant="caption" sx={{ color: theme.palette.error.main, mr: 1 }}>
+              {insufficient && buttonState === BUTTON_STATES.INITIAL && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: theme.palette.error.main, display: 'block' }}
+                >
                   Insufficient balance
                 </Typography>
               )}
-              <Button
-                size="large"
-                variant="contained"
-                color="primary"
-                startIcon={<RocketLaunchIcon />}
-                onClick={handleConfirm}
-                disabled={!canBuy}
-                sx={{
-                  fontWeight: 600,
-                  fontFamily: 'monospace',
-                  fontSize: '1rem',
-                  px: 5,
-                  py: 1.5,
-                  borderRadius: 0,
-                  letterSpacing: '.06em',
-                  borderWidth: 2,
-                }}
-              >
-                {isProcessing ? 'Processing...' : 'Buy Tickets'}
-              </Button>
-            </Stack>
-          </Box>
+            </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
-            <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
-              Min {minTickets} • Max {maxTickets}
-              {typeof effectiveMax === 'number' ? ` • Max affordable ${effectiveMax}` : ''}
-            </Typography>
-          </Box>
-        </Stack>
-      </DialogContent>
-
-      <DialogActions
-        sx={{
-          position: { xs: 'fixed', sm: 'static' },
-          bottom: 0,
-          left: 0,
-          right: 0,
-          p: { xs: 2, sm: 3 },
-          borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
-          bgcolor: alpha(theme.palette.background.paper, 0.9),
-          backdropFilter: 'saturate(180%) blur(8px)',
-          display: { xs: 'flex', sm: 'none' },
-        }}
-      >
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ width: '100%' }}
-        >
-          <Box>
-            <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
-              Total
-            </Typography>
-            <Typography
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handleConfirm}
+              startIcon={buttonConfig.icon}
+              disabled={isButtonDisabled}
               sx={{
+                fontWeight: 600,
                 fontFamily: 'monospace',
-                fontWeight: 700,
-                letterSpacing: '.04em',
-                color: insufficient ? theme.palette.error.main : theme.palette.primary.main,
+                fontSize: '1rem',
+                px: 5,
+                py: 1.5,
+                borderRadius: 0,
+                letterSpacing: '.06em',
+                borderWidth: 2,
+                minWidth: 120,
+                bgcolor: buttonConfig.bgcolor,
+                color: buttonConfig.textColor,
+                '&:hover': {
+                  bgcolor: alpha(buttonConfig.bgcolor, 0.9),
+                },
+                '&.Mui-disabled': {
+                  bgcolor: alpha(buttonConfig.bgcolor, 0.5),
+                  color: alpha(buttonConfig.textColor, 0.7),
+                },
+                transition: 'all 0.3s ease-in-out',
               }}
             >
-              {formatQubicAmount(total)} QUBIC
-            </Typography>
-            {!meetsMinimum && qty > 0 && (
-              <Typography
-                variant="caption"
-                sx={{ color: theme.palette.warning.main, display: 'block' }}
-              >
-                Need at least {minTickets}
-              </Typography>
-            )}
-            {insufficient && (
-              <Typography
-                variant="caption"
-                sx={{ color: theme.palette.error.main, display: 'block' }}
-              >
-                Insufficient balance
-              </Typography>
-            )}
-          </Box>
-
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={handleConfirm}
-            startIcon={<RocketLaunchIcon />}
-            disabled={!canBuy}
-            sx={{
-              fontWeight: 600,
-              fontFamily: 'monospace',
-              fontSize: '1rem',
-              px: 5,
-              py: 1.5,
-              borderRadius: 0,
-              letterSpacing: '.06em',
-              borderWidth: 2,
-            }}
-          >
-            {isProcessing ? 'Processing...' : 'Buy'}
-          </Button>
-        </Stack>
-      </DialogActions>
-    </Dialog>
+              {buttonConfig.text}
+            </Button>
+          </Stack>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
 
@@ -566,7 +740,7 @@ BuyTicketsModal.propTypes = {
   onClose: PropTypes.func,
   onConfirm: PropTypes.func.isRequired,
   isProcessing: PropTypes.bool,
-  // accepte number | string; BigInt
+  // accept number | string; BigInt
   balanceQubic: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   defaultQuantity: PropTypes.number,
   pricePerTicket: PropTypes.number,
