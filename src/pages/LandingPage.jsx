@@ -48,7 +48,7 @@ const features = [
 export default function LandingPage() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { balance, connected, toggleConnectModal } = useQubicConnect();
+  const { balance, connected, toggleConnectModal, getTick } = useQubicConnect();
   const [openBuy, setOpenBuy] = useState(false);
 
   const handleGetTicket = () => {
@@ -59,8 +59,10 @@ export default function LandingPage() {
     setOpenBuy(true);
   };
 
-  const handleConfirmBuy = (qty) => {
+  const handleConfirmBuy = async (qty) => {
     console.log('Buy', qty, 'tickets');
+    const tick = await getTick();
+    return { success: tick !== null && tick !== undefined, tick };
   };
 
   return (

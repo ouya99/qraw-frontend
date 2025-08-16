@@ -234,9 +234,18 @@ export default function StartPage() {
       // contractIndexes,
     };
 
-    const result = await executeTransactionWithWallet(txDetails);
-    console.log(result);
-    setTxStatus(result ? result.success : false);
+    try {
+      const result = await executeTransactionWithWallet(txDetails);
+      const tickStatus = await getTick();
+      console.log('Transaction result:', result);
+      const success = result?.success && tickStatus !== null && tickStatus !== undefined;
+      setTxStatus(success);
+      return { ...result, success, tick: tickStatus };
+    } catch (error) {
+      console.error(error);
+      setTxStatus(false);
+      return { success: false };
+    }
   };
 
   return (

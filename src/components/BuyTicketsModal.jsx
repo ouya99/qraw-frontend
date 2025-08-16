@@ -155,7 +155,7 @@ function BuyTicketsModal({
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!canBuy) return;
 
     if (buttonState === BUTTON_STATES.INITIAL) {
@@ -172,15 +172,23 @@ function BuyTicketsModal({
 
       setButtonState(BUTTON_STATES.PROCESSING);
 
-      setTimeout(() => {
-        setButtonState(BUTTON_STATES.SUCCESS);
-        onConfirm?.(qty);
+      try {
+        const result = await onConfirm?.(qty);
 
-        setTimeout(() => {
-          onClose?.();
+        if (result?.success) {
+          setButtonState(BUTTON_STATES.SUCCESS);
+
+          setTimeout(() => {
+            onClose?.();
+            resetButtonState();
+          }, 2000);
+        } else {
           resetButtonState();
-        }, 2000);
-      }, 500);
+        }
+      } catch (error) {
+        console.error('Ticket purchase failed:', error);
+        resetButtonState();
+      }
     }
   };
 
@@ -205,12 +213,12 @@ function BuyTicketsModal({
         return {
           text: 'Processing...',
           icon: (
-          <CircularProgress
-            size={20}                  // taille du spinner
-            thickness={5}              // épaisseur du trait
-            sx={{ color: theme.palette.common.white }} // couleur adaptée au bouton
-          />
-        ),
+            <CircularProgress
+              size={20} // taille du spinner
+              thickness={5} // épaisseur du trait
+              sx={{ color: theme.palette.common.white }} // couleur adaptée au bouton
+            />
+          ),
           color: 'primary',
           bgcolor: theme.palette.primary.main,
           textColor: theme.palette.primary.contrastText,
