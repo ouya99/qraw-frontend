@@ -4,7 +4,7 @@ export const HEADERS = {
 };
 
 export const MIN_BALANCE_THRESHOLD = 100;
-export const QTRY_CONTRACT_INDEX = 2;
+export const QDRAW_CONTRACT_INDEX = 15;
 export const LOG_DEBUG = false;
 export const makeJsonData = (contractIndex, inputType, inputSize, requestData) => {
   return {
@@ -66,6 +66,3 @@ export const debuglog = (...message) => {
     console.log(...message);
   }
 };
-
-// export const externalJsonAssetUrl = 'https://91.210.226.146'
-export const externalJsonAssetUrl = 'https://api.quottery.org';

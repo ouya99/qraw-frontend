@@ -40,7 +40,7 @@ const Footer = () => {
         <Divider orientation="vertical" flexItem sx={{ mx: 1, bgcolor: theme.palette.divider }} />
 
         <Link
-          href="https://github.com/qubic/quottery-frontend/wiki"
+          href="https://github.com/qubic/qdraw-frontend/wiki"
           target="_blank"
           rel="noreferrer"
           underline="hover"

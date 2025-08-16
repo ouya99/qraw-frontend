@@ -1,4 +1,4 @@
-# quottery-frontend
+# qdraw-frontend
 
 Frontend for the Qdraw Smart Contract.
 
