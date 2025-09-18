@@ -65,10 +65,10 @@ export async function queryContract(
     }
 
     let url = `${endpoint}/v1/querySmartContract`;
-    if (process.env.NODE_ENV === 'development' && endpoint.includes('rpc.qubic.org')) {
-      // Only use proxy for mainnet endpoint to avoid CORS
-      url = `/api/proxy/v1/querySmartContract`;
-    }
+    // if (process.env.NODE_ENV === 'development' && endpoint.includes('rpc.qubic.org')) {
+    //   // Only use proxy for mainnet endpoint to avoid CORS
+    //   url = `/api/proxy/v1/querySmartContract`;
+    // }
 
     console.log('[contractApi] Making request to URL:', url);
     console.log('[contractApi] Request payload:', JSON.stringify(queryData, null, 2));

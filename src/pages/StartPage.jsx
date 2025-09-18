@@ -118,7 +118,7 @@ export default function StartPage() {
     const fetchInfo = async () => {
       try {
         const result = await queryContract(
-          'http://67.222.157.63:8000',
+          'https://rpc.qubic.org',
           15, // QDRAW
           2, // getInfo
           {},
@@ -167,7 +167,7 @@ export default function StartPage() {
     const fetchParticipants = async () => {
       try {
         const result = await queryContract(
-          'http://67.222.157.63:8000',
+          'https://rpc.qubic.org',
           15, // QDRAW
           3, // getParticipants
           {},
